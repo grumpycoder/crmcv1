@@ -1,0 +1,150 @@
+﻿<script src="Scripts/keyboard.js"></script>
+
+<div class="content">
+
+    <div class="center-block">
+        <div style="width: 658px; margin: 91px auto 0 auto;" class="text-justify">
+            <span>To find your name, type either your full name or just your last name. Then touch "CONTINUE".</span>
+        </div>
+    </div>
+
+    <div class="center-block">
+
+        <form name="vm.searchForm" novalidate="" id="searchForm" role="form" style="width: 658px; margin: 30px auto 0 auto;">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <input type="text" class="form-control" id="inputSearchText" name="inputSearchText"
+                           ng-model="vm.searchText"
+                           placeholder="Search"
+                           ng-pattern="/^[a-zA-Z ]+$/"
+                           required>
+                    <div ng-messages="vm.searchForm.inputSearchText.$error" ng-show="vm.searchForm.inputSearchText.$invalid && (vm.searchForm.inputSearchText.$touched || vm.searchForm.inputSearchText.$dirty)">
+                        <span class="errorMessage arrow_box" ng-message="required" class="text-danger">Required</span>
+                        <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid characters</span>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+
+    </div>
+
+    <div class="center-block">
+        <div class="keyboard-container" style="margin: 60px auto;">
+            <ul id="keyboard">
+                <li class="symbol">
+                    <span class="off">`</span><span class="on">~</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">1</span><span class="on">!</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">2</span><span class="on">@</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">3</span><span class="on">#</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">4</span><span class="on">$</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">5</span><span class="on">%</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">6</span><span class="on">^</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">7</span><span class="on">&amp;</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">8</span><span class="on">*</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">9</span><span class="on">(</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">0</span><span class="on">)</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">-</span><span class="on">_</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">=</span><span class="on">+</span>
+                </li>
+                <li class="delete lastitem">DEL</li>
+                <li class="tab">TAB</li>
+                <li class="letter">q</li>
+                <li class="letter">w</li>
+                <li class="letter">e</li>
+                <li class="letter">r</li>
+                <li class="letter">t</li>
+                <li class="letter">y</li>
+                <li class="letter">u</li>
+                <li class="letter">i</li>
+                <li class="letter">o</li>
+                <li class="letter">p</li>
+                <li class="symbol">
+                    <span class="off">[</span><span class="on">{</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">]</span><span class="on">}</span>
+                </li>
+                <li class="symbol lastitem">
+                    <span class="off">\</span><span class="on">|</span>
+                </li>
+                <li class="capslock">CAPS LOCK</li>
+                <li class="letter">a</li>
+                <li class="letter">s</li>
+                <li class="letter">d</li>
+                <li class="letter">f</li>
+                <li class="letter">g</li>
+                <li class="letter">h</li>
+                <li class="letter">j</li>
+                <li class="letter">k</li>
+                <li class="letter">l</li>
+                <li class="symbol">
+                    <span class="off">;</span><span class="on">:</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">'</span><span class="on">&quot;</span>
+                </li>
+                <li class="return lastitem">RETURN</li>
+                <li class="shift clear-left">SHIFT</li>
+                <li class="letter">z</li>
+                <li class="letter">x</li>
+                <li class="letter">c</li>
+                <li class="letter">v</li>
+                <li class="letter">b</li>
+                <li class="letter">n</li>
+                <li class="letter">m</li>
+                <li class="symbol">
+                    <span class="off">,</span><span class="on">&lt;</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">.</span><span class="on">&gt;</span>
+                </li>
+                <li class="symbol">
+                    <span class="off">/</span><span class="on">?</span>
+                </li>
+                <li class="shift lastitem">SHIFT</li>
+                <li class="space lastitem">SPACE</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="buttonRow" style="width: 658px;">
+        <button class="btn btn-danger pull-left" ng-click="vm.goBack()">
+            <i class="fa fa-angle-left"></i>
+            GO BACK
+        </button>
+        <button class="btn btn-danger pull-right"
+                
+                ng-click="vm.search()">
+            CONTINUE <i class="fa fa-angle-right"></i>
+        </button>
+    </div>
+</footer>

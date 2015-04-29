@@ -1,0 +1,314 @@
+﻿/*MY ANIMATION STYLINGS*/
+/*.ng-hide-remove {
+    animation: bounceIn 2.5s;
+}
+
+.ng-hide-add {
+    animation: flipOutX 2.5s;
+    display: block !important;
+}
+.myanimation.ng-enter {
+    animation: fadeInRight 0.5s;
+}*/
+
+.myanimation.ng-enter {
+    -webkit-transition: all 1.5s linear;
+    -moz-transition: all 1.5s linear;
+    -ms-transition: all 1.5s linear;
+    -o-transition: all 1.5s linear;
+    transition: all 1.5s linear;
+    -ms-opacity: 0;
+    opacity: 0;
+    /*-webkit-animation: dissolve-in;
+    -moz-animation: dissolve-in;
+    -webkit-animation-timing-function: ease-in-out;
+    -moz-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 0.5s !important;
+    -moz-animation-duration: 0.5s !important;
+    animation: dissolve-in;*/
+}
+
+.myanimation.ng-leave {
+    /*-webkit-transform: translateX(0%);
+    -webkit-animation: dissolve-out;
+    -moz-transform: translateX(0%);
+    -moz-animation: dissolve-out;
+    -webkit-animation-timing-function: ease-in-out;
+    -moz-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 0.1s !important;
+    -moz-animation-duration: 0.1s !important;
+    animation: dissolve-out;*/
+}
+
+.myanimation.ng-enter-active {
+    -ms-opacity: 1;
+    opacity: 1;
+}
+
+.myanimation.ng-leave.ng-leave-active {
+    -ms-opacity: 0;
+    opacity: 0;
+}
+
+/* ANIMATION STYLINGS
+============================================================================= */
+
+/* ANIMATIONS
+============================================================================= */
+/* slide out to the left */
+@keyframes slideOutLeft {
+    to {
+        transform: translateX(-200%);
+    }
+}
+
+@-moz-keyframes slideOutLeft {
+    to {
+        -moz-transform: translateX(-200%);
+    }
+}
+
+@-webkit-keyframes slideOutLeft {
+    to {
+        -webkit-transform: translateX(-200%);
+    }
+}
+
+/* slide in from the right */
+@keyframes slideInRight {
+    from {
+        transform: translateX(200%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@-moz-keyframes slideInRight {
+    from {
+        -moz-transform: translateX(200%);
+    }
+
+    to {
+        -moz-transform: translateX(0);
+    }
+}
+
+@-webkit-keyframes slideInRight {
+    from {
+        -webkit-transform: translateX(200%);
+    }
+
+    to {
+        -webkit-transform: translateX(0);
+    }
+}
+
+
+/*TRANSITIONS*/
+.at-view-fade-in.ng-enter {
+    -webkit-transition-property: opacity;
+    -moz-transition-property: opacity;
+    -o-transition-property: opacity;
+    -ms-transition-property: opacity;
+    transition-property: opacity;
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+    -ms-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    -ms-opacity: 0;
+    opacity: 0;
+}
+
+.at-view-fade-in.ng-enter-active {
+    -ms-opacity: 1;
+    opacity: 1;
+}
+
+.at-view-fade-out.ng-leave {
+    -webkit-transition-property: opacity;
+    -moz-transition-property: opacity;
+    -o-transition-property: opacity;
+    -ms-transition-property: opacity;
+    transition-property: opacity;
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+    -ms-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -ms-opacity: 1;
+    opacity: 1;
+}
+
+.at-view-fade-out.ng-leave-active {
+    -ms-opacity: 0;
+    opacity: 0;
+}
+
+/*MY KEYFRAMES*/
+
+@keyframes dissolve-out {
+    0% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        opacity: 0.2;
+    }
+
+    60% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes dissolve-in {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 0;
+    }
+
+    60% {
+        opacity: 0.2;
+    }
+
+    80% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes dissolve-out {
+    0% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        opacity: 0.2;
+    }
+
+    60% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes dissolve-in {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 0;
+    }
+
+    60% {
+        opacity: 0.2;
+    }
+
+    80% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes dissolve-out {
+    0% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        opacity: 0.2;
+    }
+
+    60% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@-moz-keyframes dissolve-in {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 0;
+    }
+
+    60% {
+        opacity: 0.2;
+    }
+
+    80% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+

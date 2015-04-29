@@ -1,0 +1,78 @@
+﻿<!--<style>
+    .gridStyle {
+        border: 1px solid rgb(212, 212, 212);
+        width: 100%;
+        height: 300px;
+    }
+</style>-->
+
+<div class="content">
+
+    <div class="center-block">
+        <div style="width: 870px; margin: 50px auto 0 auto;">
+            <span>To select your name, touch it in the list below. Then touch "CONTINUE".</span>
+        </div>
+    </div>
+
+    <div class="center-block">
+        <div class="grid">
+            <div class="table-container">
+                <table class="ng-table-rowselected">
+                    <tr ng-repeat="name in vm.names" ng-click="name.$selected = !name.$selected; vm.toggleName(name)" ng-multiple="false" ng-class="{'selected': name.$selected}">
+                        <td style="text-align: left;">{{name.firstname}} {{name.lastname}}</td>
+                        <td style="text-align: right">{{name.zipcode}}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <div class="text-center" >
+            <pagination ng-model="vm.paging.currentPage"
+                        ng-change="vm.pageChanged(page)"
+                        total-items="vm.namesFilterCount"
+                        max-size="vm.paging.maxPagesToShow"
+                        page="vm.paging.currentPage"
+                        class="pagination-sm custom"
+                        items-per-page="vm.paging.pageSize">
+            </pagination>
+        </div>
+    </div>
+    <div class="center-block">
+        <div style="width: 680px; margin: 0 auto; font-size: 22px;" class="text-center">
+            <span>If you are unable to find your name, you can return to the home screen to take the pledge and add
+            your name to the list.</span>
+        </div>
+    </div>
+</div>
+
+
+<footer>
+    <div class="buttonRow" style="width: 850px;">
+        <div class="pull-left">
+            <button class="btn btn-danger" ng-click="vm.goBack()">
+                <i class="fa fa-angle-left"></i> GO BACK
+            </button>
+        </div>
+        <div class="pull-right">
+            <button class="btn btn-danger"
+                    ng-click="vm.finish()">
+                CONTINUE <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-danger btn-small"
+                    ng-click="vm.gotoHome()">
+                HOME
+            </button>
+        </div>
+    </div>
+</footer>
+
+
+<div class="well well-sm code-preview">
+    <pre>
+            {{vm.person}}
+    </pre>
+</div>
+

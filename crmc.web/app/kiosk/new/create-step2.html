@@ -1,0 +1,78 @@
+﻿<div class="content">
+    
+    <div class="center-block">
+        <div style="width: 808px; margin: 169px auto 0 auto;" class="text-justify">
+            <span>
+                By Placing my name on the Wall of Tolerance, I pledge to take a stand against hate,
+                injustice and intolerance. I will work in my daily life for justice, equality and human rights
+                &mdash; the ideals for which the Civil Rights martyrs died.
+            </span>
+        </div>
+    </div>
+
+    <div class="center-block">
+        <div style="margin-top: 80px;">
+            <p class="displayName text-capitalize">{{vm.person.firstname}} {{vm.person.lastname}}</p>
+        </div>
+    </div>
+
+    <div class="center-block" style="margin-top: 40px;">
+        <button class="btn btn-primary" id="pledgeButton" ng-click="vm.save()">I Pledge</button>
+    </div>
+
+</div>
+
+<footer>
+    <div class="buttonRow" style="width: 808px;">
+        <button class="btn btn-danger pull-left" ng-click="vm.goBack()">
+            <i class="fa fa-angle-left"></i> GO BACK
+        </button>
+        <button class="btn btn-danger pull-right"
+                ng-click="vm.cancel()">
+            START OVER <i class="fa fa-angle-right"></i>
+        </button>
+    </div>
+</footer>
+
+
+<!--
+<div id="create-step2">
+
+    <div class="content">
+        <span>
+            By Placing my name on the Wall of Tolerance, I pledge to take a stand against hate,
+            injustice and intolerance. I will work in my daily life for justice, equality and human rights
+            -- the ideals for which the Civil Rights martyrs died.
+        </span>
+    </div>
+
+    <section class="text-center">
+        <p class="displayName text-capitalize">{{vm.person.firstname}} {{vm.person.lastname}}</p>
+    </section>
+
+    <div class="text-center">
+        <button class="btn btn-primary" id="pledgeButton" ng-click="vm.save()">I Pledge</button>
+    </div>
+
+    <div class="center-block" style="width: 780px;">
+        <div class="btnRow">
+                <button class="btn btn-danger pull-left" ng-click="vm.goBack()">
+                    <i class="fa fa-angle-left"></i> GO BACK
+                </button>
+                <button class="btn btn-danger pull-right"
+                        ng-click="vm.cancel()">
+                    START OVER <i class="fa fa-angle-right"></i>
+                </button>
+        </div>
+    </div>
+</div>
+-->
+
+
+
+
+<div class="well well-sm code-preview">
+    <pre>
+    {{vm.person}}
+</pre>
+</div>

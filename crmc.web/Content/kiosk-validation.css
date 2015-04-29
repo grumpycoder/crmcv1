@@ -1,0 +1,156 @@
+﻿
+
+.validation-success {
+    -ms-opacity: 1;
+    opacity: 1;
+    display: block;
+    position: absolute;
+    right: -7.2px;
+    bottom: -7.2px;
+    font-size: 28.8px;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    -ms-border-radius: 36px;
+    border-radius: 36px;
+    color: #62b14c;
+    -webkit-transition: all ease-out 0.32s;
+    -moz-transition: all ease-out 0.32s;
+    -ms-transition: all ease-out 0.32s;
+    -o-transition: all ease-out 0.32s;
+    transition: all ease-out 0.32s;
+}
+
+    .validation-success:after {
+        display: block;
+        content: '\e013';
+        font-family: 'Glyphicons Halflings';
+    }
+
+    .validation-success.ng-hide {
+        -webkit-transition-delay: 0s;
+        -moz-transition-delay: 0s;
+        -ms-transition-delay: 0s;
+        -o-transition-delay: 0s;
+        transition-delay: 0s;
+        -webkit-transition: all ease-out 0.12s;
+        -moz-transition: all ease-out 0.12s;
+        -ms-transition: all ease-out 0.12s;
+        -o-transition: all ease-out 0.12s;
+        transition: all ease-out 0.12s;
+        -ms-opacity: 0;
+        opacity: 0;
+        -webkit-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+
+.ng-hide-remove li {
+    -ms-opacity: 0;
+    opacity: 0;
+}
+
+.validation {
+    /*color: #fff;
+    margin: 0;
+    position: relative;
+    font-size: 14px;
+    overflow: visible;
+    background: #c00640;
+*/
+    margin: 0;
+    position: relative;
+    font-size: 14px;
+    overflow: visible;
+    border: solid 1px transparent;
+    background: transparent;
+}
+
+    .validation ul {
+        display: block;
+        overflow: hidden;
+        /*border: solid 1px #eee8aa;*/
+        margin: 0;
+        padding: 0;
+    }
+
+    .validation li {
+        display: block;
+        line-height: 1;
+        background: #c00640;
+        position: absolute;
+        right: -4px;
+        top: -28px;
+        text-align: center;
+        font-weight: bold;
+        padding: 2px 10px;
+        color: #fff;
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+        -webkit-transition: all ease-out 0.2s;
+        -moz-transition: all ease-out 0.2s;
+        -ms-transition: all ease-out 0.2s;
+        -o-transition: all ease-out 0.2s;
+        transition: all ease-out 0.2s;
+        -ms-opacity: 1;
+        opacity: 1;
+        -webkit-transition-delay: 0s;
+        -moz-transition-delay: 0s;
+        -ms-transition-delay: 0s;
+        -o-transition-delay: 0s;
+        transition-delay: 0s;
+    }
+
+        .validation li.ng-enter {
+            -ms-opacity: 0;
+            opacity: 0;
+            -webkit-transform: rotate(20deg);
+            -moz-transform: rotate(20deg);
+            -ms-transform: rotate(20deg);
+            -o-transform: rotate(20deg);
+            transform: rotate(20deg);
+            right: -20px;
+        }
+
+        .validation li.ng-leave {
+            -webkit-transition: all ease-in 0s;
+            -moz-transition: all ease-in 0s;
+            -ms-transition: all ease-in 0s;
+            -o-transition: all ease-in 0s;
+            transition: all ease-in 0s;
+            -ms-opacity: 0;
+            opacity: 0;
+            outline: 30px solid red;
+        }
+
+*:focus + .validation li {
+    background-color: #63bff8 !important;
+}
+
+input.ng-touched.ng-invalid:not(.ng-valid), textarea.ng-touched.ng-invalid:not(.ng-valid), select.ng-touched.ng-invalid:not(.ng-valid) {
+    border-color: #c00640;
+}
+
+input:focus, input:focus.ng-touched.ng-invalid:not(.ng-valid), textarea:focus, textarea:focus.ng-touched.ng-invalid:not(.ng-valid), select:focus, select:focus.ng-touched.ng-invalid:not(.ng-valid) {
+    border-color: #63bff8;
+}
+
+input.ng-valid-required.ng-valid:not(.ng-invalid), textarea.ng-valid-required.ng-valid:not(.ng-invalid), select.ng-valid-required.ng-valid:not(.ng-invalid) {
+    border-color: #62b14c;
+}
+
+form[class*="ng-invalid"] button.btn {
+    background: #63bff8;
+    transition: none;
+}
+
+form button.btn {
+    transition: all ease-in 0.5s;
+    background: #62b14c;
+}

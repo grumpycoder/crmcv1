@@ -15,11 +15,11 @@
                 <div class="col-md-12">
 
                     <input type="text" class="form-control" id="inputSearchText" name="inputSearchText"
-                           ng-model="vm.searchText"
+                           ng-model="vm.peopleSearch"
                            placeholder="Search"
                            ng-pattern="/^[a-zA-Z ]+$/"
                            required>
-                    <div ng-messages="vm.searchForm.inputSearchText.$error" ng-show="vm.searchForm.inputSearchText.$invalid && (vm.searchForm.inputSearchText.$touched || vm.searchForm.inputSearchText.$dirty)">
+                    <div ng-messages="vm.searchForm.inputSearchText.$error" ng-show="vm.showValidationErrors">
                         <span class="errorMessage arrow_box" ng-message="required" class="text-danger">Required</span>
                         <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid characters</span>
                     </div>

@@ -2,12 +2,14 @@
     'use strict';
 
     var serviceId = 'datacontext';
-    angular.module('app').factory(serviceId, ['common', 'config', 'entityManagerFactory', datacontext]);
+//    angular.module('app').factory(serviceId, ['common', 'config', 'entityManagerFactory', datacontext]);
 
-    function datacontext(common, config, emFactory) {
+    angular.module('app').factory(serviceId, ['common', 'entityManagerFactory', 'config', datacontext]);
+
+    function datacontext(common, emFactory, config) {
         var EntityQuery = breeze.EntityQuery;
         var Predicate = breeze.Predicate;
-        var events = config.events;
+//        var events = config.events;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(serviceId);
         var logError = getLogFn(serviceId, 'error');
@@ -35,14 +37,18 @@
             markDeleted: markDeleted,
             rejectChanges: rejectChanges,
             prime: prime,
-            save: save
+            save: save,
+            loadMetadata: loadMetadata
         };
 
         return service;
 
-
         function create(entity, initValues) {
-            return manager.createEntity(entity, initValues);
+//            manager.fetchMetadata().then(function() {
+                var e = manager.createEntity(entity, initValues);
+//                log(e);
+                return e;
+//            })
         }
 
         function getAppSettings() {
@@ -65,7 +71,7 @@
                                      .using(manager)
                                      .executeLocally();
 
-                log('Retrieved from local cache', null, false);
+//                log('Retrieved from local cache', null, false);
                 return $q.when(censors);
             }
 
@@ -78,13 +84,31 @@
             function success(data) {
                 censors = data.results;
                 _areCensorsLoaded(true);
-                log('Retrieved [Censors] from remote data source', censors.length, false);
+//                log('Retrieved [Censors] from remote data source', censors.length, false);
                 return censors;
             }
         }
 
         function markDeleted(entity) {
             return $q.when(entity.entityAspect.setDeleted());
+        }
+
+        function loadMetadata() {
+            if (primePromise) return primePromise;
+
+            primePromise = $q.all([])
+              .then(fetchMetadata)
+              .then(success);
+            return primePromise;
+
+            function success() {
+                log('Primed the data', null, false);
+            }
+
+            function fetchMetadata() {
+                manager.fetchMetadata();
+            }
+
         }
 
         function prime() {
@@ -212,7 +236,7 @@
 
         function _daysPredicate(filterValue) {
             var dateValue = moment().subtract(parseInt(filterValue), 'days').calendar()
-            log('dateValue', dateValue);
+            log('dateValue', dateValue, null);
             return  Predicate.create('dateCreated', '>=', dateValue);
         }
 
@@ -228,7 +252,7 @@
 
         function _queryFailed(error) {
             var msg = config.appErrorPrefix + 'Error retrieving data.' + error.message;
-            logError(msg, error);
+            logError(msg, error, null);
             throw error;
         }
 

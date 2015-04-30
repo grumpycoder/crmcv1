@@ -8,11 +8,11 @@
     <link href="~/Content/bootstrap.darkly.css" rel="stylesheet" />
     <link href="~/Content/font-awesome.css" rel="stylesheet" />
     <link href="~/Content/toastr.css" rel="stylesheet" />
-@*    <link href="~/Content/slider.css" rel="stylesheet" />*@
+    @*    <link href="~/Content/slider.css" rel="stylesheet" />*@
     <link href="~/Content/keyboard.css" rel="stylesheet" />
-@*    <link href="~/Content/animate.css" rel="stylesheet" />*@
+    @*    <link href="~/Content/animate.css" rel="stylesheet" />*@
     <link href="~/Content/kiosk.css" rel="stylesheet" />
-@*    <link href="~/Content/kiosk-animations.css" rel="stylesheet" />*@
+    @*    <link href="~/Content/kiosk-animations.css" rel="stylesheet" />*@
 </head>
 <body ng-app="app">
 
@@ -33,24 +33,34 @@
     <script src="~/Scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
     <script src="~/Scripts/toastr.min.js"></script>
     <script src="~/Scripts/q.js"></script>
-        <script src="~/Scripts/keyboard.js"></script>
+    <script src="~/scripts/breeze.debug.js"></script>
+    <script src="~/scripts/breeze.directives.js"></script>
+    <script src="~/Scripts/breeze.bridge.angular.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
+@*    <script src="~/scripts/breeze.saveErrorExtensions.js"></script>*@
+    <script src="~/Scripts/keyboard.js"></script>
 
-    @*BOOTSTRAP*@
+    <!--Bootstrappping-->
     <script src="~/app/kiosk/app.js"></script>
+    <script src="~/app/config.js"></script>
+    <script src="~/app/config.exceptionHandler.js"></script>
 
+    <!--Common Modules-->
     <script src="~/app/common/common.js"></script>
     <script src="~/app/common/logger.js"></script>
-    <script src="~/app/config.js"></script>
-    <script src="~/app/services/datacontext.js"></script>
-    <script src="~/app/services/directives.js"></script>
 
-
+    <!-- app -->
     <script src="~/app/kiosk/welcome.js"></script>
     @*<script src="~/app/kiosk/new/createname.js"></script>*@
     @*    <script src="~/app/kiosk/search/search.js"></script>*@
     <script src="~/app/kiosk/find/find.controller.js"></script>
     <script src="~/app/kiosk/create/create.controller.js"></script>
-        <script src="~/app/services/entityManagerFactory.js"></script>
+
+    <!-- app Services -->
+    <script src="~/app/services/datacontext.js"></script>
+    <script src="~/app/services/directives.js"></script>
+    <script src="~/app/services/entityManagerFactory.js"></script>
+    <script src="~/app/services/model.js"></script>
 
 </body>
 </html>

@@ -2,15 +2,18 @@
     "use strict";
     var app = angular.module('app', [
         //Angular Modules
+        'ngRoute',
         'ngAnimate',
         'ui.router',
         'ngCookies',
         'ngMessages',
         //Custom Modules
-//        'common',
+        'common',
 
         //3rd Party Modules
-        'ui.bootstrap'
+        'ui.bootstrap',
+        'breeze.angular',
+        'breeze.directives'
     ])
 
     app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
@@ -56,52 +59,7 @@
                    url: 'review',
                    templateUrl: 'app/kiosk/create/review.html'
                })
-
-
-//            .state('create', {
-//                abstract: true,
-//                url: '/create',
-//                templateUrl: 'app/kiosk/new/create-start.html',
-//                controller: 'createName',
-//                controllerAs: 'vm'
-//            })
-//               .state('create.step1', {
-//                   url: 'step1',
-//                   templateUrl: 'app/kiosk/new/create-step1.html'
-//               })
-//               .state('create.step2', {
-//                   url: 'step2',
-//                   templateUrl: 'app/kiosk/new/create-step2.html'
-//               })
-//               .state('create.finish', {
-//                   url: 'finish',
-//                   templateUrl: 'app/kiosk/new/finish.html'
-//               })
-
-        //            .state('search', {
-        //                abstract: true,
-        //                url: '/search',
-        //                templateUrl: 'app/kiosk/search/start.html',
-        //                controller: 'searchCtrl',
-        //                controllerAs: 'vm'
-        //            })
-        //               .state('search.startSearch', {
-        //                   url: 'start',
-        //                   templateUrl: 'app/kiosk/search/start.html'
-        //               })
-        //               .state('search.step1', {
-        //                   url: 'step1',
-        //                   templateUrl: 'app/kiosk/search/step1.html'
-        //               })
-        //               .state('search.step2', {
-        //                   url: 'step2',
-        //                   templateUrl: 'app/kiosk/search/step2.html'
-        //               })
-        //               .state('search.finish', {
-        //                   url: 'finish',
-        //                   templateUrl: 'app/kiosk/search/finish.html'
-        //               })
-        ;
+;
 
         $urlRouterProvider.otherwise('/welcome');
     }]);
@@ -111,7 +69,19 @@
     //        
     //    })
 
+    app.run(['$route', 'entityManagerFactory', 'common', 'datacontext', function ($route, emFactory, common, datacontext) {
+        // Include $route to kick start the router.
+//        breeze.core.extendQ($rootScope, $q);
+//        emFactory.metadataStore.fetchMetadata();
+//                emFactory.setupMetadata();
+//        var $q = common.$q;
+//
+//        $q.when(emFactory.metadataStore.fetchMetadata());
+        datacontext.loadMetadata(); 
+
+    }]);
 }());
+ 
 
 
 //(function () {

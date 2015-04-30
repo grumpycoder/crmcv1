@@ -68,13 +68,13 @@
 
         function getWallConfig() {
             return $http.get(urls.getConfig).success(function (resp) {
-                log('retrieved data', resp, false);
+//                log('retrieved data', resp, false);
             });
         }
 
         function saveConfigValues(config) {
             return $http.post(urls.saveConfig, config).success(function () {
-                log('saved configuration values', config, false);
+//                log('saved configuration values', config, false);
             });
         }
 

@@ -19,7 +19,7 @@
     var config = {
         appErrorPrefix: '[CRMC Error] ', //Configure the exceptionHandler decorator
         docTitle: 'CRMC: ',
-        events: events,
+//        events: events,
         remoteServiceName: remoteServiceName,
         version: '1.0.0'
     };

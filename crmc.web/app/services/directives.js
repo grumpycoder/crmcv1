@@ -1,4 +1,4 @@
-﻿(function() {
+﻿(function () {
     'use strict';
 
     var app = angular.module('app');
@@ -87,7 +87,7 @@
         return directive;
 
         function link(scope, element, attrs) {
-            attrs.$observe('ccImgPerson', function(value) {
+            attrs.$observe('ccImgPerson', function (value) {
                 value = basePath + (value || unknownImage);
                 attrs.$set('src', value);
             });
@@ -222,7 +222,7 @@
                 });
 
                 function toggleIcon() {
-                    $win.scrollTop() > 300 ? element.slideDown(): element.slideUp();
+                    $win.scrollTop() > 300 ? element.slideDown() : element.slideUp();
                 }
             }
         }
@@ -251,7 +251,7 @@
         }
     }]);
 
-    app.directive('ccWidgetHeader', function() {
+    app.directive('ccWidgetHeader', function () {
         //Usage:
         //<div data-cc-widget-header title="vm.map.title"></div>
         var directive = {

@@ -1,4 +1,11 @@
-﻿<div class="content">
+﻿<style>
+    .selected {
+        background-color: black;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+<div class="content">
 
     <div class="center-block">
         <div style="width: 870px; margin: 50px auto 0 auto;">
@@ -21,7 +28,7 @@
         <div class="text-center">
             <pagination ng-model="vm.paging.currentPage"
                         ng-change="vm.pageChanged(page)"
-                        total-items="vm.namesFilterCount"
+                        total-items="vm.peopleFilteredCount"
                         max-size="vm.paging.maxPagesToShow"
                         page="vm.paging.currentPage"
                         class="pagination-sm custom"
@@ -64,5 +71,5 @@
 </footer>
 
 <pre class="code-preview">
-{{vm.person}}
+{{}}
 </pre>

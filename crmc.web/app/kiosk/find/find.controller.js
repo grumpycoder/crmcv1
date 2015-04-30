@@ -4,21 +4,22 @@
 
     var controllerId = 'findCtrl';
     angular.module('app').controller(controllerId,
-        ['$scope', '$state', findCtrl]);
+        ['$scope', '$state', '$window', 'common', 'config', 'datacontext', findCtrl]);
 
-    function findCtrl($scope, $state) {
+    function findCtrl($scope, $state, $window, common, config, datacontext) {
         var vm = this;
+        var getLogFn = common.logger.getLogFn;
+        var log = getLogFn(controllerId);
+
         var prevSelection = null;
 
-        vm.cancel = cancel; 
+        vm.cancel = cancel;
         vm.finish = finish;
-        vm.people = [
-            { firstname: 'Mark', lastname: 'Lawrence', zipCode: '11111' },
-            { firstname: 'Mark2', lastname: 'Lawrence2', zipCode: '22222' },
-            { firstname: 'Mark3', lastname: 'Lawrence3', zipCode: '33333' }
-        ];
+        vm.goBack = goBack; 
+        vm.people = [];
         vm.person = undefined;
-        vm.title = 'findCtrl';
+        vm.title = 'Find Your Name';
+        vm.peopleFilteredCount = 0; 
         vm.paging = {
             pageSize: 13,
             currentPage: 1,
@@ -27,10 +28,18 @@
         }
         vm.pageChanged = pageChanged;
         vm.search = search;
-        vm.searchText = '';
+        vm.showValidationErrors = false;
+        vm.peopleSearch = '';
         vm.toggleName = toggleName;
 
+        activate();
+
         function activate() {
+            common.activateController([], controllerId)
+                 .then(function () {
+//                     log('Activated People View', null, false);
+                 });
+
         }
 
         //#region Internal Methods        
@@ -38,7 +47,20 @@
             $state.go('welcome');
         }
 
+        function getPeople(forceRefresh) {
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function(data) {
+                vm.people = data.results;
+                vm.peopleFilteredCount = data.inlineCount;
+            })
+
+        }
+
+        function goBack() {
+            $window.history.back();
+        }
+
         function finish() {
+            //TODO: Send vm.person name to hub method
             $state.go('finish');
         }
 
@@ -46,13 +68,17 @@
             vm.person = undefined;
             if (!vm.paging.currentPage) { return; }
             //Get next page of people
-            //getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.searchText);
+            getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.searchText);
         }
 
         function search() {
             //Load people and go to result view
-            console.log(vm.searchText);
-          
+            if (vm.searchForm.$invalid) {
+                vm.showValidationErrors = true;
+                return;
+            }
+
+            getPeople();
             $state.go('find.searchresult');
         }
 
@@ -60,7 +86,7 @@
             if (prevSelection) {
                 prevSelection.$selected = false;
             }
-            if (prevSelection == person) {
+            if (prevSelection === person) {
                 person.$selected = false;
                 vm.person = undefined;
                 prevSelection = null;
@@ -69,6 +95,7 @@
                 vm.person = person;
                 prevSelection = person;
             }
+            log('selected', vm.person, null);
         }
 
 

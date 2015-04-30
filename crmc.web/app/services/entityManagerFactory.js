@@ -2,9 +2,9 @@
     'use strict';
 
     var serviceId = 'entityManagerFactory';
-    angular.module('app').factory(serviceId, ['breeze', 'config', 'common', emFactory]);
+    angular.module('app').factory(serviceId, ['breeze', 'config', 'common', 'model', emFactory]);
 
-    function emFactory(breeze, config, common) {
+    function emFactory(breeze, config, common, model) {
         var $q = common.$q;
         // Convert server-side PascalCase to client-side camelCase property names
         breeze.NamingConvention.camelCase.setAsDefault();
@@ -13,7 +13,8 @@
         new breeze.ValidationOptions({ validateOnAttach: false }).setAsDefault();
 
         var serviceName = config.remoteServiceName;
-        var metadataStore = new breeze.MetadataStore();
+//        var metadataStore = new breeze.MetadataStore();
+        var metadataStore = createMetadataStore();
 
         var provider = {
             metadataStore: metadataStore,
@@ -31,6 +32,12 @@
             return mgr;
         }
 
+        function createMetadataStore() {
+            var store = new breeze.MetadataStore();
+            model.configureMetadataStore(store);
+            return store;
+        }
+
         function setupMetadata() {
             var deferred = $q.defer();
 
@@ -38,20 +45,6 @@
                 // do something with the metadata
                 deferred.resolve();
             });
-
-//            $q.when(metadataStore.fetchMetadata(serviceName));
-
-
-//            var deferred = $q.defer();
-//            metadataStore.fetchMetadata(serviceName).then(function () {
-//                deferred.resolve();
-//            }).fail(function (ex) {
-//                deferred.reject(ex);
-//            });
-//            metadataStore.fetchMetadata(serviceName).then(function () {
-//                deferred.resolve();
-//            });
-//            return deferred.promise;
         }
 
     }

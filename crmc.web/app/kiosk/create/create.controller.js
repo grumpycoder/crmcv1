@@ -41,7 +41,6 @@
         function createValidationWatch() {
             $scope.$watch('vm.person.lastname', function (newVal, oldVal) {
                 if (vm.person) {
-                    //TODO: add fullname to model
                     var fullName = vm.person.firstname + ' ' + vm.person.lastname;
                     validateFullName(fullName);
                     if (!validateFullName(fullName)) {

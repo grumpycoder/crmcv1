@@ -71,12 +71,6 @@
 
     app.run(['$route', 'entityManagerFactory', 'common', 'datacontext', function ($route, emFactory, common, datacontext) {
         // Include $route to kick start the router.
-//        breeze.core.extendQ($rootScope, $q);
-//        emFactory.metadataStore.fetchMetadata();
-//                emFactory.setupMetadata();
-//        var $q = common.$q;
-//
-//        $q.when(emFactory.metadataStore.fetchMetadata());
         datacontext.loadMetadata(); 
 
     }]);

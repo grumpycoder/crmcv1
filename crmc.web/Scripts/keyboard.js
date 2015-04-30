@@ -75,7 +75,7 @@ $(function () {
     });
 
     //set focus on first input element in document
-//        $('input')[0].focus();
+    $('input')[0].focus();
 
     $('.letter').toggleClass('uppercase');
     capslock = true;

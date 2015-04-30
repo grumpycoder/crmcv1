@@ -10,16 +10,16 @@
     <link href="~/Content/toastr.css" rel="stylesheet" />
     @*    <link href="~/Content/slider.css" rel="stylesheet" />*@
     <link href="~/Content/keyboard.css" rel="stylesheet" />
-        <link href="~/Content/animate.css" rel="stylesheet" />
+    <link href="~/Content/animate.css" rel="stylesheet" />
     <link href="~/Content/kiosk.css" rel="stylesheet" />
-        <link href="~/Content/kiosk-animations.css" rel="stylesheet" />
+    <link href="~/Content/kiosk-animations.css" rel="stylesheet" />
 </head>
 <body ng-app="app">
 
     @*    <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-1" spinner-start-active="false"></span>*@
 
 
-        <div ui-view id="main-view" class="myanimation"></div>
+    <div ui-view id="main-view" class="myanimation"></div>
 
     <!-- Vendor Scripts -->
     <script src="~/scripts/jquery-2.1.1.js"></script>
@@ -36,8 +36,11 @@
     <script src="~/scripts/breeze.directives.js"></script>
     <script src="~/Scripts/breeze.bridge.angular.js"></script>
     <script src="~/Scripts/moment.min.js"></script>
-@*    <script src="~/scripts/breeze.saveErrorExtensions.js"></script>*@
+    @*    <script src="~/scripts/breeze.saveErrorExtensions.js"></script>*@
     <script src="~/Scripts/keyboard.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="~/signalr/hubs"></script>
+
 
     <!--Bootstrappping-->
     <script src="~/app/kiosk/app.js"></script>

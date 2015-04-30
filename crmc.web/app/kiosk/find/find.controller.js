@@ -12,14 +12,15 @@
         var log = getLogFn(controllerId);
 
         var prevSelection = null;
+        var crmc = $.connection.cRMCHub;
 
         vm.cancel = cancel;
         vm.finish = finish;
-        vm.goBack = goBack; 
+        vm.goBack = goBack;
         vm.people = [];
         vm.person = undefined;
         vm.title = 'Find Your Name';
-        vm.peopleFilteredCount = 0; 
+        vm.peopleFilteredCount = 0;
         vm.paging = {
             pageSize: 13,
             currentPage: 1,
@@ -37,9 +38,11 @@
         function activate() {
             common.activateController([], controllerId)
                  .then(function () {
-//                     log('Activated People View', null, false);
+                     log('Activated Find Person View', null, false);
+                     $.connection.hub.start().done(function () {
+                         log('hub connection successful', null, false);
+                     });
                  });
-
         }
 
         //#region Internal Methods        
@@ -48,7 +51,7 @@
         }
 
         function getPeople(forceRefresh) {
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function(data) {
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function (data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
             })
@@ -61,6 +64,7 @@
 
         function finish() {
             //TODO: Send vm.person name to hub method
+            crmc.server.addNameToWall(vm.kiosk, vm.person.firstname + ' ' + vm.person.lastname);
             $state.go('finish');
         }
 

@@ -9,10 +9,9 @@
     <div class="center-block">
         <form novalidate="" name="vm.nameForm" id="nameForm"
               role="form" style="width: 658px; margin: 0 auto;"
-              xt-form strategy="focusedAndDirtyOrSubmitted" focus-error="true">
+              focus-error="true">
             <!--<form novalidate="" name="vm.nameForm" id="nameForm" role="form">-->
             <div class="row">
-                <!--<em>*</em>-->
                 <div class="col-md-12">
                     <input type="text" class="form-control" id="inputFirstName"
                            name="inputFirstName" ng-model="vm.person.firstname" required="" placeholder="First Name"
@@ -29,11 +28,9 @@
                         <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid characters</span>
                         <span class="errorMessage arrow_box" ng-message="valBlacklist" class="text-danger">Name is not allowed</span>
                     </div>
-
                 </div>
             </div>
             <div class="row">
-                <!--<em>*</em>-->
                 <div class="col-md-12">
                     <input type="text" class="form-control" id="inputLastName"
                            name="inputLastName" ng-model="vm.person.lastname" placeholder="Last Name"

@@ -9,7 +9,8 @@
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
-
+        var arrayMax = Function.prototype.apply.bind(Math.max, null);
+        var arrayMin = Function.prototype.apply.bind(Math.min, null);
         var crmc = $.connection.cRMCHub;
 
         vm.blackList = [];
@@ -54,6 +55,26 @@
             })
         }
 
+        function getFuzzyMatchValue() {
+            var fuzzyMatchValue = 0;
+            var fn = vm.person.firstname;
+            var ln = vm.person.lastname;
+
+            //Check fullname, first and last names and take highest match value
+            vm.blackList.forEach(function (word) {
+                if (word !== null && word !== 'NULL') {
+                    var fnScore = fn.score(word, 0.9);
+                    var lnScore = ln.score(word, 0.9);
+                    var fullScore = (ln + fn).score(word, 0.9);
+                    var scores = [fnScore, lnScore, fullScore];
+
+                    var maxScore = arrayMax(scores);
+                    if (maxScore > fuzzyMatchValue) { fuzzyMatchValue = maxScore }
+                }
+            });
+            return fuzzyMatchValue;
+        }
+
         function getBlackList() {
             //TODO: Load blacklist in localstorage
             datacontext.getCensors().then(function (data) {
@@ -74,11 +95,15 @@
                 toastr.error('Please correct your information');
                 return;
             }
+            vm.person.firstname = Humanize.titleCase(vm.person.firstname);
+            vm.person.lastname = Humanize.titleCase(vm.person.lastname);
             $state.go('create.review');
         }
 
         function save() {
+            vm.person.fuzzyMatchValue = getFuzzyMatchValue();
             datacontext.create('Person', vm.person);
+
             datacontext.save();
             log('Saved person', null, false);
 

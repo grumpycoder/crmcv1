@@ -260,6 +260,9 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\app.js" />
+    <Content Include="app\censors\censors.controller.js" />
+    <Content Include="app\censors\censors.html" />
     <Content Include="app\common\bootstrap\bootstrap.dialog.js" />
     <Content Include="app\common\common.js" />
     <Content Include="app\common\logger.js" />
@@ -267,6 +270,7 @@
     <Content Include="app\config.exceptionHandler.js" />
     <Content Include="app\config.js" />
     <Content Include="app\config.route.js" />
+    <Content Include="app\directives\spinner.directive.js" />
     <Content Include="app\kiosk\app.js" />
     <Content Include="app\kiosk\create\create.controller.js" />
     <Content Include="app\kiosk\create\home.html" />
@@ -278,11 +282,18 @@
     <Content Include="app\kiosk\find\search.html" />
     <Content Include="app\kiosk\find\searchResult.html" />
     <Content Include="app\kiosk\finish.html" />
+    <Content Include="app\dashboard\dashboard.controller.js" />
+    <Content Include="app\dashboard\dashboard.html" />
     <Content Include="app\kiosk\keyboard.html" />
     <Content Include="app\kiosk\settings\settings.html" />
     <Content Include="app\kiosk\settings\settings.js" />
     <Content Include="app\kiosk\welcome.html" />
     <Content Include="app\kiosk\welcome.js" />
+    <Content Include="app\layout\shell.controller.js" />
+    <Content Include="app\layout\shell.html" />
+    <Content Include="app\people\people.controller.js" />
+    <Content Include="app\people\people.html" />
+    <Content Include="app\services\app-spinner.service.js" />
     <Content Include="app\services\datacontext.js" />
     <Content Include="app\services\directives.js" />
     <Content Include="app\services\entityManagerFactory.js" />
@@ -294,7 +305,9 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.darkly.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bootstrap.united.min.css" />
     <Content Include="Content\breeze.directives.css" />
+    <Content Include="Content\customtheme.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\images\kioskbackground.png" />
@@ -302,6 +315,7 @@
     <Content Include="Content\kiosk-animations.css" />
     <Content Include="Content\kiosk-validation.css" />
     <Content Include="Content\kiosk.css" />
+    <Content Include="Content\theme.css" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
     <Content Include="favicon.ico" />
@@ -371,6 +385,7 @@
     <Content Include="fonts\HelveticaNeueLTStd-Lt.otf" />
     <Content Include="Scripts\angular-animate.min.js.map" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
+    <Content Include="Scripts\humanize.min.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.map" />
@@ -391,6 +406,9 @@
     <Content Include="Scripts\q.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\spin.js" />
+    <Content Include="Scripts\spin.min.js" />
+    <Content Include="Scripts\string_score.min.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Web.config" />
@@ -405,11 +423,12 @@
     <Content Include="Scripts\_references.js" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <None Include="Views\Home\Index.cshtml.1" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Kiosk\Index.cshtml" />
     <Content Include="Scripts\toastr.min.js.map" />
+    <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

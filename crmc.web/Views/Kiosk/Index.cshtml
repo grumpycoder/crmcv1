@@ -10,19 +10,18 @@
     <link href="~/Content/toastr.css" rel="stylesheet" />
     @*    <link href="~/Content/slider.css" rel="stylesheet" />*@
     <link href="~/Content/keyboard.css" rel="stylesheet" />
-    @*    <link href="~/Content/animate.css" rel="stylesheet" />*@
+        <link href="~/Content/animate.css" rel="stylesheet" />
     <link href="~/Content/kiosk.css" rel="stylesheet" />
-    @*    <link href="~/Content/kiosk-animations.css" rel="stylesheet" />*@
+        <link href="~/Content/kiosk-animations.css" rel="stylesheet" />
 </head>
 <body ng-app="app">
 
     @*    <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-1" spinner-start-active="false"></span>*@
 
-    <div ui-view id="main-view"></div>
 
-    @*    <div ui-view id="main-view" class="myanimation"></div>*@
+        <div ui-view id="main-view" class="myanimation"></div>
 
-    @*VENDOR SCRIPTS*@
+    <!-- Vendor Scripts -->
     <script src="~/scripts/jquery-2.1.1.js"></script>
     <script src="~/scripts/angular.min.js"></script>
     <script src="~/Scripts/angular-animate.min.js"></script>
@@ -51,8 +50,6 @@
 
     <!-- app -->
     <script src="~/app/kiosk/welcome.js"></script>
-    @*<script src="~/app/kiosk/new/createname.js"></script>*@
-    @*    <script src="~/app/kiosk/search/search.js"></script>*@
     <script src="~/app/kiosk/find/find.controller.js"></script>
     <script src="~/app/kiosk/create/create.controller.js"></script>
 

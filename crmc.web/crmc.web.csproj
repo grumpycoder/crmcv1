@@ -358,6 +358,8 @@
     <Content Include="Scripts\angular-route.min.js" />
     <Content Include="Scripts\angular-sanitize.js" />
     <Content Include="Scripts\angular-sanitize.min.js" />
+    <Content Include="Scripts\angular-spinner.js" />
+    <Content Include="Scripts\angular-spinner.min.js" />
     <Content Include="Scripts\angular-ui-router.js" />
     <Content Include="Scripts\angular-ui-router.min.js" />
     <Content Include="Scripts\angular-ui\ui-bootstrap-tpls.js" />
@@ -387,6 +389,7 @@
     <Content Include="fonts\HelveticaNeueLTStd-Lt.otf" />
     <Content Include="Scripts\angular-animate.min.js.map" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
+    <Content Include="Scripts\angular-spinner.min.js.map" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\humanize.min.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />

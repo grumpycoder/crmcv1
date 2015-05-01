@@ -4,9 +4,9 @@
 
     var controllerId = 'findCtrl';
     angular.module('app').controller(controllerId,
-        ['$scope', '$state', '$window', 'common', 'config', 'datacontext', findCtrl]);
+        ['$rootScope', '$scope', '$state', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
 
-    function findCtrl($scope, $state, $window, common, config, datacontext) {
+    function findCtrl($rootScope, $scope, $state, $window, common, config, datacontext, usSpinnerService) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -51,9 +51,11 @@
         }
 
         function getPeople(forceRefresh) {
+            usSpinnerService.spin('spinner-1');
             datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function (data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
+                usSpinnerService.stop('spinner-1');
             })
 
         }
@@ -101,7 +103,6 @@
             }
             log('selected', vm.person, null);
         }
-
 
         //#endregion
     }

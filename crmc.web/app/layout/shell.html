@@ -1,0 +1,36 @@
+﻿<div ng-controller="ShellCtrl as vm">
+    <div id="adminNavBar" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#/">
+                    <i class="fa fa-home"></i>
+                    <span>CRMC Admin</span>
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" ng-class="{'in': !navCollapsed}">
+                <ul class="nav navbar-nav">
+                    <li class="nav navbar-nav" ng-repeat="r in vm.navRoutes" ng-class="vm.isCurrent(r)">
+                        <a href="#{{r.url}}" ng-bind-html="r.config.settings.content" data-toggle="collapse" data-target=".navbar-collapse"></a>
+                    </li>
+                    <!--<li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/">Home</a></li>
+                    <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/people">People</a></li>
+                    <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/censors">BlackList</a></li>-->
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div ng-show="vm.showSpinner" class="page-splash dissolve-animation">
+        <div data-spinner="vm.spinnerOptions"></div>
+        <div class="page-splash-message page-splash-message-subtle">{{vm.spinnerMessage}}</div>
+    </div>
+
+    <div ng-view id="ng-view" class="container slide-animation admin-content"></div>
+
+</div>

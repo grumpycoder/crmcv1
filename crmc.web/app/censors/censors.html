@@ -1,0 +1,82 @@
+﻿<div>
+    <div class="panel panel-warning">
+
+        <div class="panel-heading"> <span class="panel-title">{{vm.title}}</span>     </div>
+
+        <div class="panel-body">
+           
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                <tr>
+                    <th ng-click="vm.sort('word')" style="cursor: pointer">Word</th>
+                    <th><input type="text" class="form-control" placeholder="Search" name="searchText" ng-model="vm.censorSearch" ng-keyup="vm.search($event)" /></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" placeholder="New Censor Word" ng-model="vm.newCensorWord">
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-primary" ng-click="vm.addItem()"
+                                tooltip="Click here to add new censor" tooltip-placement="left">
+                            <span class="fa fa-plus"></span> Add
+                        </button>
+                    </td>
+                </tr>
+                <tr ng-repeat="c in vm.filteredCensors">
+                    <td ng-hide="vm.currentEdit[c.id]">{{c.word}}</td>
+                    <td ng-show="vm.currentEdit[c.id]">
+                        <input type="text" class="form-control" ng-model="c.word"/>
+                    </td>
+
+                    <td>
+                        <div class="btn-group" dropdown ng-hide="vm.currentEdit[c.id]">
+                            <button class="btn btn-success dropdown-toggle" dropdown-toggle type="button">
+                                Action <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a ng-click="vm.editItem(c)">Edit</a></li>
+                                <li><a ng-click="vm.deleteItem(c)">Delete</a></li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-success" ng-show="vm.currentEdit[c.id]" ng-click="vm.saveItem(c)">Save</button>
+                        <button class="btn btn-danger" ng-show="vm.currentEdit[c.id]" ng-click="vm.cancelEdit(c.id)">Cancel</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!--<div>
+    <h2>{{vm.title}}</h2>
+
+    <div class="form-search">
+        <input type="text" class="search-query" ng-model="vm.newWordText" />
+        <div class="btn-group">
+            <button class="btn btn-info" ng-click="vm.addNewWord()" ng-disabled="!vm.newWordText">Add</button>
+        </div>
+    </div>
+    <table class="table table-hover table-condensed table-striped table-responsive">
+        <tr>
+            <th style="width: 150px;"></th>
+            <th ng-click="vm.sort('firstname')">Word</th>
+        </tr>
+        <tr ng-repeat="c in vm.censors">
+            <td>
+                <button class="btn btn-danger btn-sm" ng-click="vm.deleteCensor(c)">Delete</button>
+                <button class="btn btn-success btn-sm" ng-click="vm.updateCensor('sm', c)">Edit</button>
+            </td>
+            <td>
+                {{c.word}}
+            </td>
+        </tr>
+    </table>
+
+</div>-->

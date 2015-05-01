@@ -5,10 +5,11 @@
 
     // Collect the routes
     app.constant('routes', getRoutes());
-    
+
     // Configure the routes and route resolvers
-    app.config(['$routeProvider', 'routes', routeConfigurator]);
-    function routeConfigurator($routeProvider, routes) {
+    app.config(['$routeProvider', '$sceProvider', 'routes', routeConfigurator]);
+    function routeConfigurator($routeProvider, $sceProvider, routes) {
+        $sceProvider.enabled(false);
 
         routes.forEach(function (r) {
             //$routeProvider.when(r.url, r.config);
@@ -33,57 +34,55 @@
     // Define the routes 
     function getRoutes() {
         return [
-    {
-        url: '/',
-        config: {
-            templateUrl: 'app/dashboard/dashboard.html',
-            title: 'dashboard',
-            settings: {
-                nav: 1,
-                content: '<i class="fa fa-dashboard"></i> Dashboard'
-            }
-        }
-    }, {
-        url: '/admin',
-        config: {
-            title: 'admin',
-            templateUrl: 'app/admin/admin.html',
-            settings: {
-                nav: 2,
-                content: '<i class="fa fa-lock"></i> Admin'
-            }
-        }
-    }, {
-        url: '/censor',
-        config: {
-            title: 'censor',
-            templateUrl: 'app/censor/censor.html',
-            settings: {
-                nav: 3,
-                content: '<i class="fa fa-ban"></i> Censor Words'
-            }
-        }
-    }, {
-        url: '/people',
-        config: {
-            title: 'people',
-            templateUrl: 'app/people/people.html',
-            settings: {
-                nav: 4,
-                content: '<i class="fa fa-users"></i> People'
-            }
-        }
-    }, {
-        url: '/settings',
-        config: {
-            title: 'settings',
-            templateUrl: 'app/settings/settings.html',
-            settings: {
-                nav: 5,
-                content: '<i class="fa fa-cogs"></i> Settings'
-            }
-        }
-    }
+  {
+      url: '/',
+      config: {
+          templateUrl: 'app/dashboard/dashboard.html',
+          title: 'dashboard',
+          controller: 'DashboardCtrl',
+          controllerAs: 'vm',
+          settings: {
+              nav: 1,
+              content: '<i class="fa fa-dashboard"></i> Dashboard'
+          }
+      }
+  }, {
+      url: '/censor',
+      config: {
+          title: 'censor',
+          templateUrl: 'app/censors/censors.html',
+          controller: 'CensorCtrl',
+          controllerAs: 'vm',
+          settings: {
+              nav: 3,
+              content: '<i class="fa fa-ban"></i> Censor Words'
+          }
+      }
+  }, {
+      url: '/people',
+      config: {
+          title: 'people',
+          templateUrl: 'app/people/people.html',
+          controller: 'PeopleCtrl',
+          controllerAs: 'vm',
+          settings: {
+              nav: 4,
+              content: '<i class="fa fa-users"></i> People'
+          }
+      }
+  }, {
+      url: '/settings',
+      config: {
+          title: 'settings',
+          templateUrl: 'app/settings/settings.html',
+          controller: 'SettingCtrl',
+          controllerAs: 'vm',
+          settings: {
+              nav: 5,
+              content: '<i class="fa fa-cogs"></i> Settings'
+          }
+      }
+  }
         ];
     }
 })();

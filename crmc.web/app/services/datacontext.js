@@ -63,11 +63,12 @@
             }
         }
 
-        function getCensors(forceRemote) {
+        function getCensors(forceRemote, sortBy) {
             var censors;
-
+            var orderBy = sortBy || 'word'
             if (_areCensorsLoaded() && !forceRemote) {
                 censors = EntityQuery.from('Censors')
+                                     .orderBy(orderBy)
                                      .using(manager)
                                      .executeLocally();
 

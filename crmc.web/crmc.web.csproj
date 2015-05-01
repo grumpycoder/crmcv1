@@ -305,7 +305,9 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.darkly.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bootstrap.simplex.min.css" />
     <Content Include="Content\bootstrap.united.min.css" />
+    <Content Include="Content\bootstrap.yeti.min.css" />
     <Content Include="Content\breeze.directives.css" />
     <Content Include="Content\customtheme.css" />
     <Content Include="Content\font-awesome.css" />
@@ -384,6 +386,7 @@
     <Content Include="Scripts\angular-route.min.js.map" />
     <Content Include="fonts\HelveticaNeueLTStd-Lt.otf" />
     <Content Include="Scripts\angular-animate.min.js.map" />
+    <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\humanize.min.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
@@ -429,6 +432,9 @@
     <Content Include="Views\Kiosk\Index.cshtml" />
     <Content Include="Scripts\toastr.min.js.map" />
     <Content Include="Views\Home\Index.cshtml" />
+    <None Include="Web.Test.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

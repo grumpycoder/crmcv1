@@ -52,7 +52,7 @@
 }
 
 .code-preview {
-    display: inline-block;
+    display: none;
 }
 
 body {

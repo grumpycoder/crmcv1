@@ -9,6 +9,7 @@ namespace crmc.web.Data
         public ApplicationDbContext()
             : base("DefaultConnection")
         {
+            Database.SetInitializer<ApplicationDbContext>(null);
         }
 
         public DbSet<Person> People { get; set; }

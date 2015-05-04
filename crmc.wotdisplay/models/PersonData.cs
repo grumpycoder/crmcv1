@@ -15,13 +15,13 @@ namespace crmc.wotdisplay.models
     public class Result
     {
         public int Id { get; set; }
-        public int AccountId { get; set; }
+        public int? AccountId { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
-        public object EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
         public string Zipcode { get; set; }
-        public bool IsDonor { get; set; }
-        public bool IsPriority { get; set; }
+        public bool? IsDonor { get; set; }
+        public bool? IsPriority { get; set; }
         public double FuzzyMatchValue { get; set; }
         public string FullName { get; set; }
         public string DateCreated { get; set; }

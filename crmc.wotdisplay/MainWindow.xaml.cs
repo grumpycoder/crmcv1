@@ -78,8 +78,10 @@ namespace crmc.wotdisplay
             config = new AppConfig();
             // Connect to hub to listen for new names to display
             // Add other hub listeners here
-
-            var connection = new HubConnection("http://localhost/crmc/signalr");
+            var webServer = "http://crmc-test";
+            webServer = Settings.Default.WebServerUrl; 
+            Debug.WriteLine(webServer);
+            var connection = new HubConnection(webServer + "/signalr");
 
             //Make proxy to hub based on hub name on server
             var myHub = connection.CreateHubProxy("CRMCHub");
@@ -173,9 +175,7 @@ namespace crmc.wotdisplay
 
             await Task.Run(() =>
             {
-                //TODO: Replace url 
-                string url = Settings.Default.WebServerUrl + "/breeze/breeze/appconfigs"; 
-//                     "http://localhost/crmc/breeze/Breeze/appconfigs";
+                var url = Settings.Default.WebServerUrl + "/breeze/breeze/appconfigs"; 
                 
                 var syncClient = new WebClient();
                 var content = syncClient.DownloadString(url);
@@ -282,9 +282,9 @@ namespace crmc.wotdisplay
         {
                await Task.Run(() =>
                {
-                   string baseUrl = Settings.Default.WebServerUrl + "/breeze/Breeze/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount,
-                       widget.ListSize);
+                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/breeze/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
+
+                   var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
 
                    var syncClient = new WebClient();
                    var content = syncClient.DownloadString(url);

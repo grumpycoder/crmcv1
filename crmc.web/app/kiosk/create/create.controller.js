@@ -55,6 +55,16 @@
             })
         }
 
+        function getBlackList() {
+            //TODO: Load blacklist in localstorage
+            datacontext.getCensors(true).then(function (data) {
+                data.forEach(function (item) {
+                    vm.blackList.push(item.word);
+                });
+                return vm.blackList;
+            });
+        }
+
         function getFuzzyMatchValue() {
             var fuzzyMatchValue = 0;
             var fn = vm.person.firstname;
@@ -75,16 +85,6 @@
             return fuzzyMatchValue;
         }
 
-        function getBlackList() {
-            //TODO: Load blacklist in localstorage
-            datacontext.getCensors().then(function (data) {
-                data.forEach(function (item) {
-                    vm.blackList.push(item.word);
-                });
-                return vm.blackList;
-            });
-        }
-
         function goBack() {
             $window.history.back();
         }
@@ -95,8 +95,8 @@
                 toastr.error('Please correct your information');
                 return;
             }
-            vm.person.firstname = Humanize.titleCase(vm.person.firstname);
-            vm.person.lastname = Humanize.titleCase(vm.person.lastname);
+            vm.person.firstname = Humanize.titleCase(vm.person.firstname.toLowerCase());
+            vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
             $state.go('create.review');
         }
 

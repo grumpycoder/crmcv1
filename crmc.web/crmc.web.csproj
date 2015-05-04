@@ -291,6 +291,8 @@
     <Content Include="app\kiosk\welcome.js" />
     <Content Include="app\layout\shell.controller.js" />
     <Content Include="app\layout\shell.html" />
+    <Content Include="app\layout\widgetheader.html" />
+    <Content Include="app\people\editPerson.html" />
     <Content Include="app\people\people.controller.js" />
     <Content Include="app\people\people.html" />
     <Content Include="app\services\app-spinner.service.js" />
@@ -317,6 +319,7 @@
     <Content Include="Content\kiosk-animations.css" />
     <Content Include="Content\kiosk-validation.css" />
     <Content Include="Content\kiosk.css" />
+    <Content Include="Content\main.css" />
     <Content Include="Content\theme.css" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
@@ -417,6 +420,7 @@
     <Content Include="Scripts\string_score.min.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
+    <Content Include="Scripts\ui-bootstrap-tpls.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

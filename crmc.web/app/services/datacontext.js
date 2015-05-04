@@ -179,7 +179,10 @@
         }
 
         function getPeopleCount() {
-            return EntityQuery.from('People').take(0).inlineCount().using(manager).execute().then(function (data) {
+//            return EntityQuery.from('People').take(0).inlineCount().using(manager).execute().then(function (data) {
+//                return data.inlineCount;
+            //            });
+            return EntityQuery.from('People').take(0).where('isPriority', 'eq', 'true').inlineCount().using(manager).execute().then(function (data) {
                 return data.inlineCount;
             });
         }

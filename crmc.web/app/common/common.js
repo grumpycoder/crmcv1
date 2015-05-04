@@ -25,9 +25,9 @@
     });
 
     commonModule.factory('common',
-        ['$q', '$rootScope', '$timeout', 'commonConfig', 'logger', common]);
+        ['$q', '$rootScope', '$timeout', 'appSpinner', 'commonConfig', 'logger', common]);
 
-    function common($q, $rootScope, $timeout, commonConfig, logger) {
+    function common($q, $rootScope, $timeout, appSpinner, commonConfig, logger) {
         var throttles = {};
 
         var service = {
@@ -60,7 +60,6 @@
         function createSearchThrottle(viewmodel, list, filteredList, filter, delay) {
             // After a delay, search a viewmodel's list using 
             // a filter function, and return a filteredList.
-
             // custom delay or use default
             delay = +delay || 300;
             // if only vm and list parameters were passed, set others by naming convention 
@@ -76,7 +75,7 @@
                 // translates to ...
                 // vm.filteredSessions 
                 //      = vm.sessions.filter(function(item( { returns vm.sessionFilter (item) } );
-                viewmodel[filteredList] = viewmodel[list].filter(function(item) {
+                viewmodel[filteredList] = viewmodel[list].filter(function (item) {
                     return viewmodel[filter](item);
                 });
             };

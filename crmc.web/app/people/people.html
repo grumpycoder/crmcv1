@@ -1,3 +1,93 @@
-﻿<div>
-    <h2>People</h2>
-</div>
+﻿<section class="mainbar">
+    <section class="matter">
+        <div class="container">
+            <div class="row">
+                <div class="form-search">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search for..." autofocus="" ng-model="vm.peopleSearch" ng-keyup="vm.clearSearch($event)">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
+                                </span>
+                            </div><!-- /input-group -->
+                        </div><!-- /.col-lg-6 -->
+                        <div class="col-lg-6">
+                            <div class="btn-group pull-right">
+                                <a class="btn btn-info"
+                                   data-ng-click="vm.refresh()">
+                                    <i class="fa fa-refresh"></i><span>Refresh</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="widget wblue">
+                    <div data-cc-widget-header title="{{vm.title}}"
+                         subtitle="Subtitle"
+                         right-text="right text">
+                    </div>
+                    <div class="widget-content user">
+                        <div class="form-search">
+                            <div class="btn-group">
+                                <button class="btn btn-info" ng-click="vm.addPerson('sm')">
+                                    <i class="fa fa-plus"></i> <span>Add Person</span>
+                                </button>
+                            </div>
+                            <div class="btn-group pull-right" ng-click="vm.search()">
+                                <label class="btn btn-primary" ng-model="vm.fuzzyMatchValue" btn-radio="''" uncheckable>All</label>
+                                <label class="btn btn-warning" ng-model="vm.fuzzyMatchValue" btn-radio="'low'" uncheckable>Medium</label>
+                                <label class="btn btn-danger" ng-model="vm.fuzzyMatchValue" btn-radio="'high'" uncheckable>High</label>
+                            </div>
+                            <div class="btn-group pull-right" ng-click="vm.search()">
+                                <label class="btn btn-default" ng-model="vm.daysFilter" btn-radio="'30'" uncheckable>30 days</label>
+                                <label class="btn btn-default" ng-model="vm.daysFilter" btn-radio="'60'" uncheckable>60 days</label>
+                                <label class="btn btn-default" ng-model="vm.daysFilter" btn-radio="''" uncheckable>All</label>
+                            </div>
+                        </div>
+                        <table class="table table-hover table-condensed table-striped table-responsive">
+                            <tr>
+                                <th></th>
+                                <th ng-click="vm.sort('firstname')">First Name</th>
+                                <th ng-click="vm.sort('lastname')">Last Name</th>
+                                <th ng-click="vm.sort('emailAddress')">Email</th>
+                                <th ng-click="vm.sort('zipcode')">ZipCode</th>
+                                <th ng-click="vm.sort('dateCreated')">Entry</th>
+                                <th ng-click="vm.sort('fuzzyMatchValue')">Match</th>
+                            </tr>
+                            <tr ng-repeat="p in vm.people">
+                                <td>
+                                    <button class="btn btn-danger btn-sm" ng-click="vm.deletePerson(p)">Delete</button>
+                                    <button class="btn btn-success btn-sm" ng-click="vm.updatePerson('sm', p)">Edit</button>
+                                </td>
+                                <td>{{p.firstname}}</td>
+                                <td>{{p.lastname}}</td>
+                                <td>{{p.emailAddress}}</td>
+                                <td>{{p.zipcode}}</td>
+                                <td>{{p.dateCreated | date: 'MM/dd/yyyy'}}</td>
+                                <td>{{p.fuzzyMatchValue}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="widget-foot">
+                        <div class="clearfix"></div>
+                        <pagination boundary-links="true"
+                                    on-select-page="vm.pageChanged(page)"
+                                    total-items="vm.peopleFilteredCount"
+                                    items-per-page="vm.paging.pageSize"
+                                    page="vm.paging.currentPage"
+                                    max-size="vm.paging.maxPagesToShow"
+                                    class="pagination-sm"
+                                    previous-text="Prev"
+                                    next-text="Next"
+                                    first-text="First"
+                                    last-text="Last"></pagination>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>

@@ -6,7 +6,7 @@
     -webkit-text-shadow: none !important;
     -ms-text-shadow: none !important;
     text-shadow: none !important;*/
-    /*font-family: "Segoe UI", Arial, Helvetica, sans-serif;*/
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
     /*font-weight: 400;*/
 }
@@ -24,12 +24,12 @@ input, select {
 }
 
 
-.navbar * {
+/*.navbar * {
     background-image: none !important;
     -webkit-text-shadow: none !important;
     -ms-text-shadow: none !important;
     text-shadow: none !important;
-}
+}*/
 
 form * {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
@@ -64,11 +64,11 @@ input[type="radio"], input[type="checkbox"] {
     }
 
 body {
-/*    font-size: 13px;
+    font-size: 13px;
     line-height: 23px;
     color: #666;
     background: #111;
-    padding-top: 45px;*/
+    padding-top: 45px;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -518,36 +518,40 @@ form {
 
 /* Navbar */
 
-.navbar {
+/*.navbar {
     background: #000;
-}
+}*/
 
-    .navbar .container {
+ /*   .navbar .container {
         width: 97% !important;
-    }
+    }*/
 
-    .navbar .nav > li > a {
+/*    .navbar .nav > li > a {
         font-size: 13px !important;
         color: #fff !important;
-    }
+    }*/
 
+/*
     .navbar i {
         margin-right: 3px;
     }
+*/
 
-    .navbar .caret {
+/*    .navbar .caret {
         border-top-color: #fff !important;
         border-bottom-color: #fff !important;
-    }
+    }*/
 
+/*
     .navbar .nav-user-pic {
         width: 20px;
         margin-right: 10px;
     }
+*/
 
-    .navbar .badge {
+/*    .navbar .badge {
         margin-left: 5px;
-    }
+    }*/
 
 
 /* Sidebar */
@@ -781,8 +785,8 @@ form {
 
 .mainbar {
     position: relative;
-    margin-left: 230px;
-    margin-right: 0;
+    /*margin-left: 230px;
+    margin-right: 0;*/
     width: auto;
     background: #fff;
     min-height: 900px;

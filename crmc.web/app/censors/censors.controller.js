@@ -19,7 +19,8 @@
         vm.cancelEdit = cancelEdit;
         vm.censors = [];
         vm.censorsFilter = censorsFilter;
-        vm.censorSearch = ''; 
+        vm.censorSearch = '';
+        vm.clearInput = clearInput; 
         vm.currentEdit = {};
         vm.deleteItem = deleteItem;
         vm.editItem = editItem;
@@ -46,7 +47,7 @@
 
         function addItem() {
             vm.censor = datacontext.create('Censor', { word: vm.newCensorWord });
-            vm.newWordText = '';
+            vm.newCensorWord = '';
             datacontext.save();
             vm.censors.unshift(vm.censor);
 
@@ -63,6 +64,12 @@
                 textContains(censor.word, searchText)
                 : true;
             return isMatch;
+        }
+
+        function clearInput($event) {
+            if ($event.keyCode === keyCodes.esc) {
+                vm.newCensorWord = '';
+            }
         }
 
         function deleteItem(censor) {
@@ -85,6 +92,9 @@
             datacontext.getCensors(forceRemote, orderBy).then(function(data) {
                 appSpinner.hideSpinner();
                 return vm.censors = vm.filteredCensors = data;
+            })
+            datacontext.getPeopleCount().then(function(data) {
+                log('people', data, false);
             })
         }
 

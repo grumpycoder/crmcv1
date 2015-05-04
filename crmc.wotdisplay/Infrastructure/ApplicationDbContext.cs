@@ -1,6 +1,4 @@
-﻿
-using crmc.domain;
-using System;
+﻿using System;
 using System.Data.Entity;
 using crmc.wotdisplay.models;
 

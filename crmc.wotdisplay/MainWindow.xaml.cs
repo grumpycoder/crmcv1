@@ -1,5 +1,4 @@
-﻿using crmc.domain;
-using crmc.wotdisplay.helpers;
+﻿using crmc.wotdisplay.helpers;
 using crmc.wotdisplay.Infrastructure;
 using crmc.wotdisplay.Properties;
 using Microsoft.AspNet.SignalR.Client;
@@ -56,10 +55,8 @@ namespace crmc.wotdisplay
 
         //private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        #endregion
-
         private readonly List<Widget> widgets = new List<Widget>();
-        private AppConfig config = new AppConfig();
+        public AppConfig config;
         private MediaManager manager;
 
         private readonly List<Color> colors = new List<Color>()
@@ -71,33 +68,39 @@ namespace crmc.wotdisplay
             Color.FromRgb(255, 243, 234)
         }; 
 
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
-            AutoMapper.Mapper.CreateMap<Result, Person>();
-            AutoMapper.Mapper.CreateMap<Person, Result>();
-
+            Mapper.CreateMap<Result, Person>();
+            Mapper.CreateMap<Person, Result>();
+            config = new AppConfig();
             // Connect to hub to listen for new names to display
             // Add other hub listeners here
-            var connection = new HubConnection(Settings.Default.WebServerUrl + "/signalr");
+
+            var connection = new HubConnection("http://localhost/crmc/signalr");
 
             //Make proxy to hub based on hub name on server
             var myHub = connection.CreateHubProxy("CRMCHub");
+
             connection.Start().ContinueWith(task =>
             {
                 if (task.IsFaulted)
                 {
-                    Console.WriteLine("There was an error opening the connection:{0}",
+                    Debug.WriteLine("There was an error opening the connection:{0}",
                                       task.Exception.GetBaseException());
                 }
                 else
                 {
-                    Console.WriteLine("Connected");
+                    Debug.WriteLine("Connected");
                 }
 
             }).Wait();
 
             myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
+
+            myHub.On("configSettingsSaved", InitDefaultSettings); 
 
             Timeline.DesiredFrameRateProperty.OverrideMetadata(
                             typeof(Timeline),
@@ -170,10 +173,20 @@ namespace crmc.wotdisplay
 
             await Task.Run(() =>
             {
-                var client = new RestClient(Settings.Default.WebServerUrl);
-                var request = new RestRequest("api/configuration/GetWallAppConfig", Method.GET);
+                //TODO: Replace url 
+                string url = Settings.Default.WebServerUrl + "/breeze/breeze/appconfigs"; 
+//                     "http://localhost/crmc/breeze/Breeze/appconfigs";
+                
+                var syncClient = new WebClient();
+                var content = syncClient.DownloadString(url);
 
-                config = client.Execute<AppConfig>(request).Data;
+                // Create the Json serializer and parse the response
+                var serializer = new DataContractJsonSerializer(typeof(AppConfig));
+                using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+                {
+                    // deserialize the JSON object using the WeatherData type.
+                    config = (AppConfig)serializer.ReadObject(ms);
+                }
 
                 if (config == null) return;
 
@@ -269,9 +282,8 @@ namespace crmc.wotdisplay
         {
                await Task.Run(() =>
                {
-                   const string BaseUrl =
-                       "http://localhost/crmc.web/breeze/Breeze/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   var url = string.Format(BaseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount,
+                   string baseUrl = Settings.Default.WebServerUrl + "/breeze/Breeze/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
+                   var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount,
                        widget.ListSize);
 
                    var syncClient = new WebClient();
@@ -279,10 +291,10 @@ namespace crmc.wotdisplay
 
                    // Create the Json serializer and parse the response
                    PersonData personData;
-                   DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (PersonData));
+                   var serializer = new DataContractJsonSerializer(typeof (PersonData));
                    using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
                    {
-                       // deserialize the JSON object using the WeatherData type.
+                       // deserialize the JSON object using the PersonData type.
                        personData = (PersonData) serializer.ReadObject(ms);
                    }
                    widget.PersonList = Mapper.Map<List<Result>, List<Person>>(personData.Results);
@@ -295,26 +307,6 @@ namespace crmc.wotdisplay
                        CurrentTotal = personData.InlineCount;
                    }
                });
-
-//            await Task.Run(() =>
-//            {
-//                var client = new RestClient(Settings.Default.WebServerUrl);
-//                var request = new RestRequest("api/person", Method.GET);
-//                request.AddParameter("isPriority", widget.IsPriorityList);
-//                request.AddParameter("skipcount", widget.SkipCount);
-//                request.AddParameter("listsize", widget.ListSize);
-//
-//                client.ExecuteAsync<List<Person>>(request, response =>
-//                    widget.PersonList = response.Data);
-//
-//
-//                //Update count totals while making request
-//                var request2 = new RestRequest("api/person/getallcount", Method.GET);
-//                client.ExecuteAsync(request2, response => CurrentTotal = Convert.ToInt32(response.Content));
-//
-//                var request3 = new RestRequest("api/person/getcountbypriority", Method.GET);
-//                client.ExecuteAsync(request3, response => CurrentPriorityTotal = Convert.ToInt32(response.Content));
-//            });
         }
 
         void PopulateListFromDb(Widget widget)
@@ -571,6 +563,21 @@ namespace crmc.wotdisplay
             config.Volume = Settings.Default.Volume;
             config.UseLocalDataSource = Settings.Default.UseLocalDataSource;
 
+
+//            const string url =
+//               "http://localhost/crmc/breeze/Breeze/savechanges";
+//
+//            var syncClient = new WebClient();
+//            var content = syncClient.UploadValues(url, config);
+//
+//            // Create the Json serializer and parse the response
+//            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppConfig));
+//            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+//            {
+//                // deserialize the JSON object using the WeatherData type.
+//                config = (AppConfig)serializer.ReadObject(ms);
+//            }
+
             var client = new RestClient(Settings.Default.WebServerUrl);
             var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddBody(config);
@@ -584,23 +591,26 @@ namespace crmc.wotdisplay
             });
 
 
-            var connection = new HubConnection(Settings.Default.WebServerUrl + "/signalr");
+//            var connection = new HubConnection("http://localhost/crmc/signalr");
+            var connection = new HubConnection(Settings.Default.WebServerUrl +  "/signalr");
 
+            //Make proxy to hub based on hub name on server
             var myHub = connection.CreateHubProxy("CRMCHub");
+
             connection.Start().ContinueWith(task =>
             {
                 if (task.IsFaulted)
                 {
-                    Console.WriteLine("There was an error opening the connection:{0}",
+                    Debug.WriteLine("There was an error opening the connection:{0}",
                                       task.Exception.GetBaseException());
                 }
                 else
                 {
-                    Console.WriteLine("Connected");
+                    Debug.WriteLine("Connected");
                 }
 
             }).Wait();
-
+            
             myHub.Invoke<AppConfig>("SaveConfigSettings", config);
 //            ConnectionManager.HubProxy.Invoke("SaveConfigSettings", config);
         }

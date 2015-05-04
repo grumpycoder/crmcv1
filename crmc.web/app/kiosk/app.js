@@ -12,6 +12,7 @@
 
         //3rd Party Modules
         'angularSpinner',
+        'ui.slider',
         'ui.bootstrap',
         'breeze.angular',
         'breeze.directives'
@@ -59,7 +60,13 @@
                .state('create.review', {
                    url: 'review',
                    templateUrl: 'app/kiosk/create/review.html'
-               });
+               })
+            .state('settings', {
+                url: 'settings',
+                templateUrl: 'app/kiosk/settings/settings.html',
+                controller: 'settings',
+                controllerAs: 'vm'
+            });
 
         $urlRouterProvider.otherwise('/welcome');
     }]);

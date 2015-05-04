@@ -3,9 +3,9 @@
 
     var controllerId = 'welcome';
     angular.module('app').controller(controllerId,
-                  ['$scope', '$state', welcome]);
+                  ['$scope', '$state', 'usSpinnerService', welcome]);
 
-    function welcome($scope, $state) {
+    function welcome($scope, $state, usSpinnerService) {
         var vm = this;
 
         vm.activate = activate;
@@ -24,7 +24,7 @@
         }
 
         function gotoSearch() {
-            $state.go('find.search');
+            $state.go('settings');
         }
     }
 })();

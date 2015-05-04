@@ -32,5 +32,10 @@ namespace crmc.web.Data
             get { return Context.Censors; }
         }
 
+        public IQueryable<AppConfig> AppConfigs
+        {
+            get { return Context.AppSettings; }
+        } 
+
     }
 }

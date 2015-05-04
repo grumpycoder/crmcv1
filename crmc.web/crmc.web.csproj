@@ -288,7 +288,7 @@
     <Content Include="app\dashboard\dashboard.html" />
     <Content Include="app\kiosk\keyboard.html" />
     <Content Include="app\kiosk\settings\settings.html" />
-    <Content Include="app\kiosk\settings\settings.js" />
+    <Content Include="app\kiosk\settings\settings.controller.js" />
     <Content Include="app\kiosk\welcome.html" />
     <Content Include="app\kiosk\welcome.js" />
     <Content Include="app\layout\shell.controller.js" />
@@ -322,6 +322,7 @@
     <Content Include="Content\kiosk-validation.css" />
     <Content Include="Content\kiosk.css" />
     <Content Include="Content\main.css" />
+    <Content Include="Content\slider.css" />
     <Content Include="Content\theme.css" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
@@ -363,6 +364,7 @@
     <Content Include="Scripts\angular-route.min.js" />
     <Content Include="Scripts\angular-sanitize.js" />
     <Content Include="Scripts\angular-sanitize.min.js" />
+    <Content Include="Scripts\angular-slider.min.js" />
     <Content Include="Scripts\angular-spinner.js" />
     <Content Include="Scripts\angular-spinner.min.js" />
     <Content Include="Scripts\angular-ui-router.js" />
@@ -417,6 +419,7 @@
     <Content Include="Scripts\q.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\slider.js" />
     <Content Include="Scripts\spin.js" />
     <Content Include="Scripts\spin.min.js" />
     <Content Include="Scripts\string_score.min.js" />
@@ -470,7 +473,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>7347</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/crmc.web</IISUrl>
+          <IISUrl>http://localhost/crmc</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

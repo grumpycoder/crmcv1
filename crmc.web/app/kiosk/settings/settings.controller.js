@@ -5,17 +5,18 @@
 
     var controllerId = 'settings';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', 'common', 'datacontext', viewmodel]);
+        ['$cookies', '$cookieStore', '$scope', 'common', 'datacontext', viewmodel]);
 
-    function viewmodel($cookies, $cookieStore, common, datacontext) {
-
+    function viewmodel($cookies, $cookieStore, $scope, common, datacontext) {
+        var vm = this;
         var getLogFn = common.logger.getLogFn;
+        var log = getLogFn(controllerId);
         var logError = getLogFn(controllerId, 'error');
         var logSuccess = getLogFn(controllerId, 'success');
 
-        var vm = this;
+        var crmc = $.connection.cRMCHub;
 
-        vm.title = 'configuration';
+        vm.title = 'Settings';
         vm.config = {};
         vm.availableKiosks = ['1', '2', '3', '4'];
 
@@ -28,18 +29,21 @@
 
         function activate() {
             common.activateController([getConfigOptions()], controllerId).then(onEveryChange);
-            vm.selectedKiosk = $cookies.kiosk; 
+            vm.selectedKiosk = $cookies.kiosk;
+            $.connection.hub.start().done(function () {
+                log('hub connection successful', null, false);
+            });
         }
 
         function onEveryChange() {
             // Begin observing model for changes
-            Object.observe(vm.config, configObserver);
+            //            Object.observe(vm.config.volume, configObserver);
             Object.observe(vm, kioskObserver);
         }
 
         function getConfigOptions() {
-            return datacontext.getWallConfig().then(function (response) {
-                vm.config = response.data;
+            return datacontext.getAppSettings().then(function (response) {
+                vm.config = response;
             }, function () {
                 logError('Unable to get configuration settings');
             });
@@ -59,16 +63,20 @@
         }
 
         function save() {
-            datacontext.saveConfigValues(vm.config).then(function () {
-                logSuccess('Saved sucessfully', null, true);
-
-            }, function () {
-                logError('Save failed', null, true);
+            datacontext.save().then(function () {
+                log('Saved Settings');
+                crmc.server.configSettingsSaved();
             });
+            //            datacontext.saveConfigValues(vm.config).then(function () {
+            //                logSuccess('Saved sucessfully', null, true);
+            //
+            //            }, function () {
+            //                logError('Save failed', null, true);
+            //            });
         }
 
         function saveKiosk() {
-            $cookies.kiosk = vm.selectedKiosk; 
+            $cookies.kiosk = vm.selectedKiosk;
             logSuccess('Saved kiosk', null, true);
         }
 

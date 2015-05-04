@@ -31,12 +31,15 @@ namespace crmc.web.Hubs
             return Clients.All.nameAddedToWall(kiosk, name);
         }
 
-        public Task SaveConfigSettings(AppConfig config)
+/*        public Task SaveConfigSettings(AppConfig config)
         {
             return Clients.All.configSaved(config);
+        }*/
+
+        public Task ConfigSettingsSaved()
+        {
+            return Clients.All.configSettingsSaved();
         }
-
-
 
     }
 }

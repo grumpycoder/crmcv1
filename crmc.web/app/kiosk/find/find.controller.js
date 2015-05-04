@@ -66,6 +66,7 @@
 
         function finish() {
             //TODO: Send vm.person name to hub method
+            vm.kiosk = 1; 
             crmc.server.addNameToWall(vm.kiosk, vm.person.firstname + ' ' + vm.person.lastname);
             $state.go('finish');
         }

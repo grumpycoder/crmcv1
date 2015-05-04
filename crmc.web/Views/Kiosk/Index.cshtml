@@ -8,7 +8,7 @@
     <link href="~/Content/bootstrap.darkly.css" rel="stylesheet" />
     <link href="~/Content/font-awesome.css" rel="stylesheet" />
     <link href="~/Content/toastr.css" rel="stylesheet" />
-    @*    <link href="~/Content/slider.css" rel="stylesheet" />*@
+    <link href="~/Content/slider.css" rel="stylesheet" />
     <link href="~/Content/keyboard.css" rel="stylesheet" />
     <link href="~/Content/animate.css" rel="stylesheet" />
     <link href="~/Content/kiosk.css" rel="stylesheet" />
@@ -18,7 +18,7 @@
 
     <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-1" spinner-start-active="false"></span>
 
-    <div ui-view id="main-view" class="myanimation"></div>
+    <div ui-view id="main-view" class="myanimation" spinner-start-active="true"></div>
 
     <!-- Vendor Scripts -->
     <script src="~/scripts/jquery-2.1.1.js"></script>
@@ -39,6 +39,9 @@
     <script src="~/Scripts/humanize.min.js"></script>
     <script src="~/Scripts/spin.min.js"></script>
     <script src="~/Scripts/angular-spinner.min.js"></script>
+    <script src="~/Scripts/angular-slider.min.js"></script>
+    <script src="~/Scripts/slider.js"></script>
+
     <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
     <script src="~/signalr/hubs"></script>
 
@@ -47,6 +50,8 @@
     <script src="~/app/kiosk/app.js"></script>
     <script src="~/app/config.js"></script>
     <script src="~/app/config.exceptionHandler.js"></script>
+    <script src="~/app/services/app-spinner.service.js"></script>
+    <script src="~/app/directives/spinner.directive.js"></script>
 
     <!--Common Modules-->
     <script src="~/app/common/common.js"></script>
@@ -56,6 +61,7 @@
     <script src="~/app/kiosk/welcome.js"></script>
     <script src="~/app/kiosk/find/find.controller.js"></script>
     <script src="~/app/kiosk/create/create.controller.js"></script>
+    <script src="~/app/kiosk/settings/settings.controller.js"></script>
 
     <!-- app Services -->
     <script src="~/app/services/datacontext.js"></script>

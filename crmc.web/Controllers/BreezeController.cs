@@ -39,6 +39,11 @@ namespace crmc.web.Controllers
             return repository.Censors;
         }
 
+        [HttpGet]
+        public AppConfig AppConfigs()
+        {
+            return repository.AppConfigs.FirstOrDefault();
+        }
 
     }
 }

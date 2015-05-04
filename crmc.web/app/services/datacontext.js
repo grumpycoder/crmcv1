@@ -52,7 +52,7 @@
         }
 
         function getAppSettings() {
-            return EntityQuery.from('AppSettings')
+            return EntityQuery.from('AppConfigs')
                               .using(manager)
                               .execute()
                               .then(success, _queryFailed);
@@ -136,12 +136,12 @@
         }
 
         function rejectChanges() {
-            manager.rejectChanges();
+            return manager.rejectChanges();
             logInfo('Canceled changes', null, true);
         }
 
         function save() {
-            manager.saveChanges();
+            return manager.saveChanges();
         }
 
         //TODO: Remove?

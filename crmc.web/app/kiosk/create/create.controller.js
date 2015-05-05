@@ -113,14 +113,14 @@
 
         function validateFullName(value) {
             var valid = true;
-
             if (typeof value === "undefined") {
                 value = "";
             }
 
             if (typeof vm.blackList !== "undefined") {
                 for (var i = vm.blackList.length - 1; i >= 0; i--) {
-                    if (value === vm.blackList[i]) {
+                    var lowerValue = value.toLowerCase();
+                    if (lowerValue === vm.blackList[i]) {
                         valid = false;
                         break;
                     }

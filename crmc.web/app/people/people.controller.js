@@ -1,9 +1,9 @@
 ﻿(function () {
     'use strict';
     var controllerId = 'PeopleCtrl';
-    angular.module('app').controller(controllerId, ['$modal', '$scope', 'common', 'config', 'datacontext', viewmodel]);
+    angular.module('app').controller(controllerId, ['$modal', '$scope', 'appSpinner', 'common', 'config', 'datacontext', viewmodel]);
 
-    function viewmodel($modal, $scope, common, config, datacontext) {
+    function viewmodel($modal, $scope, appSpinner, common, config, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -15,8 +15,7 @@
         vm.clearSearch = clearSearch;
         vm.daysFilter = '';
         vm.fuzzyMatchValue = '';
-        vm.updatePerson = updatePerson;
-        vm.deletePerson = deletePerson;
+//        vm.deletePerson = deletePerson;
         vm.orderByField = 'lastname';
         vm.reverseSort = false;
         vm.people = [];
@@ -91,6 +90,7 @@
 
             var modalInstance = $modal.open({
                 templateUrl: 'app/people/editPerson.html',
+//                windowTemplateUrl: 'app/people/customModal.html', 
                 controller: function ($scope, $modalInstance, person, datacontext) {
                     $scope.person = person;
 
@@ -123,11 +123,10 @@
 
         function getPeople(forceRefresh) {
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
-
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, orderBy).then(function (data) {
+            appSpinner.showSpinner('Retrieving Censors');
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, orderBy).then(function(data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
-
                 //Set count here to limit unnecessary call on first load since filter and total count will be same. 
                 if (!vm.peopleSearch) {
                     vm.peopleCount = vm.peopleFilteredCount;
@@ -136,15 +135,15 @@
                 if (!vm.peopleCount || forceRefresh) {
                     getPeopleCount();
                 }
-                $scope.$apply();
+                appSpinner.hideSpinner();
                 return vm.people;
-            });
+            }); 
         }
 
         function getPeopleCount() {
             return datacontext.getPeopleCount().then(function (data) {
                 vm.peopleCount = data;
-                $scope.$apply();
+//                $scope.$apply();
                 return vm.peopleCount = data;
             });
         }
@@ -176,8 +175,11 @@
         }
 
         function pageChanged(page) {
-            if (!page) { return; }
-            vm.paging.currentPage = page;
+//            log('page', vm.paging.currentPage);
+//
+//            if (!page) { return; }
+//            vm.paging.currentPage = page;
+//            log(vm.paging.currentPage);
             getPeople();
         }
 

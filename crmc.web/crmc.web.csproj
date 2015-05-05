@@ -267,6 +267,7 @@
     <Content Include="app\censors\censors.html" />
     <Content Include="app\common\bootstrap\bootstrap.dialog.js" />
     <Content Include="app\common\common.js" />
+    <Content Include="app\common\filters.js" />
     <Content Include="app\common\logger.js" />
     <Content Include="app\common\spinner.js" />
     <Content Include="app\config.exceptionHandler.js" />
@@ -294,6 +295,7 @@
     <Content Include="app\layout\shell.controller.js" />
     <Content Include="app\layout\shell.html" />
     <Content Include="app\layout\widgetheader.html" />
+    <Content Include="app\people\customModal.html" />
     <Content Include="app\people\editPerson.html" />
     <Content Include="app\people\people.controller.js" />
     <Content Include="app\people\people.html" />
@@ -395,6 +397,7 @@
     <Content Include="Scripts\angular-route.min.js.map" />
     <Content Include="fonts\HelveticaNeueLTStd-Lt.otf" />
     <Content Include="Scripts\angular-animate.min.js.map" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <Content Include="Scripts\angular-spinner.min.js.map" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
@@ -426,6 +429,7 @@
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Scripts\ui-bootstrap-tpls.min.js" />
+    <Content Include="Scripts\validate-popover.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

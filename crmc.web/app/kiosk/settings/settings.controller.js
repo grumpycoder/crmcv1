@@ -67,12 +67,6 @@
                 log('Saved Settings');
                 crmc.server.configSettingsSaved();
             });
-            //            datacontext.saveConfigValues(vm.config).then(function () {
-            //                logSuccess('Saved sucessfully', null, true);
-            //
-            //            }, function () {
-            //                logError('Save failed', null, true);
-            //            });
         }
 
         function saveKiosk() {

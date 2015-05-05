@@ -24,7 +24,7 @@
         }
 
         function gotoSearch() {
-            $state.go('settings');
+            $state.go('find.search');
         }
     }
 })();

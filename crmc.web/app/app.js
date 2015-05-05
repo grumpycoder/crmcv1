@@ -17,7 +17,8 @@
         'breeze.angular',
         'breeze.directives'
 
-    ]).config(['$routeProvider', configRoutes]).run(['$route', function($route) {}]);
+    ])
+        .config(['$routeProvider', configRoutes]).run(['$route', function ($route) { }]);
 
     function configRoutes($routeProvider) {
         

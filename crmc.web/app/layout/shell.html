@@ -11,17 +11,41 @@
                     <i class="fa fa-home"></i>
                     <span>CRMC Admin</span>
                 </a>
+
             </div>
             <div class="collapse navbar-collapse" ng-class="{'in': !navCollapsed}">
                 <ul class="nav navbar-nav">
                     <li class="nav navbar-nav" ng-repeat="r in vm.navRoutes" ng-class="vm.isCurrent(r)">
                         <a href="#{{r.url}}" ng-bind-html="r.config.settings.content" data-toggle="collapse" data-target=".navbar-collapse"></a>
                     </li>
-                    <!--<li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/">Home</a></li>
-                    <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/people">People</a></li>
-                    <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#/censors">BlackList</a></li>-->
                 </ul>
+                <form ng-hide="vm.isLoggedIn()" class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="username (email)"
+                               ng-model="vm.userData.email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password"
+                               class="form-control"
+                               placeholder="password"
+                               ng-model="vm.userData.password">
+                    </div>
+                    <button type="submit"
+                            class="btn btn-default"
+                            ng-click="vm.login()">
+                        Login
+                    </button>
+                    <button type="submit"
+                            class="btn btn-default"
+                            ng-click="vm.registerUser()">
+                        Register
+                    </button>
+                    <div ng-show="vm.message">{{vm.message}}</div>
+                </form>
             </div>
+
 
         </div>
     </div>
@@ -31,6 +55,6 @@
         <div class="page-splash-message page-splash-message-subtle">{{vm.spinnerMessage}}</div>
     </div>
 
-    <div ng-view id="ng-view" class="container slide-animation admin-content"></div>
+    <div ng-view id="ng-view" class="container slide-animation admin-content" ng-if="vm.isLoggedIn()"></div>
 
 </div>

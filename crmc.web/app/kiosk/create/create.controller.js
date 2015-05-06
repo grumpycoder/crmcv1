@@ -22,6 +22,10 @@
         vm.showValidationErrors = false;
         vm.title = 'Add Your Name';
 
+        vm.checkEmail = function() {
+            console.log('check');
+        }
+
         activate();
 
         function activate() {
@@ -53,6 +57,22 @@
                     }
                 }
             })
+
+            $scope.$watch('vm.nameForm.inputEmail', function(newval, oldval) {
+                log('nameform change', newval)
+            })
+
+            $scope.$watch('vm.person.emailAddress', function (newVal, oldVal) {
+                if (vm.person) {
+                    if (vm.nameForm.inputEmail.length == 0) {
+                        vm.nameForm.inputEmail.$setValidity('email', true);
+                    }
+//                    log('change', newVal);
+//                    log('change', oldVal);
+                }
+                log('email change');
+            })
+
         }
 
         function getBlackList() {

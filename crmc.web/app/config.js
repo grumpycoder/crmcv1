@@ -29,6 +29,8 @@
         del: 46
     };
 
+    var serverPath = 'http://localhost/crmc'
+
     var events = {
 //        controllerActivateSuccess: 'controller.activateSuccess',
 //        spinnerToggle: 'spinner.toggle'
@@ -40,6 +42,7 @@
         //        events: events,
         keyCodes: keyCodes, 
         remoteServiceName: remoteServiceName,
+        serverPath: serverPath, 
         version: '1.0.0'
     };
 

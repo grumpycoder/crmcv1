@@ -53,9 +53,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <input type="email" class="form-control" id="inputEmail" name="inputEmail"
-                           ng-model="vm.person.email"
+                           ng-model="vm.person.emailAddress"
                            placeholder="Email Address">
-                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid && (vm.nameForm.inputEmail.$touched)">
+                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid" ng-blur="vm.checkEmail()">
                         <span class="errorMessage arrow_box" ng-message="email" class="text-danger">Invalid email address</span>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
                 <span class="off">.</span><span class="on">&gt;</span>
             </li>
             <li class="symbol">
-                <span class="off">/</span><span class="on">?</span>
+                <span class="off">@</span><span class="on">?</span>
             </li>
             <li class="shift lastitem">SHIFT</li>
             <li class="space lastitem">SPACE</li>
@@ -195,8 +195,21 @@
     </div>
 </footer>
 
-<pre class="code-preview">
-{{}}
+<pre>
+{{vm.person}}
+</pre>
+
+<pre class="">
+
+{{vm.nameForm.inputEmail.length}}
 </pre>
 
 <script src="Scripts/keyboard.js"></script>
+<script>
+    $(function() {
+
+        $('#inputEmail').on('change', function() {
+            console.log('change');
+        })
+    })
+</script>

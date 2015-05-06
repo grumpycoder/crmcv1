@@ -1,11 +1,11 @@
 ﻿
-
-
 $(function () {
+
     var $write = $('firstname'),
 		shift = false,
 		capslock = false;
     var index = 0;
+
 
     $('input').on('focus', function () {
         $write = $(this);
@@ -17,11 +17,20 @@ $(function () {
 
         // Shift keys
         if ($this.hasClass('left-shift') || $this.hasClass('right-shift')) {
-            $('.letter').toggleClass('uppercase');
-            $('.symbol span').toggle();
+            //            $('.letter').toggleClass('uppercase');
+            //            $('.symbol span').toggle();
+            //
+            //            shift = (shift === true) ? false : true;
+            //            capslock = false;
+            return false;
+        }
 
-            shift = (shift === true) ? false : true;
-            capslock = false;
+        if ($this.hasClass('shift')) {
+            //            $('.letter').toggleClass('uppercase');
+            //            $('.symbol span').toggle();
+            //
+            //            shift = (shift === true) ? false : true;
+            //            capslock = false;
             return false;
         }
 
@@ -35,8 +44,11 @@ $(function () {
         // Delete
         if ($this.hasClass('delete')) {
             var html = $write.val();
-
+            console.log($write);
             $write.val(html.substr(0, html.length - 1));
+            var e = $.Event('keypress');
+            e.which = 46;
+            $write.trigger(e);
             return false;
         }
 
@@ -49,6 +61,8 @@ $(function () {
 
         if ($this.hasClass('tab')) {
             character = '';
+
+
             index += 1;
             if (index > $('input').length - 1) {
                 index = 0;
@@ -79,5 +93,6 @@ $(function () {
 
     $('.letter').toggleClass('uppercase');
     capslock = true;
+
 
 });

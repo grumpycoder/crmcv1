@@ -5,6 +5,7 @@
     angular.module('app', [
         // Angular modules 
         'ngRoute',
+        'ngResource', 
         'ngAnimate',
         'ui.router',
         'ngCookies',

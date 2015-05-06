@@ -243,6 +243,7 @@
     <Compile Include="Controllers\BreezeController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\KioskController.cs" />
+    <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Data\ApplicationDbContext.cs" />
     <Compile Include="Data\CRMCRepository.cs" />
@@ -250,6 +251,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="hubs\cmrcHub.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AppConfig.cs" />
@@ -267,6 +269,7 @@
     <Content Include="app\censors\censors.html" />
     <Content Include="app\common\bootstrap\bootstrap.dialog.js" />
     <Content Include="app\common\common.js" />
+    <Content Include="app\common\currentUser.js" />
     <Content Include="app\common\filters.js" />
     <Content Include="app\common\logger.js" />
     <Content Include="app\common\spinner.js" />
@@ -292,6 +295,7 @@
     <Content Include="app\kiosk\settings\settings.controller.js" />
     <Content Include="app\kiosk\welcome.html" />
     <Content Include="app\kiosk\welcome.js" />
+    <Content Include="app\layout\login.html" />
     <Content Include="app\layout\shell.controller.js" />
     <Content Include="app\layout\shell.html" />
     <Content Include="app\layout\widgetheader.html" />
@@ -304,6 +308,7 @@
     <Content Include="app\services\directives.js" />
     <Content Include="app\services\entityManagerFactory.js" />
     <Content Include="app\services\model.js" />
+    <Content Include="app\services\userAccount.js" />
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\animate.css" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -362,6 +367,8 @@
     <Content Include="Scripts\angular-messages.js" />
     <Content Include="Scripts\angular-messages.min.js" />
     <Content Include="Scripts\angular-mocks.js" />
+    <Content Include="Scripts\angular-resource.js" />
+    <Content Include="Scripts\angular-resource.min.js" />
     <Content Include="Scripts\angular-route.js" />
     <Content Include="Scripts\angular-route.min.js" />
     <Content Include="Scripts\angular-sanitize.js" />
@@ -400,6 +407,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <None Include="Properties\PublishProfiles\Test.pubxml" />
     <Content Include="Scripts\angular-spinner.min.js.map" />
+    <Content Include="Scripts\angular-resource.min.js.map" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\humanize.min.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />

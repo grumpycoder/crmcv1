@@ -28,7 +28,7 @@
 
         vm.editItem = undefined;
         vm.setFocus = function (event) {
-            vm.editItem = event || vm.nameForm.inputFirstName; 
+            vm.editItem = event || vm.nameForm.inputFirstName;
             log('editItem', vm.editItem, false);
         }
 
@@ -41,7 +41,11 @@
                 vm.editItem.$render();
                 return;
             }
-
+            if (keyCode === 'TAB') {
+                vm.editItem.$setPristine(false);
+                vm.editItem.$render();
+                return;
+            }
             vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
             vm.editItem.$render();
         }
@@ -55,7 +59,7 @@
                 createValidationWatch();
                 vm.setFocus();
             });
-            
+
         }
 
         //#region Internal Methods        
@@ -123,7 +127,7 @@
             }
             vm.person.firstname = Humanize.titleCase(vm.person.firstname.toLowerCase());
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
-            //            $state.go('create.review');
+            $state.go('create.review');
         }
 
         function save() {

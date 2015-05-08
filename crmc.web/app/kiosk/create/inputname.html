@@ -18,19 +18,33 @@
                 <div class="col-md-12">
                     <input type="text" class="form-control" id="inputFirstName"
                            ng-focus="vm.setFocus(vm.nameForm.inputFirstName)"
+                           ng-blur="vm.blurInput()"
                            name="inputFirstName" ng-model="vm.person.firstname" required="" placeholder="First Name"
                            ng-required="true"
                            ng-pattern="/^[a-zA-Z ]*$/"
                            ng-maxlength="50"
                            val-blacklist="vm.blackList">
-                    <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputFirstName.$error.required" class="text-danger">Required</span>
-                    <div ng-messages="vm.nameForm.inputFirstName.$error" ng-show="vm.nameForm.inputFirstName.$invalid && (vm.nameForm.inputFirstName.$touched)">
-                        <span class="errorMessage arrow_box" ng-message="required" class="text-danger">Required</span>
-                        <span class="errorMessage arrow_box" ng-message="minlength" class="text-danger">Too short</span>
-                        <span class="errorMessage arrow_box" ng-message="maxlength" class="text-danger">Too long</span>
-                        <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid characters</span>
-                        <span class="errorMessage arrow_box" ng-message="valBlacklist" class="text-danger">Name is not allowed</span>
-                    </div>
+                    <!--<span class="errorMessage arrow_box text-danger" ng-show="vm.showValidationErrors && vm.nameForm.inputFirstName.$error.required">Required</span>-->
+                    <!--<div ng-messages="vm.nameForm.inputFirstName.$error" ng-show="vm.nameForm.inputFirstName.$invalid && (vm.nameForm.inputFirstName.$touched)">
+                        <span class="errorMessage arrow_box text-danger" ng-message="required">Required</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="minlength">Too short</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="maxlength">Too long</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="pattern">Invalid characters</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="valBlacklist">Name is not allowed</span>
+                    </div>-->
+
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputFirstName.$error.pattern">Invalid characters</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputFirstName.$error.required && vm.showValidationErrors">Required</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputFirstName.$error.valBlacklist">Name is not allowed</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputFirstName.$error.maxlength">Too long</span>
+                    <!--<div ng-messages="vm.nameForm.inputFirstName.$error" ng-show="vm.nameForm.inputFirstName.$invalid && !vm.nameForm.inputFirstName.$pristine">-->
+                    <!--<div ng-messages="vm.nameForm.inputFirstName.$error" ng-show="vm.nameForm.inputFirstName.$invalid">
+                        <span class="errorMessage arrow_box text-danger" ng-message="required">Required</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="minlength">Too short</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="maxlength">Too long</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="pattern">Invalid characters</span>
+                        <span class="errorMessage arrow_box text-danger" ng-message="valBlacklist">Name is not allowed</span>
+                    </div>-->
                 </div>
             </div>
             <div class="row">
@@ -42,14 +56,18 @@
                            ng-pattern="/^[a-zA-Z]*$/"
                            ng-maxlength="50"
                            val-blacklist="vm.blackList">
-                    <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputLastName.$error.required" class="text-danger">Required</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputLastName.$error.pattern">Invalid characters</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputLastName.$error.required && vm.showValidationErrors">Required</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputLastName.$error.valBlacklist">Name is not allowed</span>
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputLastName.$error.maxlength">Too long</span>
+                    <!--<span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputLastName.$error.required" class="text-danger">Required</span>
                     <div ng-messages="vm.nameForm.inputLastName.$error" ng-show="vm.nameForm.inputLastName.$invalid && (vm.nameForm.inputLastName.$touched)">
                         <span class="errorMessage arrow_box" ng-message="required" class="text-danger">Required</span>
                         <span class="errorMessage arrow_box" ng-message="minlength" class="text-danger">Too short</span>
                         <span class="errorMessage arrow_box" ng-message="maxlength" class="text-danger">Too long</span>
                         <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid characters</span>
                         <span class="errorMessage arrow_box" ng-message="valBlacklist" class="text-danger">Name is not allowed</span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
 
@@ -61,9 +79,10 @@
                            ng-model="vm.person.emailAddress"
                            ng-pattern="/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/"
                            placeholder="Email Address">
-                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid">
+                    <span class="errorMessage arrow_box text-danger" ng-show="vm.nameForm.inputEmail.$error.pattern && vm.showValidationErrors && vm.nameForm.inputEmail.$touched">Invalid email address</span>
+<!--                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid">
                         <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid email address</span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
 
@@ -77,10 +96,11 @@
                            placeholder="ZIP Code"
                            zip-code>
                     <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputZipCode.$error.required" class="text-danger">Required</span>
-                    <div ng-messages="vm.nameForm.inputZipCode.$error" ng-show="vm.nameForm.inputZipCode.$invalid && (vm.nameForm.inputZipCode.$touched || vm.nameForm.inputZipCode.$dirty)">
+                    <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputZipCode.$error.zipCode" class="text-danger">Invalid zip code</span>
+                    <!--<div ng-messages="vm.nameForm.inputZipCode.$error" ng-show="vm.nameForm.inputZipCode.$invalid && (vm.nameForm.inputZipCode.length >= 5)">
                         <span class="errorMessage arrow_box" ng-message="required" class="text-danger">Required</span>
                         <span class="errorMessage arrow_box" ng-message="zipCode" class="text-danger">Invalid zip code</span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </form>
@@ -201,3 +221,4 @@
 </footer>
 
 <script src="Scripts/keyboard.js"></script>
+

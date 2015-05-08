@@ -18,15 +18,33 @@
         vm.goBack = goBack;
         vm.gotoReview = gotoReview;
         vm.save = save;
-        vm.person = undefined;
+        vm.person = {
+            emailAddress: ''
+        };
         vm.showValidationErrors = false;
         vm.title = 'Add Your Name';
 
-        vm.checkEmail = function() {
-            console.log('check');
+        activate();
+
+        vm.editItem = undefined;
+        vm.setFocus = function (event) {
+            vm.editItem = event || vm.nameForm.inputFirstName; 
+            log('editItem', vm.editItem, false);
         }
 
-        activate();
+        vm.keyboardInput = function (key) {
+            var keyCode = key.currentTarget.outerText
+            if (keyCode === 'SPACE') keyCode = ' ';
+
+            if (keyCode === 'DEL') {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue.substr(0, vm.editItem.$viewValue.length - 1));
+                vm.editItem.$render();
+                return;
+            }
+
+            vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            vm.editItem.$render();
+        }
 
         function activate() {
             common.activateController([getBlackList()], controllerId).then(function () {
@@ -35,7 +53,9 @@
                     log('hub connection successful', null, false);
                 });
                 createValidationWatch();
+                vm.setFocus();
             });
+            
         }
 
         //#region Internal Methods        
@@ -44,6 +64,7 @@
         }
 
         function createValidationWatch() {
+
             $scope.$watch('vm.person.lastname', function (newVal, oldVal) {
                 if (vm.person) {
                     var fullName = vm.person.firstname + ' ' + vm.person.lastname;
@@ -57,22 +78,6 @@
                     }
                 }
             })
-
-            $scope.$watch('vm.nameForm.inputEmail', function(newval, oldval) {
-                log('nameform change', newval)
-            })
-
-            $scope.$watch('vm.person.emailAddress', function (newVal, oldVal) {
-                if (vm.person) {
-                    if (vm.nameForm.inputEmail.length == 0) {
-                        vm.nameForm.inputEmail.$setValidity('email', true);
-                    }
-//                    log('change', newVal);
-//                    log('change', oldVal);
-                }
-                log('email change');
-            })
-
         }
 
         function getBlackList() {
@@ -111,13 +116,14 @@
 
         function gotoReview() {
             if (vm.nameForm.$invalid) {
+
                 vm.showValidationErrors = true;
                 toastr.error('Please correct your information');
                 return;
             }
             vm.person.firstname = Humanize.titleCase(vm.person.firstname.toLowerCase());
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
-            $state.go('create.review');
+            //            $state.go('create.review');
         }
 
         function save() {

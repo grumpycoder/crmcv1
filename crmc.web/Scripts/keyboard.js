@@ -1,14 +1,16 @@
 ﻿
 $(function () {
 
-    var $write = $('firstname'),
+
+    var inputName = '';
+    var $write = $('input[type="text"]')[0],
 		shift = false,
 		capslock = false;
     var index = 0;
-
-
-    $('input').on('focus', function () {
+    
+    $('input[type="text"]').on('focus', function () {
         $write = $(this);
+        inputName = $(this).attr('name');
     });
 
     $('#keyboard li').click(function () {
@@ -44,11 +46,12 @@ $(function () {
         // Delete
         if ($this.hasClass('delete')) {
             var html = $write.val();
-            console.log($write);
-            $write.val(html.substr(0, html.length - 1));
-            var e = $.Event('keypress');
-            e.which = 46;
-            $write.trigger(e);
+            var text = html.substr(0, html.length - 1);
+//            $write.val(text);
+//            console.log('delete');
+//            $write.val($write.val() + String.fromCharCode(8));
+
+            //            $write.val(html.substr(0, html.length - 1));
             return false;
         }
 
@@ -59,15 +62,14 @@ $(function () {
 
         if ($this.hasClass('return')) character = "\n";
 
+
         if ($this.hasClass('tab')) {
             character = '';
-
-
             index += 1;
-            if (index > $('input').length - 1) {
+            if (index > $('input[type="text"]').length - 1) {
                 index = 0;
             }
-            $('input')[index].focus();
+            $('input[type="text"]')[index].focus();
         };
 
         // Uppercase letter
@@ -82,8 +84,8 @@ $(function () {
         }
         //        console.log("DO IT ", character);
         // Add the character
-        $write.val($write.val() + character);
-        $write.focus();
+//        $write.val($write.val() + character);
+//        $write.focus();
         //change event firing to force angular modle update
         $write.change();
     });
@@ -93,6 +95,5 @@ $(function () {
 
     $('.letter').toggleClass('uppercase');
     capslock = true;
-
 
 });

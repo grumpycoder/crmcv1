@@ -33,6 +33,28 @@
         vm.peopleSearch = '';
         vm.toggleName = toggleName;
 
+        vm.editItem = undefined;
+        vm.setFocus = function (event) {
+            vm.editItem = event;
+            log('editItem', vm.editItem, false);
+        }
+
+        vm.keyboardInput = function (key) {
+            vm.showValidationErrors = true; 
+            var keyCode = key.currentTarget.outerText
+            if (keyCode === 'SPACE') keyCode = ' ';
+
+            if (keyCode === 'DEL') {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue.substr(0, vm.editItem.$viewValue.length - 1));
+                vm.editItem.$render();
+                return;
+            }
+
+            vm.editItem = vm.editItem || vm.searchForm.inputSearchText; 
+            vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            vm.editItem.$render();
+        }
+
         activate();
 
         function activate() {

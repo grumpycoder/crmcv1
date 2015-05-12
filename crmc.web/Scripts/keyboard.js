@@ -3,21 +3,14 @@ $(function () {
 
 
     var inputName = '';
-    var currentIndex = 0;
-
     var $write = $('input[type="text"]')[0],
 		shift = false,
 		capslock = false;
+    var index = 0;
     
     $('input[type="text"]').on('focus', function () {
         $write = $(this);
         inputName = $(this).attr('name');
-        for (var i = 0; i < $('input[type="text"]').length; i++) {
-            if ($('input[type="text"]')[i].name === inputName) {
-                currentIndex = i;
-                break;;
-            }
-        }
     });
 
     $('#keyboard li').click(function () {
@@ -72,12 +65,11 @@ $(function () {
 
         if ($this.hasClass('tab')) {
             character = '';
-            currentIndex += 1;
-            if (currentIndex > $('input[type="text"]').length - 1) {
-                currentIndex = 0;
+            index += 1;
+            if (index > $('input[type="text"]').length - 1) {
+                index = 0;
             }
-            $('input[type="text"]')[currentIndex].focus();
-
+            $('input[type="text"]')[index].focus();
         };
 
         // Uppercase letter

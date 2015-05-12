@@ -32,8 +32,7 @@
 
                     if (typeof scope.blacklist !== "undefined") {
                         for (var i = scope.blacklist.length - 1; i >= 0; i--) {
-
-                            if (value.toLowerCase() === scope.blacklist[i].toLowerCase()) {
+                            if (value === scope.blacklist[i]) {
                                 valid = false;
                                 break;
                             }

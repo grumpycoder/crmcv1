@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace crmc.web.Controllers
 {
     [BreezeController]
+    [Authorize]
     public class BreezeController : ApiController
     {
 

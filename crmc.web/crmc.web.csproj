@@ -303,12 +303,16 @@
     <Content Include="app\people\editPerson.html" />
     <Content Include="app\people\people.controller.js" />
     <Content Include="app\people\people.html" />
+    <Content Include="app\services\addToken.js" />
     <Content Include="app\services\app-spinner.service.js" />
     <Content Include="app\services\datacontext.js" />
     <Content Include="app\services\directives.js" />
     <Content Include="app\services\entityManagerFactory.js" />
+    <Content Include="app\services\loginRedirect.js" />
     <Content Include="app\services\model.js" />
-    <Content Include="app\services\userAccount.js" />
+    <Content Include="app\services\spinnerInterceptor.js" />
+    <Content Include="app\users\login.controller.js" />
+    <Content Include="app\users\login.html" />
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\animate.css" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -364,6 +368,7 @@
     <Content Include="Scripts\angular-animate.min.js" />
     <Content Include="Scripts\angular-cookies.js" />
     <Content Include="Scripts\angular-cookies.min.js" />
+    <Content Include="Scripts\angular-local-storage.js" />
     <Content Include="Scripts\angular-messages.js" />
     <Content Include="Scripts\angular-messages.min.js" />
     <Content Include="Scripts\angular-mocks.js" />

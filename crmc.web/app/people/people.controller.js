@@ -123,7 +123,7 @@
 
         function getPeople(forceRefresh) {
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
-            appSpinner.showSpinner('Retrieving Censors');
+//            appSpinner.showSpinner('Retrieving People');
             datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, orderBy).then(function(data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
@@ -135,7 +135,7 @@
                 if (!vm.peopleCount || forceRefresh) {
                     getPeopleCount();
                 }
-                appSpinner.hideSpinner();
+//                appSpinner.hideSpinner();
                 return vm.people;
             }); 
         }

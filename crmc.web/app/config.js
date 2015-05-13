@@ -36,6 +36,7 @@
 //        spinnerToggle: 'spinner.toggle'
     };
 
+
     var config = {
         appErrorPrefix: '[CRMC Error] ', //Configure the exceptionHandler decorator
         docTitle: 'CRMC: ',

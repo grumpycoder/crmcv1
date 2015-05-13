@@ -34,55 +34,63 @@
     // Define the routes 
     function getRoutes() {
         return [
-  {
-      url: '/',
-      config: {
-          templateUrl: 'app/dashboard/dashboard.html',
-          title: 'dashboard',
-          controller: 'DashboardCtrl',
-          controllerAs: 'vm',
-          settings: {
-              nav: 1,
-              content: '<i class="fa fa-dashboard"></i> Dashboard'
-          }
-      }
-  }, {
-      url: '/censor',
-      config: {
-          title: 'censor',
-          templateUrl: 'app/censors/censors.html',
-          controller: 'CensorCtrl',
-          controllerAs: 'vm',
-          settings: {
-              nav: 3,
-              content: '<i class="fa fa-ban"></i> Censor Words'
-          }
-      }
-  }, {
-      url: '/people',
-      config: {
-          title: 'people',
-          templateUrl: 'app/people/people.html',
-          controller: 'PeopleCtrl',
-          controllerAs: 'vm',
-          settings: {
-              nav: 4,
-              content: '<i class="fa fa-users"></i> People'
-          }
-      }
-  }, {
-      url: '/settings',
-      config: {
-          title: 'settings',
-          templateUrl: 'app/settings/settings.html',
-          controller: 'SettingCtrl',
-          controllerAs: 'vm',
-          settings: {
-              nav: 5,
-              content: '<i class="fa fa-cogs"></i> Settings'
-          }
-      }
-  }
+            {
+                url: '/',
+                config: {
+                    templateUrl: 'app/dashboard/dashboard.html',
+                    title: 'dashboard',
+//                    controller: 'DashboardCtrl',
+//                    controllerAs: 'vm',
+                    settings: {
+                        nav: 1,
+                        content: '<i class="fa fa-dashboard"></i> Dashboard'
+                    }
+                }
+            }, {
+                url: '/censor',
+                config: {
+                    title: 'censor',
+                    templateUrl: 'app/censors/censors.html',
+                    controller: 'CensorCtrl',
+                    controllerAs: 'vm',
+                    settings: {
+                        nav: 3,
+                        content: '<i class="fa fa-ban"></i> Censor Words'
+                    }
+                }
+            }, {
+                url: '/people',
+                config: {
+                    title: 'people',
+                    templateUrl: 'app/people/people.html',
+                    controller: 'PeopleCtrl',
+                    controllerAs: 'vm',
+                    settings: {
+                        nav: 4,
+                        content: '<i class="fa fa-users"></i> People'
+                    }
+                }
+            }, {
+                url: '/settings',
+                config: {
+                    title: 'settings',
+                    templateUrl: 'app/settings/settings.html',
+                    controller: 'SettingCtrl',
+                    controllerAs: 'vm',
+                    settings: {
+                        nav: 5,
+                        content: '<i class="fa fa-cogs"></i> Settings'
+                    }
+                }
+            }, {
+                url: '/login',
+                config: {
+                    title: 'login',
+                    templateUrl: 'app/users/login.html',
+                    controller: 'LoginCtrl',
+                    controllerAs: 'vm'
+                }
+            }
         ];
     }
 })();

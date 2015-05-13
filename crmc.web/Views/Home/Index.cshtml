@@ -5,14 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" ng-app="app">
 <head>
     <title>CRMC Administration</title>
-    <link href="~/Content/bootstrap.min.css" rel="stylesheet"/>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
     <link href="~/Content/font-awesome.css" rel="stylesheet" />
     <link href="~/Content/toastr.css" rel="stylesheet" />
     <link href="~/Content/animate.css" rel="stylesheet" />
     @*<link href="~/Content/customtheme.css" rel="stylesheet" />*@
     <link href="~/Content/main.css" rel="stylesheet" />
-
 </head>
 <body class="container">
     <div id="applicationHost" class="container body-content admin-appHost">
@@ -36,6 +35,7 @@
     <script src="~/Scripts/breeze.bridge.angular.js"></script>
     <script src="~/Scripts/moment.min.js"></script>
     <script src="~/Scripts/spin.min.js"></script>
+    <script src="~/Scripts/angular-local-storage.js"></script>
 
     <!--Bootstrappping-->
     <script src="~/app/app.js"></script>
@@ -48,10 +48,11 @@
     <!--Common Modules-->
     <script src="~/app/common/common.js"></script>
     <script src="~/app/common/logger.js"></script>
-
+    <script src="~/app/common/currentUser.js"></script>
 
     <!-- app -->
     <script src="~/app/layout/shell.controller.js"></script>
+    <script src="~/app/users/login.controller.js"></script>
     <script src="~/app/dashboard/dashboard.controller.js"></script>
     <script src="~/app/people/people.controller.js"></script>
     <script src="~/app/censors/censors.controller.js"></script>
@@ -62,8 +63,9 @@
     <script src="~/app/common/filters.js"></script>
     <script src="~/app/services/entityManagerFactory.js"></script>
     <script src="~/app/services/model.js"></script>
-    <script src="~/app/services/userAccount.js"></script>
-    <script src="~/app/common/currentUser.js"></script>
-
+    @*<script src="~/app/services/userAccount.js"></script>*@
+    <script src="~/app/services/loginRedirect.js"></script>
+    <script src="~/app/services/addToken.js"></script>
+    <script src="~/app/services/spinnerInterceptor.js"></script>
 </body>
 </html>

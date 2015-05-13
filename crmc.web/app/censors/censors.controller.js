@@ -87,10 +87,10 @@
         }
 
         function getCensorList(forceRemote) {
-            appSpinner.showSpinner('Retrieving Censors');
+//            appSpinner.showSpinner('Retrieving Censors');
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
             datacontext.getCensors(forceRemote, orderBy).then(function(data) {
-                appSpinner.hideSpinner();
+//                appSpinner.hideSpinner();
                 return vm.censors = vm.filteredCensors = data;
             })
             datacontext.getPeopleCount().then(function(data) {

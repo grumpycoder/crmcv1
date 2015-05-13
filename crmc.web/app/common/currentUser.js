@@ -1,28 +1,43 @@
 ﻿(function () {
     "use strict";
-    angular.module('common').factory('currentUser', currentUser)
+    var USERKEY = "utoken";
 
-    function currentUser() {
-        var profile = {
-            isLoggedIn: false,
-            username: '',
-            token: ''
+    var currentUser = function (localStorage) {
+
+        var saveUser = function () {
+            localStorage.add(USERKEY, profile);
         };
 
-        var setProfile = function(username, token) {
-            profile.username = username;
-            profile.token = token;
-            profile.isLoggedIn = true; 
+        var removeUser = function () {
+            localStorage.remove(USERKEY);
+        };
+
+        var initialize = function () {
+            var user = {
+                username: "",
+                token: "",
+                get loggedIn() {
+                    return this.token ? true : false;
+                }
+            };
+
+            var localUser = localStorage.get(USERKEY);
+            if (localUser) {
+                user.username = localUser.username;
+                user.token = localUser.token;
+            }
+            return user;
         }
 
-        var getProfile = function() {
-            return profile; 
-        }
+        var profile = initialize();
 
         return {
-            setProfile: setProfile,
-            getProfile: getProfile
-        }
+            save: saveUser,
+            remove: removeUser,
+            profile: profile
+        };
+    };
 
-    }
+    angular.module('common').factory('currentUser', ['localStorageService', currentUser])
+
 }());

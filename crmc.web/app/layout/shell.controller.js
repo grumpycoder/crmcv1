@@ -2,11 +2,11 @@
     'use strict';
 
     angular.module('app').controller('ShellCtrl',
-                                    ['$location', '$rootScope', '$route', 'config', 'currentUser', 'routes', ShellCtrl]);
+                                    ['$q', '$location', '$rootScope', '$route', '$window', 'config', 'currentUser', 'routes', ShellCtrl]);
 
     //    ShellCtrl.$inject = ['$rootScope'];
 
-    function ShellCtrl($location, $rootScope, $route, config, currentUser, routes) {
+    function ShellCtrl($q, $location, $rootScope, $route, $window, config, currentUser, routes) {
         /* jshint validthis:true */
         var vm = this;
 
@@ -39,7 +39,7 @@
         function activate() {
             getNavRoutes();
             vm.user = currentUser.profile;
-            console.log(vm.user.loggedIn);
+            console.log($location.path());
         }
 
         function getNavRoutes() {
@@ -66,8 +66,8 @@
             currentUser.profile.username = '';
             currentUser.profile.token = '';
             currentUser.remove();
-            $location.path('/login');
-            console.log('redirect to login');
+                
+            $location.path('/');
         }
 
         $rootScope.$on('spinner.toggle', function (event, args) {

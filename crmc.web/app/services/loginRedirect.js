@@ -9,7 +9,7 @@
             loginUrl = value;
         };
 
-        this.$get = function ($q, $location) {
+        this.$get = function ($q, $location, $window) {
 
             return {
 

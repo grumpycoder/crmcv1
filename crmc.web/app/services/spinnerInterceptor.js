@@ -2,9 +2,14 @@
 (function () {
     'use strict';
     var serviceId = 'spinnerInterceptor';
-    angular.module('app').factory(serviceId, ['$q', 'appSpinner', spinnerInterceptor]);
+    angular.module('app').factory(serviceId, ['$q', 'appSpinner', 'common', spinnerInterceptor]);
 
-    function spinnerInterceptor($q, appSpinner) {
+    function spinnerInterceptor($q, appSpinner, common) {
+        var getLogFn = common.logger.getLogFn;
+        var log = getLogFn(serviceId);
+        var logError = getLogFn(serviceId, 'error');
+        var logSuccess = getLogFn(serviceId, 'success');
+
         var numRequests = 0;
         var hide = function (r) {
             if (!--numRequests) {
@@ -21,11 +26,11 @@
             },
             'response': function (response) {
                 if (response && response.data && response.data.ERROR && response.data.ERROR === true && response.data.Message) {
-                    alert(response.data.Message);
+                    log(response.data.Message, null, false);
                     return $q.reject(hide(response));
                 }
                 if (response && response.data && response.data.Error === false && response.data.Message) {
-                    alert(response.data.Message);
+                    log(response.data.Message, null, false);
                 }
 
                 return hide(response);
@@ -36,9 +41,9 @@
 
                 if (response.data && response.data.Error &&
                     response.data.Error === true && response.data.Message) {
-                    alert(response.data.Message);
+                    log(response.data.Message);
                 } else {
-                    alert('Sorry, there was an error.');
+                    log('Sorry, there was an error.', response, false);
                 }
 
                 return $q.reject(hide(response));

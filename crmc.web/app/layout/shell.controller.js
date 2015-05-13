@@ -39,7 +39,6 @@
         function activate() {
             getNavRoutes();
             vm.user = currentUser.profile;
-            console.log($location.path());
         }
 
         function getNavRoutes() {
@@ -66,7 +65,6 @@
             currentUser.profile.username = '';
             currentUser.profile.token = '';
             currentUser.remove();
-                
             $location.path('/');
         }
 

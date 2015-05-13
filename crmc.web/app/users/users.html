@@ -1,0 +1,78 @@
+﻿<section>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="input-group">
+                <input type="search" class="form-control input-md" placeholder="Search for..." autofocus="" ng-model="vm.userSearch" ng-keyup="vm.clearSearch($event)">
+                <span class="input-group-btn">
+                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
+                </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+        <div class="col-lg-6">
+            <div class="btn-group pull-right">
+                <a class="btn btn-info"
+                   data-ng-click="vm.refresh()">
+                    <i class="fa fa-refresh"></i><span> Refresh</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            <div class="page-title pull-left">{{vm.title}}</div>
+            <small class="page-title-subtle pull-left">({{vm.userFilteredCount}} / {{vm.userCount}})</small>
+            <!--<div class="pull-right"><small class="page-title-subtle">Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}</small></div>-->
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <form class="form-inline form-group">
+                    <input type="text" class="form-control" placeholder="New username" ng-model="vm.newUsername" ng-keyup="vm.clearInput($event)">
+                    <button type="submit" class="btn btn-primary" ng-click="vm.addItem()"
+                            tooltip="Click here to add new user" tooltip-placement="left">
+                        <span class="fa fa-plus"></span> Add
+                    </button>
+                </form>
+            </div>
+            <table class="table table-responsive table-condensed table-hover table-container">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Roles</th>
+                        <th>Claims</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="user in vm.users">
+                        <td>{{user.userName}}</td>
+                        <td>
+                            <span ng-repeat="role in user.roles" class="label label-primary" style="cursor: pointer; margin-right: 3px;">{{role}}</span>
+                            <!--<ul>
+                                <li ng-repeat="role in user.roles">{{role}}</li>
+                            </ul>-->
+                        </td>
+                        <td></td>
+                        <td>
+                            <div class="btn-group" dropdown ng-hide="vm.currentEdit[user.id]">
+                                <button class="btn btn-success dropdown-toggle" dropdown-toggle type="button">
+                                    Action <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a ng-click="vm.editItem(user)">Edit</a></li>
+                                    <li><a ng-click="vm.deleteItem(user)">Delete</a></li>
+                                </ul>
+                            </div>
+
+                            <button class="btn btn-success" ng-show="vm.currentEdit[user.id]" ng-click="vm.saveItem(user)">Save</button>
+                            <button class="btn btn-danger" ng-show="vm.currentEdit[user.id]" ng-click="vm.cancelEdit(user.id)">Cancel</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>

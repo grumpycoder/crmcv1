@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
+using crmc.web.Infrastructure;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -16,6 +17,7 @@ using Microsoft.Owin.Security.OAuth;
 using crmc.web.Models;
 using crmc.web.Providers;
 using crmc.web.Results;
+using ApplicationUser = crmc.web.Infrastructure.ApplicationUser;
 
 namespace crmc.web.Controllers
 {

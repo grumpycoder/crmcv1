@@ -83,6 +83,18 @@
                     }
                 }
             }, {
+                url: '/users',
+                config: {
+                    title: 'users',
+                    templateUrl: 'app/users/users.html',
+                    controller: 'UserCtrl',
+                    controllerAs: 'vm',
+                    settings: {
+                        nav: 5,
+                        content: '<i class="fa fa-user-times"></i> Users'
+                    }
+                }
+            }, {
                 url: '/login',
                 config: {
                     title: 'login',

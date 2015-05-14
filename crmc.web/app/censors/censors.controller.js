@@ -26,6 +26,7 @@
         vm.editItem = editItem;
         vm.filteredCensors = [];
         vm.orderByField = 'word';
+        vm.refresh = refresh;
         vm.reverseSort = false;
         vm.saveItem = saveItem;
         vm.search = search;
@@ -87,15 +88,20 @@
         }
 
         function getCensorList(forceRemote) {
-//            appSpinner.showSpinner('Retrieving Censors');
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
-            datacontext.getCensors(forceRemote, orderBy).then(function(data) {
-//                appSpinner.hideSpinner();
-                return vm.censors = vm.filteredCensors = data;
+            datacontext.getCensors(forceRemote, orderBy).then(function (data) {
+
+                vm.censors = vm.filteredCensors = data;
+                applyFilter();
+                return vm.censors; 
             })
             datacontext.getPeopleCount().then(function(data) {
                 log('people', data, false);
             })
+        }
+
+        function refresh() {
+            getCensorList(true);
         }
 
         function saveItem(item) {

@@ -1,18 +1,77 @@
-﻿<section>
+﻿<!--<style>
+    .tags {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        right: 24px;
+        bottom: -12px;
+        list-style: none;
+    }
+
+        .tags li, .tags a {
+            float: left;
+            height: 24px;
+            line-height: 24px;
+            position: relative;
+            font-size: 11px;
+        }
+        .tags a{
+	margin-left:20px;
+	padding:0 10px 0 12px;
+	background:#0089e0;
+	color:#fff;
+	text-decoration:none;
+	-moz-border-radius-bottomright:4px;
+	-webkit-border-bottom-right-radius:4px;	
+	border-bottom-right-radius:4px;
+	-moz-border-radius-topright:4px;
+	-webkit-border-top-right-radius:4px;	
+	border-top-right-radius:4px;	
+	} 
+.tags a:before{
+	content:"";
+	float:left;
+	position:absolute;
+	top:0;
+	left:-12px;
+	width:0;
+	height:0;
+	border-color:transparent #0089e0 transparent transparent;
+	border-style:solid;
+	border-width:12px 12px 12px 0;		
+	}
+.tags a:after{
+	content:"";
+	position:absolute;
+	top:10px;
+	left:0;
+	float:left;
+	width:4px;
+	height:4px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	background:#fff;
+	-moz-box-shadow:-1px -1px 2px #004977;
+	-webkit-box-shadow:-1px -1px 2px #004977;
+	box-shadow:-1px -1px 2px #004977;
+	}
+.tags a:hover{background:#555;}	
+
+.tags a:hover:before{border-color:transparent #555 transparent transparent;}
+
+</style>-->
+
+<section>
     <div class="row">
         <div class="col-lg-6">
-            <div class="input-group">
-                <input type="search" class="form-control input-md" placeholder="Search for..." autofocus="" ng-model="vm.userSearch" ng-keyup="vm.clearSearch($event)">
-                <span class="input-group-btn">
-                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
-                </span>
-            </div><!-- /input-group -->
+            <input type="text" class="form-control" placeholder="Search for..." autofocus="" ng-model="vm.userSearch" ng-keyup="vm.search($event)">
         </div><!-- /.col-lg-6 -->
         <div class="col-lg-6">
             <div class="btn-group pull-right">
                 <a class="btn btn-info"
                    data-ng-click="vm.refresh()">
-                    <i class="fa fa-refresh"></i><span> Refresh</span>
+                    <i class="glyphicon glyphicon-refresh"></i><span>Refresh</span>
                 </a>
             </div>
         </div>
@@ -36,29 +95,41 @@
                     </button>
                 </form>
             </div>
-            <table class="table table-responsive table-condensed table-hover table-container">
+            <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Roles</th>
-                        <th>Claims</th>
-                        <th></th>
+                        <th class="col-md-4">Username</th>
+                        <th class="col-md-3">Roles</th>
+                        <th class="col-md-3">Claims</th>
+                        <th class="col-md-2"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="user in vm.users">
+                    <tr ng-repeat="user in vm.filteredUsers">
                         <td>{{user.userName}}</td>
                         <td>
-                            <span ng-repeat="role in user.roles" class="label label-primary" style="cursor: pointer; margin-right: 3px;">{{role}}</span>
-                            <!--<ul>
-                                <li ng-repeat="role in user.roles">{{role}}</li>
-                            </ul>-->
+                            <!--<span ng-repeat="role in user.roles" class="label label-primary" style="cursor: pointer; margin-right: 3px;"
+                                 ng-hide="vm.currentEdit[user.id]">
+                                {{role}}
+                            </span>-->
+                            <ul class="list-inline" ng-hide="vm.currentEdit[user.id]">
+                                <li ng-repeat="role in user.roles">
+                                    <span class="label label-info">{{role}}</span>
+                                </li>
+                            </ul>
+                            <!--<span ng-repeat="role in user.roles" ng-hide="vm.currentEdit[user.id]">
+                                {{role}}
+                            </span>-->
+                            <tags-input ng-model="vm.itemToEdit.roles" placeholder="Add a role" ng-show="vm.currentEdit[user.id]">
+                            </tags-input>
                         </td>
                         <td></td>
                         <td>
                             <div class="btn-group" dropdown ng-hide="vm.currentEdit[user.id]">
                                 <button class="btn btn-success dropdown-toggle" dropdown-toggle type="button">
-                                    Action <span class="caret"></span>
+                                    
+
+                                      Action <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a ng-click="vm.editItem(user)">Edit</a></li>

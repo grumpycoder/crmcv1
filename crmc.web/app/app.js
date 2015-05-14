@@ -17,7 +17,8 @@
             'ui.bootstrap',
             'breeze.angular',
             'breeze.directives',
-            'LocalStorageModule'
+            'LocalStorageModule',
+            'ngTagsInput'
     ])
         .config(['$routeProvider', '$httpProvider', configRoutes]).run(['$route', function ($route) { }])
         .config(['$httpProvider', function ($httpProvider) { $httpProvider.interceptors.push('spinnerInterceptor'); }])

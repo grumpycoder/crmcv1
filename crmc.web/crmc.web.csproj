@@ -322,6 +322,7 @@
     <Content Include="app\services\loginRedirect.js" />
     <Content Include="app\services\model.js" />
     <Content Include="app\services\spinnerInterceptor.js" />
+    <Content Include="app\users\editUser.html" />
     <Content Include="app\users\login.controller.js" />
     <Content Include="app\users\login.html" />
     <Content Include="app\users\user.controller.js" />
@@ -346,6 +347,7 @@
     <Content Include="Content\kiosk-validation.css" />
     <Content Include="Content\kiosk.css" />
     <Content Include="Content\main.css" />
+    <Content Include="Content\ng-tags-input.min.css" />
     <Content Include="Content\slider.css" />
     <Content Include="Content\theme.css" />
     <Content Include="Content\toastr.css" />
@@ -440,11 +442,14 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\keyboard.js" />
+    <Content Include="Scripts\lodash.js" />
+    <Content Include="Scripts\lodash.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\moment-with-langs.js" />
     <Content Include="Scripts\moment-with-langs.min.js" />
     <Content Include="Scripts\moment.js" />
     <Content Include="Scripts\moment.min.js" />
+    <Content Include="Scripts\ng-tags-input.min.js" />
     <Content Include="Scripts\q.js" />
     <Content Include="Scripts\q.min.js" />
     <Content Include="Scripts\respond.js" />
@@ -469,7 +474,6 @@
     <Content Include="Scripts\_references.js" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <None Include="Views\Home\Index.cshtml.1" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Kiosk\Index.cshtml" />

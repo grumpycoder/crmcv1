@@ -34,7 +34,11 @@
         //#region Internal Methods        
 
         function login() {
-            var url = config.serverPath + '/token';
+//            var url = config.serverPath + '/token';
+            var url = common.serverUri() + '/token';
+            log(common.serverUri());
+            log(url);
+
             var data = 'username=' + $scope.userData.username +
                 '&password=' + $scope.userData.password +
                 '&grant_type=password';
@@ -58,7 +62,8 @@
         }
 
         function getUserInfo() {
-            var url = config.serverPath + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/'; 
+            //            var url = config.serverPath + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/'; 
+            var url = common.serverUri + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/';
             $http.get(url).then(function (response) {
                 currentUser.profile.roles = response.data.roles;
                 currentUser.save();

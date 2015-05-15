@@ -15,6 +15,7 @@
             // These are the properties we need to set
             //controllerActivateSuccessEvent: '',
             //spinnerToggleEvent: ''
+
         };
 
         this.$get = function () {
@@ -25,9 +26,9 @@
     });
 
     commonModule.factory('common',
-        ['$q', '$rootScope', '$timeout', 'appSpinner', 'commonConfig', 'logger', common]);
+    ['$location', '$q', '$rootScope', '$timeout', 'appSpinner', 'commonConfig', 'logger', common]);
 
-    function common($q, $rootScope, $timeout, appSpinner, commonConfig, logger) {
+    function common($location, $q, $rootScope, $timeout, appSpinner, commonConfig, logger) {
         var throttles = {};
 
         var service = {
@@ -42,10 +43,20 @@
             isNumber: isNumber,
             logger: logger, // for accessibility
             textContains: textContains,
-            checkRole: checkRole
+            checkRole: checkRole,
+            serverUri: serverUri
         };
 
         return service;
+
+        function serverUri() {
+            var location = $location.protocol() + '://' + $location.host();
+            if (textContains(location, 'localhost')) {
+                // HACK: needed because of dev environment
+                location = location + '/crmc';
+            };
+            return location;
+        }
 
         function activateController(promises, controllerId) {
             return $q.all(promises).then(function (eventArgs) {
@@ -87,7 +98,7 @@
                 var filterInputTimeout;
 
                 // return what becomes the 'applyFilter' function in the controller
-                return function(searchNow) {
+                return function (searchNow) {
                     if (filterInputTimeout) {
                         $timeout.cancel(filterInputTimeout);
                         filterInputTimeout = null;
@@ -133,14 +144,14 @@
                 return true;
             }
             if (userRoles.length === 0) {
-                return false; 
+                return false;
             }
             for (var i = 0; i < userRoles.length; i++) {
                 if (rolesToCheck.indexOf(userRoles[i]) > -1) {
-                    return true; 
+                    return true;
                 }
             }
-            return false; 
+            return false;
         }
 
     }

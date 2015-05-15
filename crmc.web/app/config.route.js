@@ -36,23 +36,14 @@
         var loginRequired = settings.loginRequired || false;
         var roles = settings.roles || [];
         var user = currentUser.profile;
-        var userRoles = currentUser.profile.roles;
-
-
-        log('route', $route.current, false);        
-        log('curretUser', currentUser, false);
-        log('user', user, false);
-        log('userRoles', userRoles, false);
 
         if (loginRequired) {
             if (!user.loggedIn) {
                 $location.path('/login');
             } else {
                 if (roles.length > 0) {
-                    log('user roles', user, false);
-                 if (!common.checkRole(userRoles, roles)) {
+                 if (!common.checkRole(user.roles, roles)) {
                      $location.path('/notauthorized').replace();
-                     log('notauthorized', null, false);
                  }   
                 }
             }

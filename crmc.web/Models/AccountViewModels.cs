@@ -32,6 +32,8 @@ namespace crmc.web.Models
         public bool HasRegistered { get; set; }
 
         public string LoginProvider { get; set; }
+
+        public List<string> Roles { get; set; } 
     }
 
     public class UserLoginInfoViewModel

@@ -4,17 +4,21 @@
 
     var controllerId = 'LoginCtrl';
     angular.module('app').controller(controllerId,
-        ['$scope', '$http', 'config', 'currentUser', 'loginRedirect', LoginCtrl]);
+        ['$scope', '$http', 'common', 'config', 'currentUser', 'loginRedirect', LoginCtrl]);
 
-    function LoginCtrl($scope, $http, config, currentUser, loginRedirect) {
+    function LoginCtrl($scope, $http, common, config, currentUser, loginRedirect) {
         var vm = this;
+        var getLogFn = common.logger.getLogFn;
+        var log = getLogFn(controllerId);
+        var logError = getLogFn(controllerId, 'error');
+        var logSuccess = getLogFn(controllerId, 'success');
 
         vm.activate = activate;
         vm.title = 'Login';
 
         vm.login = login;
         vm.logout = logout;
-
+        vm.message = '';
         vm.user = currentUser.profile; 
 
         $scope.userData = {
@@ -39,9 +43,11 @@
             };
 
             $http.post(url, data, configuration)
-                .then(processToken($scope.userData.username)).then(loginRedirect.redirectPreLogin)
+                .then(processToken($scope.userData.username))
+                .then(loginRedirect.redirectPreLogin)
             .catch(function (response) {
-
+                log('login response', response, false);
+                vm.message = response.data.error_description; 
             });
         }
 
@@ -51,10 +57,20 @@
             currentUser.remove();
         }
 
+        function getUserInfo() {
+            var url = config.serverPath + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/'; 
+            $http.get(url).then(function (response) {
+                currentUser.profile.roles = response.data.roles;
+                currentUser.save();
+                log('userinfo response', response, false);
+            })
+        }
+
         function processToken(username) {
             return function (response) {
                 currentUser.profile.username = username;
                 currentUser.profile.token = response.data.access_token;
+                getUserInfo();
                 currentUser.save();
                 return username;
             };

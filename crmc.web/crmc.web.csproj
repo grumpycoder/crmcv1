@@ -316,6 +316,8 @@
     <Content Include="app\people\people.html" />
     <Content Include="app\services\addToken.js" />
     <Content Include="app\services\app-spinner.service.js" />
+    <Content Include="app\services\authenticator.js" />
+    <Content Include="app\services\authService.js" />
     <Content Include="app\services\datacontext.js" />
     <Content Include="app\services\directives.js" />
     <Content Include="app\services\entityManagerFactory.js" />
@@ -325,6 +327,7 @@
     <Content Include="app\users\editUser.html" />
     <Content Include="app\users\login.controller.js" />
     <Content Include="app\users\login.html" />
+    <Content Include="app\users\notauthorized.html" />
     <Content Include="app\users\user.controller.js" />
     <Content Include="app\users\users.html" />
     <Content Include="Areas\HelpPage\HelpPage.css" />

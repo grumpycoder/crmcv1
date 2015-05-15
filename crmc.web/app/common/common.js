@@ -41,7 +41,8 @@
             debouncedThrottle: debouncedThrottle,
             isNumber: isNumber,
             logger: logger, // for accessibility
-            textContains: textContains
+            textContains: textContains,
+            checkRole: checkRole
         };
 
         return service;
@@ -126,5 +127,21 @@
         function textContains(text, searchText) {
             return text && -1 !== text.toLowerCase().indexOf(searchText.toLowerCase());
         }
+
+        function checkRole(userRoles, rolesToCheck) {
+            if (rolesToCheck.length === 0) {
+                return true;
+            }
+            if (userRoles.length === 0) {
+                return false; 
+            }
+            for (var i = 0; i < userRoles.length; i++) {
+                if (rolesToCheck.indexOf(userRoles[i]) > -1) {
+                    return true; 
+                }
+            }
+            return false; 
+        }
+
     }
 })();

@@ -34,49 +34,49 @@ namespace crmc.web.Providers
             var userManager = context.OwinContext.GetUserManager<ApplicationUserManager>();
 
             //Replace authentication against AD
-//            if (Membership.ValidateUser(context.UserName, context.Password))
-//            {
-//                ApplicationUser user = await userManager.FindByNameAsync(context.UserName);
-//
-//                if (user == null)
-//                {
-//                    //Cannot find local user account after AD authentication
-//                    context.SetError("invalid_grant", "Your are not allowed access.");
-//                    return;
-//                }
-//
-//                ClaimsIdentity oAuthIdentity =
-//                    await user.GenerateUserIdentityAsync(userManager, OAuthDefaults.AuthenticationType);
-//                ClaimsIdentity cookiesIdentity =
-//                    await user.GenerateUserIdentityAsync(userManager, CookieAuthenticationDefaults.AuthenticationType);
-//
-//                AuthenticationProperties properties = CreateProperties(user.UserName);
-//                AuthenticationTicket ticket = new AuthenticationTicket(oAuthIdentity, properties);
-//                context.Validated(ticket);
-//                context.Request.Context.Authentication.SignIn(cookiesIdentity);
-//            }
-//            else
-//            {
-//                context.SetError("invalid_grant", "The user name or password is incorrect.");
-//            }
+            //            if (Membership.ValidateUser(context.UserName, context.Password))
+            //            {
+            //                ApplicationUser user = await userManager.FindByNameAsync(context.UserName);
+            //
+            //                if (user == null)
+            //                {
+            //                    //Cannot find local user account after AD authentication
+            //                    context.SetError("invalid_grant", "Your are not allowed access.");
+            //                    return;
+            //                }
+            //
+            //                ClaimsIdentity oAuthIdentity =
+            //                    await user.GenerateUserIdentityAsync(userManager, OAuthDefaults.AuthenticationType);
+            //                ClaimsIdentity cookiesIdentity =
+            //                    await user.GenerateUserIdentityAsync(userManager, CookieAuthenticationDefaults.AuthenticationType);
+            //
+            //                AuthenticationProperties properties = CreateProperties(user.UserName);
+            //                AuthenticationTicket ticket = new AuthenticationTicket(oAuthIdentity, properties);
+            //                context.Validated(ticket);
+            //                context.Request.Context.Authentication.SignIn(cookiesIdentity);
+            //            }
+            //            else
+            //            {
+            //                context.SetError("invalid_grant", "The user name or password is incorrect.");
+            //            }
 
-                        ApplicationUser user = await userManager.FindAsync(context.UserName, context.Password);
-            
-                        if (user == null)
-                        {
-                            context.SetError("invalid_grant", "The user name or password is incorrect.");
-                            return;
-                        }
+            ApplicationUser user = await userManager.FindAsync(context.UserName, context.Password);
 
-                        ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(userManager,
-                           OAuthDefaults.AuthenticationType);
-                        ClaimsIdentity cookiesIdentity = await user.GenerateUserIdentityAsync(userManager,
-                            CookieAuthenticationDefaults.AuthenticationType);
-            
-                        AuthenticationProperties properties = CreateProperties(user.UserName);
-                        AuthenticationTicket ticket = new AuthenticationTicket(oAuthIdentity, properties);
-                        context.Validated(ticket);
-                        context.Request.Context.Authentication.SignIn(cookiesIdentity);
+            if (user == null)
+            {
+                context.SetError("invalid_grant", "The user name or password is incorrect.");
+                return;
+            }
+
+            ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(userManager,
+               OAuthDefaults.AuthenticationType);
+            ClaimsIdentity cookiesIdentity = await user.GenerateUserIdentityAsync(userManager,
+                CookieAuthenticationDefaults.AuthenticationType);
+
+            AuthenticationProperties properties = CreateProperties(user.UserName);
+            AuthenticationTicket ticket = new AuthenticationTicket(oAuthIdentity, properties);
+            context.Validated(ticket);
+            context.Request.Context.Authentication.SignIn(cookiesIdentity);
         }
 
         public override Task TokenEndpoint(OAuthTokenEndpointContext context)

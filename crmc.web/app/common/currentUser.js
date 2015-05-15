@@ -14,8 +14,9 @@
 
         var initialize = function () {
             var user = {
-                username: "",
-                token: "",
+                username: '',
+                token: '',
+                roles: [],
                 get loggedIn() {
                     return this.token ? true : false;
                 }
@@ -25,6 +26,7 @@
             if (localUser) {
                 user.username = localUser.username;
                 user.token = localUser.token;
+                user.roles = localUser.roles; 
             }
             return user;
         }

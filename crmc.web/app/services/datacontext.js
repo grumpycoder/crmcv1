@@ -2,7 +2,6 @@
     'use strict';
 
     var serviceId = 'datacontext';
-//    angular.module('app').factory(serviceId, ['common', 'config', 'entityManagerFactory', datacontext]);
 
     angular.module('app').factory(serviceId, ['common', 'entityManagerFactory', 'config', datacontext]);
 

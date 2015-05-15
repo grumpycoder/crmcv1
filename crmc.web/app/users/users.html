@@ -90,7 +90,7 @@
                 <form class="form-inline form-group">
                     <input type="text" class="form-control" placeholder="New username" ng-model="vm.newUsername" ng-keyup="vm.clearInput($event)">
                     <button type="submit" class="btn btn-primary" ng-click="vm.addItem()"
-                            tooltip="Click here to add new user" tooltip-placement="left">
+                            tooltip="Click here to add new user" tooltip-placement="right">
                         <span class="fa fa-plus"></span> Add
                     </button>
                 </form>
@@ -106,7 +106,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="user in vm.filteredUsers">
-                        <td>{{user.userName}}</td>
+                        <td>{{user.userName}} ({{user.id}})</td>
                         <td>
                             <!--<span ng-repeat="role in user.roles" class="label label-primary" style="cursor: pointer; margin-right: 3px;"
                                  ng-hide="vm.currentEdit[user.id]">
@@ -120,7 +120,8 @@
                             <!--<span ng-repeat="role in user.roles" ng-hide="vm.currentEdit[user.id]">
                                 {{role}}
                             </span>-->
-                            <tags-input ng-model="vm.itemToEdit.roles" placeholder="Add a role" ng-show="vm.currentEdit[user.id]">
+                            <tags-input ng-model="vm.itemToEdit.roles" placeholder="Add a role" ng-show="vm.currentEdit[user.id]" display-property="name">
+                                <auto-complete source="vm.availableRoles" min-length="1" load-on-down-arrow="true"></auto-complete>
                             </tags-input>
                         </td>
                         <td></td>

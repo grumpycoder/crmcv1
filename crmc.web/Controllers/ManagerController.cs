@@ -28,6 +28,58 @@ namespace crmc.web.Controllers
             return Ok(this.AppUserManager.Users.ToList().Select(u => this.TheModelFactory.Create(u)));
         }
 
+//        [HttpGet]
+//        [Route("LocalUserInfo/{id:guid}")]
+//        public async Task<IHttpActionResult> GetLocalUserInfo(string id)
+//        {
+//            var vm = new UserInfoViewModel { Roles = new List<string>() };
+//
+//            var user = AppUserManager.FindById(id);
+//
+//            vm.Email = user.Email;
+//            //            vm.FirstName = user.FirstName;
+//            //            vm.LastName = user.LastName;
+//
+//            var roles = await this.AppUserManager.GetRolesAsync(id);
+//
+//            foreach (var role in roles)
+//            {
+//                vm.Roles.Add(role);
+//            }
+//
+//            return Ok(vm);
+//        }
+
+        [HttpGet]
+        [Route("LocalUserInfo/{username}")]
+        public async Task<IHttpActionResult> GetLocalUserInfo(string username)
+        {
+            var vm = new UserInfoViewModel { Roles = new List<string>() };
+
+            var user = AppUserManager.FindByName(username);
+
+            vm.Email = user.Email;
+            //            vm.FirstName = user.FirstName;
+            //            vm.LastName = user.LastName;
+
+            var roles = await this.AppUserManager.GetRolesAsync(user.Id);
+
+            foreach (var role in roles)
+            {
+                vm.Roles.Add(role);
+            }
+
+            return Ok(vm);
+        }
+
+
+        [Route("roles", Name = "GetRoles")]
+        public async Task<IHttpActionResult> GetRoles()
+        {
+            var roles = AppRoleManager.Roles.ToArray();
+            return Ok(roles);
+        }
+
         [Route("user/{id:guid}", Name = "GetUserById")]
         public async Task<IHttpActionResult> GetUser(string Id)
         {

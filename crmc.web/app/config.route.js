@@ -12,7 +12,6 @@
         $sceProvider.enabled(false);
 
         routes.forEach(function (r) {
-            //$routeProvider.when(r.url, r.config);
             setRoute(r.url, r.config);
         });
         $routeProvider.otherwise({ redirectTo: '/' });
@@ -21,12 +20,45 @@
             // Sets resolvers for all of the routes
             // by extending any existing resolvers (or creating a new one).
             definition.resolve = angular.extend(definition.resolve || {}, {
+                checkSecurity: checkSecurity,
                 prime: prime
             });
             $routeProvider.when(url, definition);
             return $routeProvider;
         }
     }
+
+    checkSecurity.$inject = ['$location', '$route', 'common', 'currentUser']
+    function checkSecurity($location, $route, common, currentUser) {
+        var getLogFn = common.logger.getLogFn;
+        var log = getLogFn('checkSecurity');
+        var settings = $route.current.settings;
+        var loginRequired = settings.loginRequired || false;
+        var roles = settings.roles || [];
+        var user = currentUser.profile;
+        var userRoles = currentUser.profile.roles;
+
+
+        log('route', $route.current, false);        
+        log('curretUser', currentUser, false);
+        log('user', user, false);
+        log('userRoles', userRoles, false);
+
+        if (loginRequired) {
+            if (!user.loggedIn) {
+                $location.path('/login');
+            } else {
+                if (roles.length > 0) {
+                    log('user roles', user, false);
+                 if (!common.checkRole(userRoles, roles)) {
+                     $location.path('/notauthorized').replace();
+                     log('notauthorized', null, false);
+                 }   
+                }
+            }
+        }
+    }
+
 
     prime.$inject = ['datacontext'];
     function prime(dc) { return dc.prime(); }
@@ -39,10 +71,10 @@
                 config: {
                     templateUrl: 'app/dashboard/dashboard.html',
                     title: 'dashboard',
-//                    controller: 'DashboardCtrl',
-//                    controllerAs: 'vm',
                     settings: {
                         nav: 1,
+                        loginRequired: true, 
+                        roles: ['user'],
                         content: '<i class="fa fa-dashboard"></i> Dashboard'
                     }
                 }
@@ -55,6 +87,8 @@
                     controllerAs: 'vm',
                     settings: {
                         nav: 3,
+                        loginRequired: true,
+                        roles: ['user'],
                         content: '<i class="fa fa-ban"></i> Censor Words'
                     }
                 }
@@ -67,6 +101,8 @@
                     controllerAs: 'vm',
                     settings: {
                         nav: 4,
+                        loginRequired: true,
+                        roles: ['user'],
                         content: '<i class="fa fa-users"></i> People'
                     }
                 }
@@ -79,6 +115,8 @@
                     controllerAs: 'vm',
                     settings: {
                         nav: 5,
+                        loginRequired: true,
+                        roles: ['user'],
                         content: '<i class="fa fa-cogs"></i> Settings'
                     }
                 }
@@ -91,6 +129,8 @@
                     controllerAs: 'vm',
                     settings: {
                         nav: 5,
+                        loginRequired: true,
+                        roles: ['admin'],
                         content: '<i class="fa fa-user-times"></i> Users'
                     }
                 }
@@ -100,7 +140,21 @@
                     title: 'login',
                     templateUrl: 'app/users/login.html',
                     controller: 'LoginCtrl',
-                    controllerAs: 'vm'
+                    controllerAs: 'vm',
+                    settings: {
+                        loginRequired: false,
+                        roles: []
+                    }
+                }
+            }, {
+                url: '/notauthorized',
+                config: {
+                    title: 'notauthorized',
+                    templateUrl: 'app/users/notauthorized.html',
+                    settings: {
+                        loginRequired: false,
+                        roles: []
+                    }
                 }
             }
         ];

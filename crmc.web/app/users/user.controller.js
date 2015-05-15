@@ -16,6 +16,7 @@
         var applyFilter = function () { };
 
         vm.addItem = addItem;
+        vm.availableRoles = [];
         vm.currentEdit = {};
         vm.cancelEdit = cancelEdit;
         vm.clearInput = clearInput;
@@ -24,16 +25,16 @@
         vm.filteredUsers = [];
         vm.refresh = refresh;
         vm.saveItem = saveItem;
-        vm.search = search; 
+        vm.search = search;
         vm.title = 'Users';
         vm.users = [];
-        vm.usersFilter = usersFilter; 
+        vm.usersFilter = usersFilter;
         vm.userSearch = '';
-        
+
         activate();
 
         function activate() {
-            common.activateController([getUsers()], controllerId)
+            common.activateController([getUsers(), getAvailableRoles()], controllerId)
                 .then(function () {
                     applyFilter = common.createSearchThrottle(vm, 'users');
                     if (vm.userSearch) { applyFilter(true); }
@@ -46,13 +47,13 @@
         function addItem() {
             var user = {
                 userName: vm.newUsername,
-                email: vm.newUsername + '@splcenter.org', 
+                email: vm.newUsername + '@splcenter.org',
                 roles: ['user'],
                 password: '!1Password'
             };
             $http.post('/api/accounts/create', user).then(function (response) {
                 logSuccess('Created user ' + user.userName);
-                vm.users.unshift(user);
+                vm.filteredUsers.unshift(user);
             })
         }
 
@@ -67,10 +68,10 @@
         }
 
         function deleteItem(user) {
-            $http.delete('/api/accounts/user/' + user.id).then(function(response) {
+            $http.delete('/api/accounts/user/' + user.id).then(function (response) {
                 log(response);
                 var idx = vm.users.indexOf(user);
-                vm.users.splice(idx, 1)
+                vm.filteredUsers.splice(idx, 1)
             });
         }
 
@@ -79,11 +80,19 @@
             vm.itemToEdit = angular.copy(item);
         }
 
+        function getAvailableRoles() {
+            $http.get('/api/accounts/roles').then(function (response) {
+                vm.availableRoles = response.data;
+                log('roles', vm.availableRoles, false);
+                return vm.availableRoles;
+            });
+        }
+
         function getUsers() {
-            $http.get('/api/accounts/users').then(function(response) {
+            $http.get('/api/accounts/users').then(function (response) {
                 vm.users = vm.filteredUsers = response.data;
                 applyFilter();
-                return vm.users; 
+                return vm.users;
             });
         }
 
@@ -95,13 +104,12 @@
 
             vm.currentEdit[user.id] = false;
             var roles = [];
-            _.forEach(vm.itemToEdit.roles, function(role) {
-                roles.push(role.text);
+            _.forEach(vm.itemToEdit.roles, function (role) {
+                roles.push(role.name);
             });
 
             $http.put('/api/accounts/user/' + user.id + '/roles', user.roles).then(function (response) {
-                log('response', response, false);
-                user.roles = roles; 
+                user.roles = roles;
             });
 
         }

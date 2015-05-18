@@ -23,6 +23,7 @@
         };
         vm.showValidationErrors = false;
         vm.title = 'Add Your Name';
+        vm.lastLetterIsSpace = false;
 
         activate();
 
@@ -42,7 +43,12 @@
                 return;
             }
 
-            vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            if (vm.lastLetterIsSpace) {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue + ' ' + keyCode);
+                vm.lastLetterIsSpace = false;
+            } else {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            }
             vm.editItem.$render();
         }
 

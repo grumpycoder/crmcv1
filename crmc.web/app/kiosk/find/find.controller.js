@@ -39,10 +39,16 @@
             log('editItem', vm.editItem, false);
         }
 
+        vm.lastLetterIsSpace = false; 
+
         vm.keyboardInput = function (key) {
-            vm.showValidationErrors = true; 
+            vm.showValidationErrors = true;
             var keyCode = key.currentTarget.outerText
-            if (keyCode === 'SPACE') keyCode = ' ';
+            log(key)
+            if (keyCode === 'SPACE') {
+                vm.lastLetterIsSpace = true; 
+                return;
+            }
 
             if (keyCode === 'DEL') {
                 vm.editItem.$setViewValue(vm.editItem.$viewValue.substr(0, vm.editItem.$viewValue.length - 1));
@@ -50,8 +56,13 @@
                 return;
             }
 
-            vm.editItem = vm.editItem || vm.searchForm.inputSearchText; 
-            vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            vm.editItem = vm.editItem || vm.searchForm.inputSearchText;
+            if (vm.lastLetterIsSpace) {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue + ' ' + keyCode);
+                vm.lastLetterIsSpace = false;
+            } else {
+                vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
+            }
             vm.editItem.$render();
         }
 

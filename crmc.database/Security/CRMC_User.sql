@@ -1,0 +1,3 @@
+﻿CREATE ROLE [CRMC_User]
+    AUTHORIZATION [dbo];
+

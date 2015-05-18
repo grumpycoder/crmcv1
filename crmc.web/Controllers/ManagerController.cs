@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 using crmc.web.Infrastructure;
 using crmc.web.Models;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace crmc.web.Controllers
 {
@@ -23,39 +19,17 @@ namespace crmc.web.Controllers
         public IHttpActionResult GetUsers()
         {
             //Only SuperAdmin or Admin can delete users (Later when implement roles)
-            var identity = User.Identity as System.Security.Claims.ClaimsIdentity;
+            var identity = User.Identity as ClaimsIdentity;
 
             return Ok(this.AppUserManager.Users.ToList().Select(u => this.TheModelFactory.Create(u)));
         }
-
-//        [HttpGet]
-//        [Route("LocalUserInfo/{id:guid}")]
-//        public async Task<IHttpActionResult> GetLocalUserInfo(string id)
-//        {
-//            var vm = new UserInfoViewModel { Roles = new List<string>() };
-//
-//            var user = AppUserManager.FindById(id);
-//
-//            vm.Email = user.Email;
-//            //            vm.FirstName = user.FirstName;
-//            //            vm.LastName = user.LastName;
-//
-//            var roles = await this.AppUserManager.GetRolesAsync(id);
-//
-//            foreach (var role in roles)
-//            {
-//                vm.Roles.Add(role);
-//            }
-//
-//            return Ok(vm);
-//        }
 
         [HttpGet]
         [Route("LocalUserInfo/{username}")]
         public async Task<IHttpActionResult> GetLocalUserInfo(string username)
         {
             var vm = new UserInfoViewModel { Roles = new List<string>() };
-
+            
             var user = AppUserManager.FindByName(username);
 
             vm.Email = user.Email;

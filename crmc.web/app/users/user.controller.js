@@ -52,8 +52,10 @@
                 password: '!1Password'
             };
             $http.post('/api/accounts/create', user).then(function (response) {
+                user.id = response.data.id; 
                 logSuccess('Created user ' + user.userName);
                 vm.filteredUsers.unshift(user);
+                vm.newUsername = ''; 
             })
         }
 
@@ -69,7 +71,6 @@
 
         function deleteItem(user) {
             $http.delete('/api/accounts/user/' + user.id).then(function (response) {
-                log(response);
                 var idx = vm.users.indexOf(user);
                 vm.filteredUsers.splice(idx, 1)
             });
@@ -83,7 +84,6 @@
         function getAvailableRoles() {
             $http.get('/api/accounts/roles').then(function (response) {
                 vm.availableRoles = response.data;
-                log('roles', vm.availableRoles, false);
                 return vm.availableRoles;
             });
         }
@@ -104,11 +104,12 @@
 
             vm.currentEdit[user.id] = false;
             var roles = [];
+            
             _.forEach(vm.itemToEdit.roles, function (role) {
                 roles.push(role.name);
             });
 
-            $http.put('/api/accounts/user/' + user.id + '/roles', user.roles).then(function (response) {
+            $http.put('/api/accounts/user/' + user.id + '/roles', roles).then(function (response) {
                 user.roles = roles;
             });
 

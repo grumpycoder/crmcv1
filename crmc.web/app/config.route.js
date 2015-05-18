@@ -107,7 +107,7 @@
                     settings: {
                         nav: 5,
                         loginRequired: true,
-                        roles: ['user'],
+                        roles: ['admin'],
                         content: '<i class="fa fa-cogs"></i> Settings'
                     }
                 }

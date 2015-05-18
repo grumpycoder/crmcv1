@@ -30,7 +30,6 @@
         vm.editItem = undefined;
         vm.setFocus = function (event) {
             vm.editItem = event || vm.nameForm.inputFirstName; 
-            log('editItem', vm.editItem, false);
         }
 
         vm.keyboardInput = function (key) {

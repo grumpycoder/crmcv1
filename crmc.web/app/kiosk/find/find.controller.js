@@ -44,7 +44,6 @@
         vm.keyboardInput = function (key) {
             vm.showValidationErrors = true;
             var keyCode = key.currentTarget.outerText
-            log(key)
             if (keyCode === 'SPACE') {
                 vm.lastLetterIsSpace = true; 
                 return;

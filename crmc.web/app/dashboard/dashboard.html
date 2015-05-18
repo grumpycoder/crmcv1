@@ -1,19 +1,101 @@
-﻿<div>
-    <h2 class="page-title">Admin Home</h2>
+﻿<section>
+    <h2 class="page-title">CRMC Administration Home</h2>
 
-    <div class="jumbotron">
-        <div>
-            <p>
-                To start using Elite Schedule, configure your <a href="#/leagues">League</a> first. Once you select your league, you will configure
-                <span class="bold-text">Teams</span> and <span class="bold-text">Games</span> for your league.
-            </p>
-            <p>
-                <a href="#/locations">Locations</a> are shared across leagues.
-            </p>
+    <ul class="today-datas">
+        <li class="blightblue">
+            <div class="pull-left"><i class="fa fa-calendar"></i>
+            </div>
+            <div class="datas-text pull-right">
+                <span class="bold">May 18 - 19, 2015</span> Sample Group Name
+            </div>
+            <div class="clearfix"></div>
+        </li>
+
+        <li class="bgreen">
+            <a href="#/attendees">
+                <div class="pull-left">
+                    <i class="fa fa-group"></i>
+                </div>
+                <div class="datas-text pull-right">
+                    <span class="bold">{{vm.totalVisitorsToday}}</span> Visitors Today
+                </div>
+                <div class="clearfix"></div>
+            </a>
+        </li>
+        
+        <li class="borange">
+            <a href="#/sessions">
+                <div class="pull-left"><i class="fa fa-group"></i>
+                </div>
+                <div class="datas-text pull-right">
+                    <span class="bold">{{vm.totalVisitors}}</span> Total Visitors
+                </div>
+                <div class="clearfix"></div>
+            </a>
+        </li>
+        
+        <li class="bviolet">
+            <a href="#/speakers">
+                <div class="pull-left"><i class="fa fa-group"></i>
+                </div>
+                <div class="datas-text pull-right">
+                    <span class="bold">{{vm.totalVisitorsThisMonth}}</span> Visitors This Month
+                </div>
+                <div class="clearfix"></div>
+            </a>
+        </li>
+
+    </ul>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="widget wviolet">
+                <div data-cc-widget-header title="Recent Additions"
+                     allow-collapse="true">
+                </div>
+                <div class="widget-content text-center text-info">
+                    <table class="table table-condensed table-striped">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Zip Code</th>
+                            <th>Date Added</th>
+                            <th>Fuzzy Match</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr data-ng-repeat="p in vm.people">
+                            <td style="text-align: left;">{{p.fullName}}</td>
+                            <td>{{p.zipcode}}</td>
+                            <td>{{p.dateCreated | date: 'MM/dd/yyyy'}}</td>
+                            <td>{{p.fuzzyMatchValue}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-foot">
+                    <i class="fa fa-refresh pull-right" ng-click="vm.refresh()">
+                    </i>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
         </div>
+
+<!--        <div class="col-md-6">
+            <div class="widget wgreen">
+                <div data-cc-widget-header title="{{vm.news.title}}"
+                     allow-collapse="true"></div>
+                <div class="widget-content text-center text-info">
+                    <small>{{vm.news.description}}</small>
+                </div>
+                <div class="widget-foot">
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>-->
     </div>
 
-    <p>
+<!--    <p>
         <button class="btn btn-info" ng-click="vm.notesCollapsed = !vm.notesCollapsed"
                 popover="Click here for additional information" popover-trigger="mouseenter"
                 popover-placement="right">
@@ -48,5 +130,5 @@
                 </dd>
             </dl>
         </div>
-    </div>
-</div>
+    </div>-->
+</section>

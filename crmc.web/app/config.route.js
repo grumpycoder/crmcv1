@@ -62,6 +62,8 @@
                 config: {
                     templateUrl: 'app/dashboard/dashboard.html',
                     title: 'dashboard',
+                    controller: 'DashboardCtrl',
+                    controllerAs: 'vm', 
                     settings: {
                         nav: 1,
                         loginRequired: true, 

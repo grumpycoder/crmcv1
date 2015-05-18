@@ -31,6 +31,7 @@
             getCensors: getCensors,
             getPeople: getPeople,
             getPeopleCount: getPeopleCount,
+            getPeopleCountByDays: getPeopleCountByDays,
             getPeopleFilteredCount: getPeopleFilteredCount,
             getMessageCount: getMessageCount,
             markDeleted: markDeleted,
@@ -178,10 +179,15 @@
         }
 
         function getPeopleCount() {
-//            return EntityQuery.from('People').take(0).inlineCount().using(manager).execute().then(function (data) {
-//                return data.inlineCount;
-            //            });
             return EntityQuery.from('People').take(0).where('isPriority', 'eq', 'true').inlineCount().using(manager).execute().then(function (data) {
+                return data.inlineCount;
+            });
+        }
+
+        function getPeopleCountByDays(daysFilter) {
+            var dayPredicate = null; 
+            if (daysFilter) { dayPredicate = _daysPredicate(daysFilter) }
+            return EntityQuery.from('People').take(0).where(dayPredicate).inlineCount().using(manager).execute().then(function (data) {
                 return data.inlineCount;
             });
         }

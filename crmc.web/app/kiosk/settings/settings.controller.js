@@ -14,7 +14,7 @@
         var logError = getLogFn(controllerId, 'error');
         var logSuccess = getLogFn(controllerId, 'success');
 
-        var crmc = $.connection.cRMCHub;
+        var crmc = $.connection.crmcHub;
 
         vm.title = 'Settings';
         vm.config = {};

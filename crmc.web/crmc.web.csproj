@@ -273,6 +273,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
+    <Compile Include="Infrastructure\SignalRContractResolver.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +295,8 @@
     <Content Include="app\config.route.js">
       <DependentUpon>config.js</DependentUpon>
     </Content>
+    <Content Include="app\dashboard\test.controller.js" />
+    <Content Include="app\dashboard\test.html" />
     <Content Include="app\directives\spinner.directive.js" />
     <Content Include="app\kiosk\app.js" />
     <Content Include="app\kiosk\config.js" />

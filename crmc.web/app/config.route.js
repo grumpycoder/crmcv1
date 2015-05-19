@@ -150,6 +150,18 @@
                     }
                 }
             }
+            , {
+                url: '/test',
+                config: {
+                    title: 'test',
+                    templateUrl: 'app/dashboard/test.html',
+                    controller: 'TestCtrl',
+                    settings: {
+                        loginRequired: false,
+                        roles: []
+                    }
+                }
+            }
         ];
     }
 })();

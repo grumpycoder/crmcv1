@@ -49,6 +49,18 @@
                 });
         }
 
+        $.connection.hub.start().done(function () {
+            console.log('connection started');
+        })
+
+        var proxy = $.connection.crmcHub;
+
+        proxy.client.addMessage = function (message) {
+            log('message', message);
+        }
+
+
+
         function addPerson(size) {
 
             var newPerson = datacontext.create('Person');

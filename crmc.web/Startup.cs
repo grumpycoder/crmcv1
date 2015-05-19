@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using crmc.web;
+using Microsoft.AspNet.SignalR;
 using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartup(typeof(crmc.web.Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 
 namespace crmc.web
 {
@@ -13,7 +12,12 @@ namespace crmc.web
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
-            app.MapSignalR();
+            var hubConfiguration = new HubConfiguration
+            {
+                EnableDetailedErrors = true,
+                EnableJSONP = true
+            };
+            app.MapSignalR(hubConfiguration);
         }
     }
 }

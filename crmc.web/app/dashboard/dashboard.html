@@ -1,9 +1,11 @@
 ﻿<section>
+
     <h2 class="page-title">CRMC Administration Home</h2>
 
     <ul class="today-datas">
         <li class="blightblue">
-            <div class="pull-left"><i class="fa fa-calendar"></i>
+            <div class="pull-left">
+                <i class="fa fa-calendar"></i>
             </div>
             <div class="datas-text pull-right">
                 <span class="bold">May 18 - 19, 2015</span> Sample Group Name
@@ -22,10 +24,11 @@
                 <div class="clearfix"></div>
             </a>
         </li>
-        
+
         <li class="borange">
             <a href="#/sessions">
-                <div class="pull-left"><i class="fa fa-group"></i>
+                <div class="pull-left">
+                    <i class="fa fa-group"></i>
                 </div>
                 <div class="datas-text pull-right">
                     <span class="bold">{{vm.totalVisitors}}</span> Total Visitors
@@ -33,10 +36,11 @@
                 <div class="clearfix"></div>
             </a>
         </li>
-        
+
         <li class="bviolet">
             <a href="#/speakers">
-                <div class="pull-left"><i class="fa fa-group"></i>
+                <div class="pull-left">
+                    <i class="fa fa-group"></i>
                 </div>
                 <div class="datas-text pull-right">
                     <span class="bold">{{vm.totalVisitorsThisMonth}}</span> Visitors This Month
@@ -56,20 +60,20 @@
                 <div class="widget-content text-center text-info">
                     <table class="table table-condensed table-striped">
                         <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Zip Code</th>
-                            <th>Date Added</th>
-                            <th>Fuzzy Match</th>
-                        </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>Zip Code</th>
+                                <th>Date Added</th>
+                                <th>Fuzzy Match</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr data-ng-repeat="p in vm.people">
-                            <td style="text-align: left;">{{p.fullName}}</td>
-                            <td>{{p.zipcode}}</td>
-                            <td>{{p.dateCreated | date: 'MM/dd/yyyy'}}</td>
-                            <td>{{p.fuzzyMatchValue}}</td>
-                        </tr>
+                            <tr data-ng-repeat="p in vm.people">
+                                <td style="text-align: left;">{{p.fullName}}</td>
+                                <td>{{p.zipcode}}</td>
+                                <td>{{p.dateCreated | date: 'MM/dd/yyyy'}}</td>
+                                <td>{{p.fuzzyMatchValue | percentage:1}}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -81,7 +85,7 @@
             </div>
         </div>
 
-<!--        <div class="col-md-6">
+        <!-- <div class="col-md-6">
             <div class="widget wgreen">
                 <div data-cc-widget-header title="{{vm.news.title}}"
                      allow-collapse="true"></div>
@@ -95,7 +99,7 @@
         </div>-->
     </div>
 
-<!--    <p>
+    <!-- <p>
         <button class="btn btn-info" ng-click="vm.notesCollapsed = !vm.notesCollapsed"
                 popover="Click here for additional information" popover-trigger="mouseenter"
                 popover-placement="right">

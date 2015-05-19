@@ -2,10 +2,13 @@
 using System.Threading.Tasks;
 using crmc.web.Data;
 using crmc.web.Models;
+using Microsoft.AspNet.SignalR.Hubs;
+
 //using ApplicationDbContext = crmc.web.Data.ApplicationDbContext;
 
 namespace crmc.web.Hubs
 {
+    [HubName("crmcHub")]
     public class CRMCHub : Hub
     {
 //        private readonly ApplicationDbContext context;
@@ -26,9 +29,14 @@ namespace crmc.web.Hubs
             return Clients.All.addMessage(message);
         }
 
-        public Task AddNameToWall(string kiosk, string name)
+//        public Task AddNameToWall(string kiosk, string name)
+//        {
+//            return Clients.All.nameAddedToWall(kiosk, name);
+//        }
+
+        public Task AddNameToWall(string kiosk, Person person)
         {
-            return Clients.All.nameAddedToWall(kiosk, name);
+            return Clients.All.nameAddedToWall(kiosk, person);
         }
 
 /*        public Task SaveConfigSettings(AppConfig config)

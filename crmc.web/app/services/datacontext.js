@@ -245,7 +245,7 @@
 
         function _daysPredicate(filterValue) {
             var dateValue = moment().subtract(parseInt(filterValue), 'days').calendar()
-            log('dateValue', dateValue, null);
+            //log('dateValue', dateValue, null);
             return  Predicate.create('dateCreated', '>=', dateValue);
         }
 

@@ -84,7 +84,7 @@ namespace crmc.wotdisplay
             var connection = new HubConnection(webServer + "/signalr");
 
             //Make proxy to hub based on hub name on server
-            var myHub = connection.CreateHubProxy("CRMCHub");
+            var myHub = connection.CreateHubProxy("crmcHub");
 
             connection.Start().ContinueWith(task =>
             {
@@ -100,7 +100,8 @@ namespace crmc.wotdisplay
 
             }).Wait();
 
-            myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
+//            myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
+            myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
             myHub.On("configSettingsSaved", InitDefaultSettings); 
 
@@ -505,11 +506,20 @@ namespace crmc.wotdisplay
         }
 
 
-        public void AddPersonToDisplayFromKiosk(string location, string name)
+//        public void AddPersonToDisplayFromKiosk(string location, string name)
+//        {
+//            int quad;
+//            int.TryParse(location, out quad);
+//            AddNewNameToDisplay(name, quad);
+//        }
+
+        public void AddPersonToDisplayFromKiosk(string location, Person person)
         {
             int quad;
+
             int.TryParse(location, out quad);
-            AddNewNameToDisplay(name, quad);
+            var fullname = person.Firstname + " " + person.Lastname;
+            AddNewNameToDisplay(fullname, quad);
         }
 
         public int RandomNumber(int min, int max)

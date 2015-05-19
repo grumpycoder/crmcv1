@@ -11,8 +11,9 @@
         var log = getLogFn(controllerId);
         var arrayMax = Function.prototype.apply.bind(Math.max, null);
         var arrayMin = Function.prototype.apply.bind(Math.min, null);
-        var crmc = $.connection.cRMCHub;
-
+        var crmc = $.connection.crmcHub;
+        var proxy = $.connection.crmcHub;
+        
         vm.blackList = [];
         vm.cancel = cancel;
         vm.goBack = goBack;
@@ -29,7 +30,7 @@
 
         vm.editItem = undefined;
         vm.setFocus = function (event) {
-            vm.editItem = event || vm.nameForm.inputFirstName; 
+            vm.editItem = event || vm.nameForm.inputFirstName;
         }
 
         vm.keyboardInput = function (key) {
@@ -60,7 +61,7 @@
                 createValidationWatch();
                 vm.setFocus();
             });
-            
+
         }
 
         //#region Internal Methods        
@@ -73,13 +74,17 @@
             $scope.$watch('vm.person.lastname', function (newVal, oldVal) {
                 if (vm.person) {
                     var fullName = vm.person.firstname + ' ' + vm.person.lastname;
-                    validateFullName(fullName);
+                    //validateFullName(fullName);
                     if (!validateFullName(fullName)) {
                         vm.nameForm.inputFirstName.$setValidity('valBlacklist', false);
                         vm.nameForm.inputLastName.$setValidity('valBlacklist', false);
                     } else {
-                        vm.nameForm.inputFirstName.$setValidity('valBlacklist', true);
-                        vm.nameForm.inputLastName.$setValidity('valBlacklist', true);
+                        if (vm.nameForm.inputFirstName) {
+                            vm.nameForm.inputFirstName.$setValidity('valBlacklist', true);
+                        }
+                        if (vm.nameForm.inputLastName) {
+                            vm.nameForm.inputLastName.$setValidity('valBlacklist', true);
+                        }
                     }
                 }
             })
@@ -128,17 +133,24 @@
             }
             vm.person.firstname = Humanize.titleCase(vm.person.firstname.toLowerCase());
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
-            //            $state.go('create.review');
+            $state.go('create.review');
         }
 
         function save() {
             vm.person.fuzzyMatchValue = getFuzzyMatchValue();
+            vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
             datacontext.create('Person', vm.person);
 
             datacontext.save();
-            log('Saved person', null, false);
-
-            crmc.server.addNameToWall(vm.kiosk, vm.person.firstname + ' ' + vm.person.lastname);
+            var person = {
+                firstname: vm.person.firstname,
+                lastname: vm.person.lastname,
+                fuzzyMatchValue: vm.person.fuzzyMatchValue,
+                dateCreated: vm.person.dateCreated,
+                zipCode: vm.person.zipcode
+            }
+            proxy.server.addNameToWall(vm.kiosk, person);
+            vm.person = undefined; 
             $state.go('finish');
         }
 

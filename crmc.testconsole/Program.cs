@@ -75,7 +75,7 @@ namespace TestConsole
                 Console.WriteLine("From Hub: {0}", message);
             });
 
-            myHub.On<string, string>("nameAddedToWall", (kiosk, message) =>
+            myHub.On<string, string>("addNameToWall", (kiosk, message) =>
             {
                 Console.WriteLine("From Hub: {0} : {1}", kiosk, message);
             });
@@ -138,7 +138,11 @@ namespace TestConsole
                     if (task.IsFaulted)
                     {
                         Console.WriteLine("There was an error calling send: {0}",
-                                          task.Exception.GetBaseException());
+                            task.Exception.GetBaseException());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Added name: {0}", line);
                     }
                 });
 

@@ -12,7 +12,7 @@
         var log = getLogFn(controllerId);
 
         var prevSelection = null;
-        var crmc = $.connection.cRMCHub;
+        var crmc = $.connection.crmcHub;
 
         vm.cancel = cancel;
         vm.finish = finish;
@@ -39,13 +39,13 @@
             log('editItem', vm.editItem, false);
         }
 
-        vm.lastLetterIsSpace = false; 
+        vm.lastLetterIsSpace = false;
 
         vm.keyboardInput = function (key) {
             vm.showValidationErrors = true;
             var keyCode = key.currentTarget.outerText
             if (keyCode === 'SPACE') {
-                vm.lastLetterIsSpace = true; 
+                vm.lastLetterIsSpace = true;
                 return;
             }
 
@@ -74,7 +74,7 @@
                      $.connection.hub.start().done(function () {
                          log('hub connection successful', null, false);
                      });
-                 });
+          });
         }
 
         //#region Internal Methods        
@@ -98,8 +98,18 @@
 
         function finish() {
             //TODO: Send vm.person name to hub method
-            vm.kiosk = 1; 
-            crmc.server.addNameToWall(vm.kiosk, vm.person.firstname + ' ' + vm.person.lastname);
+            //TODO: Get kiosk from local storage or cookie
+            vm.kiosk = 1;
+            //            crmc.server.addNameToWall(vm.kiosk, vm.person.firstname + ' ' + vm.person.lastname);
+            var person = {
+                firstname: vm.person.firstname,
+                lastname: vm.person.lastname,
+                fuzzyMatchValue: vm.person.fuzzyMatchValue,
+                dateCreate: vm.person.dateCreate
+            }
+            
+            log('person', vm.person, false);
+            crmc.server.addNameToWall(vm.kiosk, person);
             $state.go('finish');
         }
 

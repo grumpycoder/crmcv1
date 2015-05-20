@@ -66,7 +66,7 @@
                 vm.totalVisitorsThisMonth = data
             });
 
-            datacontext.getPeopleCountByDays(1).then(function (data) {
+            datacontext.getPeopleCountByDays(0).then(function (data) {
                 vm.totalVisitorsToday = data;
             });
 

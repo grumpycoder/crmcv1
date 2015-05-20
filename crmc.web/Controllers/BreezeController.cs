@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace crmc.web.Controllers
 {
     [BreezeController]
-//    [Authorize]
+    //[Authorize]
     public class BreezeController : ApiController
     {
 
@@ -17,6 +17,7 @@ namespace crmc.web.Controllers
         readonly CRMCRepository repository = new CRMCRepository();
 
         [HttpGet]
+        [AllowAnonymous]
         public string Metadata()
         {
             return repository.Metadata;

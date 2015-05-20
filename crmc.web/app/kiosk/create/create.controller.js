@@ -60,6 +60,7 @@
                 });
                 createValidationWatch();
                 vm.setFocus();
+                log('blacklist', vm.blacklist, false);
             });
 
         }
@@ -92,32 +93,34 @@
 
         function getBlackList() {
             //TODO: Load blacklist in localstorage
+            var list = []; 
             datacontext.getCensors(true).then(function (data) {
                 data.forEach(function (item) {
                     vm.blackList.push(item.word);
+                    list.push(item.word);
                 });
+                $window.myList = list;
+
+
                 return vm.blackList;
             });
         }
 
         function getFuzzyMatchValue() {
-            var fuzzyMatchValue = 0;
             var fn = vm.person.firstname;
             var ln = vm.person.lastname;
+            var full = fn + ' ' + ln;
 
             //Check fullname, first and last names and take highest match value
-            vm.blackList.forEach(function (word) {
-                if (word !== null && word !== 'NULL') {
-                    var fnScore = fn.score(word, 0.9);
-                    var lnScore = ln.score(word, 0.9);
-                    var fullScore = (ln + fn).score(word, 0.9);
-                    var scores = [fnScore, lnScore, fullScore];
+            var matchSet = FuzzySet(vm.blackList);
+            var fnScore = matchSet.get(fn, 'useLevenshtein')[0][0];
+            var lnScore = matchSet.get(ln, 'useLevenshtein')[0][0];
+            var fullScore = matchSet.get(full, 'useLevenshtein')[0][0];
 
-                    var maxScore = arrayMax(scores);
-                    if (maxScore > fuzzyMatchValue) { fuzzyMatchValue = maxScore }
-                }
-            });
-            return fuzzyMatchValue;
+            var scores = [fnScore, lnScore, fullScore];
+            var maxScore = arrayMax(scores);
+
+            return maxScore;
         }
 
         function goBack() {

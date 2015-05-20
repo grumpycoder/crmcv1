@@ -503,6 +503,7 @@
     <None Include="Scripts\jquery-2.1.1.intellisense.js">
       <DependentUpon>jquery-2.1.1.js</DependentUpon>
     </None>
+    <Content Include="Scripts\fuzzyset.js" />
     <Content Include="Scripts\humanize.min.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js">

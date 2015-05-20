@@ -3,9 +3,9 @@
 
     var controllerId = 'createCtrl';
     angular.module('app').controller(controllerId,
-        ['$scope', '$state', '$window', 'common', 'datacontext', createCtrl]);
+        ['$cookies', '$cookieStore', '$scope', '$state', '$window', 'common', 'datacontext', createCtrl]);
 
-    function createCtrl($scope, $state, $window, common, datacontext) {
+    function createCtrl($cookies, $cookieStore, $scope, $state, $window, common, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -18,6 +18,7 @@
         vm.cancel = cancel;
         vm.goBack = goBack;
         vm.gotoReview = gotoReview;
+        vm.kiosk = 1; 
         vm.save = save;
         vm.person = {
             emailAddress: ''
@@ -60,9 +61,8 @@
                 });
                 createValidationWatch();
                 vm.setFocus();
-                log('blacklist', vm.blacklist, false);
             });
-
+            vm.kiosk = $cookies.kiosk;
         }
 
         //#region Internal Methods        
@@ -99,9 +99,6 @@
                     vm.blackList.push(item.word);
                     list.push(item.word);
                 });
-                $window.myList = list;
-
-
                 return vm.blackList;
             });
         }

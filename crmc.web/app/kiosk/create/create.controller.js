@@ -161,12 +161,10 @@
             }
 
             if (typeof vm.blackList !== "undefined") {
-                for (var i = vm.blackList.length - 1; i >= 0; i--) {
-                    var lowerValue = value.toLowerCase();
-                    if (lowerValue === vm.blackList[i]) {
-                        valid = false;
-                        break;
-                    }
+                var matchSet = FuzzySet(vm.blackList);
+                var score = matchSet.get(value, 'useLevenshtein')[0][0];
+                if (score === 1) {
+                    valid = false; 
                 }
             }
             return valid;

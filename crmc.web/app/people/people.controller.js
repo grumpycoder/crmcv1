@@ -55,12 +55,6 @@
 
         var proxy = $.connection.crmcHub;
 
-        proxy.client.addMessage = function (message) {
-            log('message', message);
-        }
-
-
-
         function addPerson(size) {
 
             var newPerson = datacontext.create('Person');
@@ -104,9 +98,22 @@
                 templateUrl: 'app/people/editPerson.html',
 //                windowTemplateUrl: 'app/people/customModal.html', 
                 controller: function ($scope, $modalInstance, person, datacontext) {
-                    $scope.person = person;
+
+                    $scope.person = {
+                        firstname: person.firstname,
+                        lastname: person.lastname,
+                        emailAddress: person.emailAddress,
+                        zipcode: person.zipcode,
+                        fuzzyMatchValue: person.fuzzyMatchValue
+                    }; 
 
                     $scope.save = function () {
+                        person.firstname = $scope.person.firstname;
+                        person.lastname = $scope.person.lastname;
+                        person.emailAddress = $scope.person.emailAddress;
+                        person.zipcode = $scope.person.zipcode;
+                        person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
+
                         datacontext.save();
                         $modalInstance.close($scope.person);
                         logSuccess('Saved changes!', null, true);
@@ -135,7 +142,6 @@
 
         function getPeople(forceRefresh) {
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
-//            appSpinner.showSpinner('Retrieving People');
             datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, orderBy).then(function(data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
@@ -147,7 +153,6 @@
                 if (!vm.peopleCount || forceRefresh) {
                     getPeopleCount();
                 }
-//                appSpinner.hideSpinner();
                 return vm.people;
             }); 
         }
@@ -187,11 +192,6 @@
         }
 
         function pageChanged(page) {
-//            log('page', vm.paging.currentPage);
-//
-//            if (!page) { return; }
-//            vm.paging.currentPage = page;
-//            log(vm.paging.currentPage);
             getPeople();
         }
 

@@ -185,11 +185,9 @@
         }
 
         function getPeopleCountByDays(daysFilter) {
-            log('daysFilter', daysFilter, false);
             var dayPredicate = null; 
             if (daysFilter || daysFilter === 0) {
                 dayPredicate = _daysPredicate(daysFilter)
-                log('dayPredicate', dayPredicate, false);
             }
             return EntityQuery.from('People').take(0).where(dayPredicate).inlineCount().using(manager).execute().then(function (data) {
                 return data.inlineCount;
@@ -248,9 +246,7 @@
         }
 
         function _daysPredicate(filterValue) {
-            log('filterValue', filterValue, false);
             var dateValue = moment().subtract(parseInt(filterValue), 'days').format('MM/DD/YYYY')
-            log('dateValue', dateValue, null);
             return  Predicate.create('dateCreated', '>=', dateValue);
         }
 

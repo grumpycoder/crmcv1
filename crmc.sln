@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "crmc.testcon
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "crmc.database", "crmc.database\crmc.database.sqlproj", "{5F459531-137D-4CF5-9DBB-B6556C6793E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crmc.wotimport", "crmc.wotimport\WotImport\crmc.wotimport.csproj", "{55D82854-EA0F-439E-B9FE-F1E56EC10576}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crmc.wotimport", "crmc.wotimport\crmc.wotimport.csproj", "{55D82854-EA0F-439E-B9FE-F1E56EC10576}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

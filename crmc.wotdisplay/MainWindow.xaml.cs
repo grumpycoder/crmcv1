@@ -23,7 +23,6 @@ using AutoMapper;
 using crmc.wotdisplay.models;
 using Color = System.Windows.Media.Color;
 using FontFamily = System.Windows.Media.FontFamily;
-//using Person = crmc.domain.Person;
 using Size = System.Windows.Size;
 
 namespace crmc.wotdisplay
@@ -156,6 +155,10 @@ namespace crmc.wotdisplay
 
         private void ConfigSettingsChanged(AppConfig vm)
         {
+            if (string.IsNullOrEmpty(vm.FontFamily))
+            {
+                Settings.Default.FontFamily = "Arial"; 
+            }
             Settings.Default.AddNewItemSpeed = vm.AddNewItemSpeed;
             Settings.Default.AudioFilePath = vm.AudioFilePath;
             Settings.Default.ScrollSpeed = vm.ScrollSpeed;
@@ -191,6 +194,10 @@ namespace crmc.wotdisplay
 
                 if (config == null) return;
 
+                if (string.IsNullOrEmpty(config.FontFamily))
+                {
+                    Settings.Default.FontFamily = "Arial";
+                }
                 Settings.Default.AddNewItemSpeed = config.AddNewItemSpeed;
                 Settings.Default.AudioFilePath = config.AudioFilePath;
                 Settings.Default.ScrollSpeed = config.ScrollSpeed;

@@ -45,7 +45,7 @@
       <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="FontFamily" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Corbel</Value>
+      <Value Profile="(Default)">Optima LT Std</Value>
     </Setting>
   </Settings>
 </SettingsFile>

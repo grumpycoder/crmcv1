@@ -190,7 +190,7 @@ namespace crmc.wotdisplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Corbel")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Optima LT Std")]
         public string FontFamily {
             get {
                 return ((string)(this["FontFamily"]));

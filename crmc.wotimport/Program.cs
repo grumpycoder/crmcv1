@@ -18,8 +18,8 @@ namespace WotImport
         static void Main(string[] args)
         {
 
-//            PopulateCensorList();
-//            PopulatePersonList();
+            //PopulateCensorList();
+            PopulatePersonList();
 
             Console.WriteLine("Done");
             Console.ReadLine();
@@ -62,7 +62,7 @@ namespace WotImport
                         var name = reader[2].ToString().Split(' ');
                         var cleanName = String.Join(" ", name.Where(s => !prefixes.Contains(s.ToLower().Trim())));
                         var temp = new List<string>(cleanName.Split(' '));
-
+                        
                         var ln = temp.Last();
                         temp.Remove(temp.Last());
                         var fn = String.Join(" ", temp);
@@ -73,8 +73,11 @@ namespace WotImport
                             Lastname = ln,
                             FuzzyMatchValue = (decimal)GetMatchValue(cleanName),
                             Zipcode = reader[3].ToString(),
-                            DateCreated = DateTime.Now
+                            DateCreated = DateTime.Now, 
+                            IsDonor = false, 
+                            IsPriority = false
                         };
+
                         Console.WriteLine("Adding to list: {0}", person.Firstname + person.Lastname);
                         personList.Add(person);
                         if (personList.Count != 100) continue;
@@ -126,8 +129,13 @@ namespace WotImport
 
             foreach (var censor in list)
             {
-                var diceArray = nameArray.Select(name => name.ToLower().DiceCoefficient(censor.Word.ToLower())).ToList();
-                if (diceArray.Max() > maxValue) { maxValue = diceArray.Max(); }
+                if (string.IsNullOrEmpty(censor.Word)) continue;
+                var diceArray =
+                    nameArray.Select(name => name.ToLower().DiceCoefficient(censor.Word.ToLower())).ToList();
+                if (diceArray.Max() > maxValue)
+                {
+                    maxValue = diceArray.Max();
+                }
             }
             return maxValue;
         }

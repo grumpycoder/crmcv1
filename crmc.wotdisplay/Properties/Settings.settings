@@ -33,7 +33,7 @@
       <Value Profile="(Default)">WallDisplay</Value>
     </Setting>
     <Setting Name="WebServerUrl" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://localhost/crmc</Value>
+      <Value Profile="(Default)">http://crmc-test</Value>
     </Setting>
     <Setting Name="UseLocalDataSource" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

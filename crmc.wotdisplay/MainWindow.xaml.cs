@@ -290,8 +290,9 @@ namespace crmc.wotdisplay
         {
                await Task.Run(() =>
                {
-                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-
+                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
+                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
+                   
                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
 
                    var syncClient = new WebClient();

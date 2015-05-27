@@ -35,7 +35,7 @@ GO
 SET IDENTITY_INSERT [dbo].[AppConfigs] ON 
 
 GO
-INSERT [dbo].[AppConfigs] ([Id], [HubName], [WebServerURL], [Volume], [ScrollSpeed], [AddNewItemSpeed], [MinFontSize], [MaxFontSize], [MinFontSizeVIP], [MaxFontSizeVIP], [FontFamily], [AudioFilePath], [UseLocalDataSource]) VALUES (1, N'CRMCHub', N'http://crmc-test', 0.69893355209187868, 10, 0.51, 10, 30, 30, 40, N'Optima', N'c:\audio', 0)
+INSERT [dbo].[AppConfigs] ([Id], [HubName], [WebServerURL], [Volume], [ScrollSpeed], [AddNewItemSpeed], [MinFontSize], [MaxFontSize], [MinFontSizeVIP], [MaxFontSizeVIP], [FontFamily], [AudioFilePath], [UseLocalDataSource]) VALUES (1, N'CRMCHub', N'http://crmc', 0.69893355209187868, 10, 0.51, 10, 30, 30, 40, N'Optima LT Std', N'c:\audio', 0)
 GO
 SET IDENTITY_INSERT [dbo].[AppConfigs] OFF
 GO

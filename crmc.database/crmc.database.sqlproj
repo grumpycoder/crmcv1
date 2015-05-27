@@ -79,6 +79,7 @@
   <ItemGroup>
     <None Include="dev-crmc.database.publish.xml" />
     <None Include="test-crmc.database.publish.publish.xml" />
+    <None Include="prod-crmc.database.publish.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Post-Deployment\Script.PostDeployment.sql" />

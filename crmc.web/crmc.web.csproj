@@ -336,6 +336,8 @@
     <Content Include="app\services\loginRedirect.js" />
     <Content Include="app\services\model.js" />
     <Content Include="app\services\spinnerInterceptor.js" />
+    <Content Include="app\settings\settings.html" />
+    <Content Include="app\settings\settings.controller.js" />
     <Content Include="app\users\editUser.html" />
     <Content Include="app\users\login.controller.js" />
     <Content Include="app\users\login.html" />

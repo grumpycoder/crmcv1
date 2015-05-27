@@ -17,6 +17,7 @@
             'ui.bootstrap',
             'breeze.angular',
             'breeze.directives',
+            'ui.slider',
             'LocalStorageModule',
             'ngTagsInput'
     ])

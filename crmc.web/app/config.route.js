@@ -104,7 +104,7 @@
                 config: {
                     title: 'settings',
                     templateUrl: 'app/settings/settings.html',
-                    controller: 'SettingCtrl',
+                    controller: 'SettingsCtrl',
                     controllerAs: 'vm',
                     settings: {
                         nav: 5,

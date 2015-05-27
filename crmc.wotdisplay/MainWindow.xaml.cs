@@ -77,9 +77,7 @@ namespace crmc.wotdisplay
             config = new AppConfig();
             // Connect to hub to listen for new names to display
             // Add other hub listeners here
-            var webServer = "http://crmc-test";
-            webServer = Settings.Default.WebServerUrl; 
-            Debug.WriteLine(webServer);
+            var webServer = Settings.Default.WebServerUrl; 
             var connection = new HubConnection(webServer + "/signalr");
 
             //Make proxy to hub based on hub name on server

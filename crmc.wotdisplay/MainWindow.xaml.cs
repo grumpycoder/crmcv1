@@ -339,7 +339,7 @@ namespace crmc.wotdisplay
             var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
             var leftMargin = (rightMargin - quadSize).ToInt();
             var left = RandomNumber(leftMargin, rightMargin);
-            var midPoint = canvasHeight / 2;
+            var midPoint = canvasHeight / 4;
 
             // Create a name scope for the page.
             NameScope.SetNameScope(this, new NameScope());

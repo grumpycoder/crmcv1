@@ -20,7 +20,7 @@
                            ng-focus="vm.setFocus(vm.nameForm.inputFirstName)"
                            name="inputFirstName" ng-model="vm.person.firstname" required="" placeholder="First Name"
                            ng-required="true"
-                           ng-pattern="/^[a-zA-Z ]*$/"
+                           ng-pattern="/^[a-zA-Z, `-]*$/"
                            ng-maxlength="50"
                            val-blacklist="vm.blackList">
                     <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputFirstName.$error.required" class="text-danger">Required</span>
@@ -39,7 +39,7 @@
                            name="inputLastName" ng-model="vm.person.lastname" placeholder="Last Name"
                            ng-focus="vm.setFocus(vm.nameForm.inputLastName)"
                            required
-                           ng-pattern="/^[a-zA-Z]*$/"
+                           ng-pattern="/^[a-zA-Z, `-]*$/"
                            ng-maxlength="50"
                            val-blacklist="vm.blackList">
                     <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputLastName.$error.required" class="text-danger">Required</span>
@@ -59,7 +59,7 @@
                            name="inputEmail"
                            ng-focus="vm.setFocus(vm.nameForm.inputEmail)"
                            ng-model="vm.person.emailAddress"
-                           ng-pattern="/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/"
+                           ng-pattern= "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/"
                            placeholder="Email Address">
                     <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid">
                         <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid email address</span>

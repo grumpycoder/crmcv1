@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Persons] (
     [Id]              INT             IDENTITY (1, 1) NOT NULL,
-    [AccountId]       INT             NULL,
+    [AccountId]       VARCHAR (50)    NULL,
     [Firstname]       VARCHAR (50)    NULL,
     [Lastname]        VARCHAR (50)    NULL,
     [EmailAddress]    VARCHAR (75)    NULL,
@@ -11,4 +11,6 @@
     [DateCreated]     DATETIME2 (7)   CONSTRAINT [DF__Persons__DateCre__21B6055D] DEFAULT (getdate()) NOT NULL,
     CONSTRAINT [PK_dbo.Persons] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
+
+
 

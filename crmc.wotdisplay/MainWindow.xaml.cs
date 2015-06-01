@@ -60,11 +60,16 @@ namespace crmc.wotdisplay
 
         private readonly List<Color> colors = new List<Color>()
         {
-            Color.FromRgb(223, 239, 224),
-            Color.FromRgb(247, 240, 246), 
-            Color.FromRgb(229, 245, 255), 
-            Color.FromRgb(255, 254, 230), 
-            Color.FromRgb(255, 243, 234)
+            //Color.FromRgb(223, 239, 224),
+            //Color.FromRgb(247, 240, 246), 
+            //Color.FromRgb(229, 245, 255), 
+            //Color.FromRgb(255, 254, 230), 
+            //Color.FromRgb(255, 243, 234)
+             Color.FromRgb(205, 238, 207),
+            Color.FromRgb(247, 231, 245), 
+            Color.FromRgb(213, 236, 250), 
+            Color.FromRgb(246, 244, 207), 
+            Color.FromRgb(246, 227, 213)
         }; 
 
         #endregion
@@ -218,9 +223,9 @@ namespace crmc.wotdisplay
             //Check if path to audio exists and has audio files
             if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
-            manager = new MediaManager(myMediaElement, Settings.Default.AudioFilePath);
-
+            manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
             manager.Play();
+
             PlayButton.Source = manager.Paused
                 ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
@@ -289,8 +294,9 @@ namespace crmc.wotdisplay
                await Task.Run(() =>
                {
                    //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   
+                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
+                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
+
                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
 
                    var syncClient = new WebClient();
@@ -333,7 +339,8 @@ namespace crmc.wotdisplay
         public void AddNewNameToDisplay(string name, int quadrant)
         {
             var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
-            var maxFontSize = Settings.Default.MaxFontSize + (Settings.Default.MaxFontSize * .10).ToInt();
+            //var maxFontSize = Settings.Default.MaxFontSize + (Settings.Default.MaxFontSize * .10).ToInt();
+            var maxFontSize = Settings.Default.MaxFontSize*2; 
             var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * SpeedModifier).ToInt();
 
             var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
@@ -355,7 +362,7 @@ namespace crmc.wotdisplay
                 left = left > (canvasWidth - w).ToInt() ? (canvasWidth - w).ToInt() : RandomNumber(leftMargin, (canvasWidth - w).ToInt());
             }
 
-            myLabel.FontSize = 1;
+            //myLabel.FontSize = 1;
 
             var growAnimation = new DoubleAnimation
             {
@@ -370,7 +377,7 @@ namespace crmc.wotdisplay
             var shrinkAnimation = new DoubleAnimation
             {
                 From = maxFontSize,
-                To = maxFontSize - maxFontSize * .20,
+                To = maxFontSize - maxFontSize * .10,
                 BeginTime = TimeSpan.FromSeconds(5),
                 Duration = new Duration(TimeSpan.FromSeconds(5))
             };
@@ -511,14 +518,6 @@ namespace crmc.wotdisplay
             return RandomNumber(minFontSize, maxFontSize);
         }
 
-
-//        public void AddPersonToDisplayFromKiosk(string location, string name)
-//        {
-//            int quad;
-//            int.TryParse(location, out quad);
-//            AddNewNameToDisplay(name, quad);
-//        }
-
         public void AddPersonToDisplayFromKiosk(string location, Person person)
         {
             int quad;
@@ -654,8 +653,9 @@ namespace crmc.wotdisplay
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("Media Ended");
             manager.Next();
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             manager.Play();
         }
 
@@ -663,61 +663,61 @@ namespace crmc.wotdisplay
         {
             if (manager == null)
             {
-                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
             manager.Play();
 
-            PlayButton.Source = manager.Paused
-                ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
-                : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            //PlayButton.Source = manager.Paused
+            //    ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
+            //    : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
+            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void OnMouseDownStopMedia(object sender, MouseButtonEventArgs e)
         {
             if (manager == null)
             {
-                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Stop();
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            PlayButton.Source = new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
+            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            //PlayButton.Source = new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
         }
 
         private void OnMouseDownForwardMedia(object sender, MouseButtonEventArgs e)
         {
             if (manager == null)
             {
-                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Next();
             manager.Play();
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void OnMouseDownBackMedia(object sender, MouseButtonEventArgs e)
         {
             if (manager == null)
             {
-                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Prev();
             manager.Play();
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void ChangeMediaVolume(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (manager != null)
             {
-                manager.ChangeVolume(VolumeSlider.Value);
+                //manager.ChangeVolume(VolumeSlider.Value);
             }
         }
 
@@ -725,7 +725,7 @@ namespace crmc.wotdisplay
         {
             if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3")))
             {
-                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
@@ -733,6 +733,11 @@ namespace crmc.wotdisplay
         }
 
         #endregion
+
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+
+        }
 
     }
 

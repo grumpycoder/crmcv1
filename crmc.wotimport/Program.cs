@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.Entity.Validation;
 using System.Data.OleDb;
+using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DuoVia.FuzzyStrings;
 using FuzzyString;
+using WotImport.Properties;
 
 namespace WotImport
 {
@@ -28,6 +33,33 @@ namespace WotImport
 
         private static void PopulatePersonList()
         {
+
+            var connStr = @"Data Source=.\dev2012;Initial Catalog=sandbox;Integrated Security=True";
+
+            var conn = new SqlConnection(connStr);
+
+            conn.Open();
+
+            //var wallnames = new SqlDataAdapter("SELECT * FROM dbfl_current", conn);
+
+            //var ds = new DataSet("sandbox");
+            //wallnames.FillSchema(ds, SchemaType.Source, "dbfl_current");
+            //wallnames.Fill(ds, "dbfl_current");
+            //var dt = ds.Tables["dbfl_current"];
+
+            var wallnames = new SqlDataAdapter("select * from wall_out where id > 99852 order by id", conn);
+
+            var ds = new DataSet("sandbox");
+            wallnames.FillSchema(ds, SchemaType.Source, "wall_out");
+            wallnames.Fill(ds, "wall_out");
+            var dt = ds.Tables["wall_out"];
+
+            //foreach (DataRow row in dt.Rows)
+            //{
+            //    Console.WriteLine(row["name"].ToString());
+            //}
+
+
             var db = new ApplicationDbContext();
 
             string[] prefixes =
@@ -45,24 +77,44 @@ namespace WotImport
 
             var personList = new List<Person>();
 
-            const string connectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\temp\SPLCWOT.mdb;User Id=;Password=;";
-            const string queryString = "SELECT row_id, account_id, NAME_LINE, ZIP_CODE FROM wall_out";
+            //const string connectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\temp\SPLCWOT.mdb;User Id=;Password=;";
+            const string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\temp\\SPLCWOT.accdb;";
+            //const string connectinString = Settings.Default.SPLCWOT2ConnectionString; 
+
+            const string queryString = "SELECT row_id, account_id, NAME_LINE, ZIP_CODE FROM wall_out where id >= 5740";
 
             using (var connection = new OleDbConnection(connectionString))
             using (var command = new OleDbCommand(queryString, connection))
             {
                 try
                 {
-                    connection.Open();
-                    var reader = command.ExecuteReader();
-
-                    var count = 0;
-                    while (reader.Read())
+                    var count = 1;
+                    //connection.Open();
+                    //var reader = command.ExecuteReader();
+                    foreach (DataRow row in dt.Rows)
                     {
-                        var name = reader[2].ToString().Split(' ');
+                        //var name = reader[2].ToString().Split(' ');
+                        //var cleanName = String.Join(" ", name.Where(s => !prefixes.Contains(s.ToLower().Trim())));
+                        //var temp = new List<string>(cleanName.Split(' '));
+
+                        string tempname;
+                        if (String.IsNullOrEmpty(row["firstname"].ToString()))
+                        {
+                            tempname = row["lastname"].ToString();
+                        }
+                        else
+                        {
+                            tempname = row["firstname"].ToString() + " " + row["lastname"].ToString();
+                        }
+                        var name = tempname.Split(' ');
                         var cleanName = String.Join(" ", name.Where(s => !prefixes.Contains(s.ToLower().Trim())));
                         var temp = new List<string>(cleanName.Split(' '));
-                        
+
+                        //var name = row["name"].ToString().Split(' ');
+                        //var cleanName = String.Join(" ", name.Where(s => !prefixes.Contains(s.ToLower().Trim())));
+                        //var temp = new List<string>(cleanName.Split(' '));
+
+
                         var ln = temp.Last();
                         temp.Remove(temp.Last());
                         var fn = String.Join(" ", temp);
@@ -71,23 +123,41 @@ namespace WotImport
                         {
                             Firstname = fn,
                             Lastname = ln,
+                            AccountId = row["lookupid"].ToString(),
                             FuzzyMatchValue = (decimal)GetMatchValue(cleanName),
-                            Zipcode = reader[3].ToString(),
-                            DateCreated = DateTime.Now, 
-                            IsDonor = false, 
+                            Zipcode = row["zip"].ToString(),
+                            DateCreated = DateTime.Now,
+                            IsDonor = true,
                             IsPriority = false
                         };
 
                         Console.WriteLine("Adding to list: {0}", person.Firstname + person.Lastname);
-                        personList.Add(person);
-                        if (personList.Count != 100) continue;
-                        Console.WriteLine("Saving data...");
-                        db.Persons.AddRange(personList);
-                        db.SaveChanges();
+                        //personList.Add(person);
+                        //if (personList.Count != 100) continue;
+                        Console.WriteLine("Saving data...{0}", count);
+                        count += 1;
+                        db.Persons.Add(person);
+     
+                        //db.Persons.AddRange(personList);
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (DbEntityValidationException validation)
+                        {
+                            Debug.WriteLine(validation.Message);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error: {0}: {1}", person.AccountId, e.Message);
+                            Debug.WriteLine("Error: {0}", person.AccountId);
+                            Debug.WriteLine(e.Message);
+                        }
+                        person = null; 
                         Console.WriteLine("Done... Moving on");
                         personList.Clear();
                     }
-                    reader.Close();
+                    //reader.Close();
                 }
                 catch (Exception ex)
                 {
@@ -98,6 +168,7 @@ namespace WotImport
             db.Persons.AddRange(personList);
             Console.WriteLine("Saving to database...");
             db.SaveChanges();
+            Console.WriteLine("Finished ...");
         }
 
         private static void PopulateCensorList()

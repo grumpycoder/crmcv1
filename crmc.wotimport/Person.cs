@@ -11,18 +11,18 @@ namespace WotImport
     {
         public int Id { get; set; }
 
-        public int? AccountId { get; set; }
+        public string AccountId { get; set; }
 
-        [StringLength(50)]
+        //[StringLength(50)]
         public string Firstname { get; set; }
 
-        [StringLength(50)]
+        //[StringLength(50)]
         public string Lastname { get; set; }
 
-        [StringLength(75)]
+        //[StringLength(75)]
         public string EmailAddress { get; set; }
 
-        [StringLength(10)]
+        //[StringLength(10)]
         public string Zipcode { get; set; }
 
         public bool? IsDonor { get; set; }

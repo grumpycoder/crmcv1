@@ -56,7 +56,8 @@
         </div>
         <div class="pull-right">
             <button class="btn btn-danger"
-                    ng-click="vm.finish()">
+                    ng-click="vm.finish()"
+                    ng-disabled="!vm.person">
                 CONTINUE <i class="fa fa-angle-right"></i>
             </button>
         </div>

@@ -75,6 +75,8 @@
     <Build Include="dbo\Tables\AspNetRoles.sql" />
     <Build Include="Security\CRMC_User.sql" />
     <Build Include="Security\iis-crmctest.sql" />
+    <Build Include="Security\splc_iis-crmctest_.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dev-crmc.database.publish.xml" />

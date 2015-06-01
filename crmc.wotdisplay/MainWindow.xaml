@@ -402,7 +402,7 @@
 
                 <GroupBox Grid.Row="1" Grid.Column="0" Header="How Slow to Scroll" Style="{StaticResource SettingGroupBoxStyle}">
                     <StackPanel>
-                        <Slider x:Name="sldScrollSpeed" Value="{Binding Path=Default.ScrollSpeed}" TickPlacement="BottomRight" SmallChange="1" Maximum="60" Minimum="1" TickFrequency="1" LargeChange="5" IsSnapToTickEnabled="True">
+                        <Slider x:Name="sldScrollSpeed" Value="{Binding Path=Default.ScrollSpeed}" TickPlacement="BottomRight" SmallChange="1" Maximum="120" Minimum="1" TickFrequency="1" LargeChange="5" IsSnapToTickEnabled="True">
                         </Slider>
                         <TextBlock x:Name="lblScrollSpeed" Text="{Binding Value, ElementName=sldScrollSpeed}" HorizontalAlignment="Center"/>
                     </StackPanel>
@@ -447,29 +447,31 @@
                 <GroupBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
 
                     <StackPanel Background="Black">
+                        <MediaElement x:Name="MediaPlayer" MediaEnded="MediaElement_MediaEnded" LoadedBehavior="Manual" />
+                        
                         <Label Content="Current Song: "></Label>
                         <TextBlock Foreground="#FFF9F7F7" FontSize="14" Name="CurrentSongTextBlock">Not Playing</TextBlock>
-                        <!-- To interactively stop, pause, and play the media, the LoadedBehavior property of the MediaElement must be set to "Manual". -->
-                        <MediaElement Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" MediaEnded="Element_MediaEnded"/>
+                         <!--To interactively stop, pause, and play the media, the LoadedBehavior property of the MediaElement must be set to "Manual".--> 
+                        <!--<MediaElement Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" MediaEnded="Element_MediaEnded"/>-->
 
                         <StackPanel HorizontalAlignment="Center" Width="864" Orientation="Horizontal" Margin="0,0,10,0">
 
-                            <!-- Play button. -->
+                             <!--Play button.--> 
                             <Image Source="images\play.ico" Name="PlayButton" MouseDown="OnMouseDownPlayMedia" Margin="5" Height="40" Width="40" />
 
-                            <!-- Stop button. -->
+                             <!--Stop button.--> 
                             <Image Source="images\stop.ico" MouseDown="OnMouseDownStopMedia" Margin="5" Height="40" Width="40" />
 
-                            <!-- Previous button. -->
+                             <!--Previous button.--> 
                             <Image Source="images\rewind.ico" MouseDown="OnMouseDownBackMedia" Margin="5" Height="40" Width="40" />
 
-                            <!-- Next button. -->
+                             <!--Next button.--> 
                             <Image Source="images\forward.ico" MouseDown="OnMouseDownForwardMedia" Margin="5" Height="40" Width="40" />
 
-                            <!-- Refresh button. -->
+                             <!--Refresh button.--> 
                             <Image Source="images\refresh.ico" MouseDown="OnMouseDownRefreshMedia" Margin="5" Height="40" Width="40" />
 
-                            <!-- Volume slider. This slider allows a Volume range between 0 and 1. -->
+                             <!--Volume slider. This slider allows a Volume range between 0 and 1.--> 
                             <TextBlock Foreground="White" VerticalAlignment="Center" Margin="5">Volume</TextBlock>
                             <Slider Name="VolumeSlider" VerticalAlignment="Center" ValueChanged="ChangeMediaVolume" Minimum="0" Maximum="1" Value="{Binding Path=Default.Volume}" Width="96"/>
 

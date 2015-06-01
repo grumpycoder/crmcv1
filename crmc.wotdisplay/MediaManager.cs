@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Controls;
@@ -127,7 +128,9 @@ namespace crmc.wotdisplay
 
         private void player_MediaEnded(object sender, System.Windows.RoutedEventArgs e)
         {
+            Debug.WriteLine("Media ended");
             Next();
+            Play();
         }
 
 

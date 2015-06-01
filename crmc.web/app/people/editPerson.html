@@ -12,7 +12,7 @@
                    ng-model="person.firstname"
                    placeholder="First Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z ]*$/"
+                   ng-pattern="/^[a-zA-Z, `-]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.firstname.$invalid && !person.firstname.$dirty}" />
@@ -30,7 +30,7 @@
                    ng-model="person.lastname"
                    placeholder="Last Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z]*$/"
+                   ng-pattern="/^[a-zA-Z, `-]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.lastname.$invalid && !person.lastname.$pristine}" />
@@ -74,11 +74,20 @@
 
             <input type="number" name="fuzzyMatchValue" class="form-control"
                    ng-model="person.fuzzyMatchValue"
-                   placeholder="Fuzzy match value" />
+                   placeholder="Fuzzy match value"/>
 
         </div>
-    </form>
+        <div class="form-group">
+            <label class="control-label">Priority</label>
+            <input type="checkbox" ng-model="person.isPriority"/>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Donor</label>
+            <input type="checkbox" ng-model="person.isDonor" />
+        </div>
 
+    </form>
+   
 </div>
 <div class="modal-footer">
     <button class="btn btn-success" ng-click="save()" ng-disabled="personForm.$invalid">Save</button>

@@ -3,9 +3,9 @@
 
     var controllerId = 'createCtrl';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$scope', '$state', '$window', 'common', 'datacontext', createCtrl]);
+        ['$cookies', '$cookieStore', '$scope', '$state', '$timeout', '$window', 'common', 'datacontext', createCtrl]);
 
-    function createCtrl($cookies, $cookieStore, $scope, $state, $window, common, datacontext) {
+    function createCtrl($cookies, $cookieStore, $scope, $state, $timeout, $window, common, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -13,12 +13,12 @@
         var arrayMin = Function.prototype.apply.bind(Math.min, null);
         var crmc = $.connection.crmcHub;
         var proxy = $.connection.crmcHub;
-        
+
         vm.blackList = [];
         vm.cancel = cancel;
         vm.goBack = goBack;
         vm.gotoReview = gotoReview;
-        vm.kiosk = 1; 
+        vm.kiosk = 1;
         vm.save = save;
         vm.person = {
             emailAddress: ''
@@ -93,7 +93,7 @@
 
         function getBlackList() {
             //TODO: Load blacklist in localstorage
-            var list = []; 
+            var list = [];
             datacontext.getCensors(true).then(function (data) {
                 data.forEach(function (item) {
                     vm.blackList.push(item.word);
@@ -150,8 +150,15 @@
                 zipCode: vm.person.zipcode
             }
             proxy.server.addNameToWall(vm.kiosk, person);
-            vm.person = undefined; 
-            $state.go('finish');
+            vm.person = undefined;
+
+            $state.go('finish').then(
+                $timeout(function () {
+                    $state.go('welcome');
+                }, 15000)
+                );
+
+            //$state.go('finish');
         }
 
         function validateFullName(value) {
@@ -164,7 +171,7 @@
                 var matchSet = FuzzySet(vm.blackList);
                 var score = matchSet.get(value, 'useLevenshtein')[0][0];
                 if (score === 1) {
-                    valid = false; 
+                    valid = false;
                 }
             }
             return valid;

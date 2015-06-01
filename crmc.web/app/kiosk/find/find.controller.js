@@ -4,9 +4,9 @@
 
     var controllerId = 'findCtrl';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$rootScope', '$scope', '$state', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
+        ['$cookies', '$cookieStore', '$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
 
-    function findCtrl($cookies, $cookieStore, $rootScope, $scope, $state, $window, common, config, datacontext, usSpinnerService) {
+    function findCtrl($cookies, $cookieStore, $rootScope, $scope, $state, $timeout, $window, common, config, datacontext, usSpinnerService) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -17,7 +17,7 @@
         vm.cancel = cancel;
         vm.finish = finish;
         vm.goBack = goBack;
-        vm.kiosk = 1; 
+        vm.kiosk = 1;
         vm.people = [];
         vm.person = undefined;
         vm.title = 'Find Your Name';
@@ -94,6 +94,7 @@
         }
 
         function goBack() {
+            vm.paging.currentPage = 1;
             $window.history.back();
         }
 
@@ -101,11 +102,18 @@
             var person = {
                 firstname: vm.person.firstname,
                 lastname: vm.person.lastname,
-                fuzzyMatchValue: vm.person.fuzzyMatchValue,
-                dateCreate: vm.person.dateCreate
+                zipCode: vm.person.zipcode,
+                dateCreated: vm.person.dateCreated,
+                fuzzyMatchValue: vm.person.fuzzyMatchValue
             }
             crmc.server.addNameToWall(vm.kiosk, person);
-            $state.go('finish');
+            $state.go('finish').then(
+                $timeout(function () {
+                    $state.go('welcome');
+                }, 15000)
+                );
+
+            //$state.go('finish');
         }
 
         function pageChanged() {

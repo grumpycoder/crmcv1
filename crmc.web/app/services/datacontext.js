@@ -147,7 +147,7 @@
         //TODO: Remove?
         function getMessageCount() { return $q.when(72); }
 
-        function getPeople(page, size, nameFilter, fuzzyMatchFilter, daysFilter, orderBy) {
+        function getPeople(page, size, nameFilter, fuzzyMatchFilter, daysFilter, priorityFilter, orderBy) {
             orderBy = orderBy || 'dateCreated desc';
             var take = size || 20;
             var skip = page ? (page - 1) * size : 0;
@@ -155,12 +155,28 @@
             var namePredicate = null;
             var fuzzyPredicate = null;
             var dayPredicate = null;
+            var priorityPredicate = null;
 
-            if (nameFilter) { namePredicate = _fullNamePredicate(nameFilter); }
+            if (priorityFilter) {
+                priorityPredicate = Predicate.create('isPriority', 'eq', true);
+            }
+
+            if (nameFilter) {
+                if (!isNaN(nameFilter)) {
+                    namePredicate = Predicate.create('zipcode', 'contains', nameFilter);
+                } else {
+                    namePredicate = _fullNamePredicate(nameFilter);
+                }
+            }
+
             if (fuzzyMatchFilter) { fuzzyPredicate = _fuzzyMatchPredicate(fuzzyMatchFilter); }
             if (daysFilter) { dayPredicate = _daysPredicate(daysFilter) }
 
-            predicates = Predicate.and(namePredicate, fuzzyPredicate, dayPredicate);
+            predicates = Predicate.and(namePredicate, fuzzyPredicate, dayPredicate, priorityPredicate);
+
+            if (!isNaN(nameFilter)) {
+                log('namefilter is number', nameFilter, false);
+            };
 
             return EntityQuery.from('People')
                 .take(take)
@@ -224,7 +240,8 @@
 
             return Predicate
                 .create('firstname', 'contains', fn)
-                .and('lastname', 'contains', ln);
+                .and('lastname', 'contains', ln)
+                .or('emailAddress', 'contains', filterValue);
         }
 
         function _fuzzyMatchPredicate(fuzzyValue) {

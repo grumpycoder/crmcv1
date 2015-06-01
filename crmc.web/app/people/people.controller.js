@@ -15,7 +15,8 @@
         vm.clearSearch = clearSearch;
         vm.daysFilter = '';
         vm.fuzzyMatchValue = '';
-//        vm.deletePerson = deletePerson;
+        vm.deletePerson = deletePerson;
+        vm.isPriority = ''; 
         vm.orderByField = 'lastname';
         vm.reverseSort = false;
         vm.people = [];
@@ -58,13 +59,31 @@
         function addPerson(size) {
 
             var newPerson = datacontext.create('Person');
-
+    
             var modalInstance = $modal.open({
                 templateUrl: 'app/people/editPerson.html',
                 controller: function ($scope, $modalInstance, person, datacontext) {
-                    $scope.person = person;
+                    //$scope.person = newPerson;
 
+                    $scope.person = {
+                        firstname: person.firstname,
+                        lastname: person.lastname,
+                        emailAddress: person.emailAddress,
+                        zipcode: person.zipcode,
+                        isDonor: person.isDonor,
+                        isPriority: person.isPriority,
+                        fuzzyMatchValue: 0
+                    };
+                    
                     $scope.save = function () {
+                        person.firstname = $scope.person.firstname;
+                        person.lastname = $scope.person.lastname;
+                        person.email = $scope.person.email;
+                        person.zipcode = $scope.person.zipcode;
+                        person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
+                        person.isPriority = $scope.person.isPriority;
+                        person.isDonor = $scope.person.isDonor;
+                        
                         datacontext.save();
                         $modalInstance.close($scope.person);
                         vm.people.unshift(person);
@@ -104,6 +123,8 @@
                         lastname: person.lastname,
                         emailAddress: person.emailAddress,
                         zipcode: person.zipcode,
+                        isDonor: person.isDonor,
+                        isPriority: person.isPriority, 
                         fuzzyMatchValue: person.fuzzyMatchValue
                     }; 
 
@@ -113,6 +134,8 @@
                         person.emailAddress = $scope.person.emailAddress;
                         person.zipcode = $scope.person.zipcode;
                         person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
+                        person.isPriority = $scope.person.isPriority;
+                        person.isDonor = $scope.person.isDonor; 
 
                         datacontext.save();
                         $modalInstance.close($scope.person);
@@ -142,7 +165,8 @@
 
         function getPeople(forceRefresh) {
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, orderBy).then(function(data) {
+
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, vm.isPriority, orderBy).then(function(data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
                 //Set count here to limit unnecessary call on first load since filter and total count will be same. 

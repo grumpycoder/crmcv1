@@ -22,9 +22,9 @@
         vm.user = currentUser.profile; 
 
         $scope.userData = {
-            username: 'abc@abc.com',
-            email: 'abc@abc.com',
-            password: '!1Password',
+            username: '',
+            email: '',
+            password: '',
             confirmPassword: ''
         };
 

@@ -1,25 +1,18 @@
 ﻿<style>
-    .modal.center .modal-dialog{
-    position:absolute !important;
-    top:40%;left:50%;
-    min-width:320px;
-    max-width:630px;
-    width:50%;
-    -webkit-transform:translateX(-50%) translateY(-50%);
-    transform:translateX(-50%) translateY(-50%)
-} 
+    .modal.center .modal-dialog {
+        position: absolute !important;
+        top: 40%;
+        left: 50%;
+        min-width: 320px;
+        max-width: 630px;
+        width: 50%;
+        -webkit-transform: translateX(-50%) translateY(-50%);
+        transform: translateX(-50%) translateY(-50%);
+    }
 </style>
 <section>
     <div class="row">
-        <div class="col-lg-6">
-            <div class="input-group">
-                <input type="search" class="form-control input-md" placeholder="Search for..." autofocus="" ng-model="vm.peopleSearch" ng-keyup="vm.clearSearch($event)">
-                <span class="input-group-btn">
-                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
-                </span>
-            </div><!-- /input-group -->
-        </div><!-- /.col-lg-6 -->
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="btn-group pull-right">
                 <a class="btn btn-info"
                    data-ng-click="vm.refresh()">
@@ -29,17 +22,32 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="input-group">
+                <input type="search" class="form-control input-md" placeholder="Search for..."
+                       autofocus="" ng-model="vm.peopleSearch" ng-keyup="vm.clearSearch($event)">
+                <span class="input-group-btn">
+                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
+                </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+
+    </div>
+
     <div class="panel panel-primary">
 
         <div class="panel-heading">
             <div class="page-title pull-left">{{vm.title}}</div>
             <small class="page-title-subtle pull-left">({{vm.peopleFilteredCount}} / {{vm.peopleCount}})</small>
-            <div class="pull-right"><small class="page-title-subtle">Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}</small></div>
+            <div class="pull-right">
+                <small class="page-title-subtle">Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}</small>
+            </div>
             <div class="clearfix"></div>
         </div>
 
         <div class="panel-body">
-            
+
             <div class="row">
 
                 <div class="btn-group">
@@ -49,6 +57,10 @@
                 </div>
 
                 <div class="pull-right">
+                    <div class="btn-group" ng-click="vm.search()">
+                        <label class="btn btn-success" ng-model="vm.isPriority" btn-radio="'priority'" tooltip="Priority Only" uncheckable>Priority</label>
+                    </div>
+
                     <div class="btn-group" ng-click="vm.search()">
                         <label class="btn btn-danger" ng-model="vm.fuzzyMatchValue" btn-radio="'high'" tooltip=">80%" uncheckable>High</label>
                         <label class="btn btn-warning" ng-model="vm.fuzzyMatchValue" btn-radio="'low'" tooltip="50-80%" uncheckable>Medium</label>
@@ -72,6 +84,8 @@
                         <th ng-click="vm.sort('lastname')">Last Name</th>
                         <th ng-click="vm.sort('emailAddress')">Email</th>
                         <th ng-click="vm.sort('zipcode')">ZipCode</th>
+                        <th ng-click="vm.sort('isDonor')">Donor</th>
+                        <th ng-click="vm.sort('isPriority')">Priority</th>
                         <th ng-click="vm.sort('dateCreated')">Entry</th>
                         <th ng-click="vm.sort('fuzzyMatchValue')">Match</th>
                     </tr>
@@ -84,27 +98,29 @@
                         <td>{{p.lastname}}</td>
                         <td>{{p.emailAddress}}</td>
                         <td>{{p.zipcode}}</td>
+                        <td>{{p.isDonor ? 'Yes' : 'No'}}</td>
+                        <td>{{p.isPriority ? 'Yes' : 'No'}}</td>
                         <td>{{p.dateCreated | date: 'MM/dd/yyyy'}}</td>
                         <td>{{p.fuzzyMatchValue | percentage:1}}</td>
                     </tr>
                     <tfoot>
-                    <tr>
-                        <td colspan="7" style="text-align: center;">
-                            <pagination boundary-links="true"
-                                        total-items="vm.peopleFilteredCount"
-                                        max-size="10"
-                                        ng-model="vm.paging.currentPage"
-                                        items-per-page="vm.paging.pageSize"
-                                        ng-change="vm.pageChanged()"
-                                        class="pagination-lg"
-                                        page="vm.paging.currentPage"
-                                        previous-text="&lsaquo;"
-                                        next-text="&rsaquo;"
-                                        first-text="&laquo;"
-                                        last-text="&raquo;">
-                            </pagination>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">
+                                <pagination boundary-links="true"
+                                            total-items="vm.peopleFilteredCount"
+                                            max-size="10"
+                                            ng-model="vm.paging.currentPage"
+                                            items-per-page="vm.paging.pageSize"
+                                            ng-change="vm.pageChanged()"
+                                            class="pagination-lg"
+                                            page="vm.paging.currentPage"
+                                            previous-text="&lsaquo;"
+                                            next-text="&rsaquo;"
+                                            first-text="&laquo;"
+                                            last-text="&raquo;">
+                                </pagination>
+                            </td>
+                        </tr>
                     </tfoot>
                 </table>
 

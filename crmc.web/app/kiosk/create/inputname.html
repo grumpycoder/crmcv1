@@ -55,20 +55,6 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <input type="text" class="form-control" id="inputEmail"
-                           name="inputEmail"
-                           ng-focus="vm.setFocus(vm.nameForm.inputEmail)"
-                           ng-model="vm.person.emailAddress"
-                           ng-pattern= "/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/"
-                           placeholder="Email Address">
-                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid">
-                        <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid email address</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
                     <input type="text" class="form-control" id="inputZipCode"
                            name="inputZipCode"
                            ng-focus="vm.setFocus(vm.nameForm.inputZipCode)"
@@ -83,6 +69,21 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="text" class="form-control" id="inputEmail"
+                           name="inputEmail"
+                           ng-focus="vm.setFocus(vm.nameForm.inputEmail)"
+                           ng-model="vm.person.emailAddress"
+                           ng-pattern="/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/"
+                           placeholder="Email Address (optional)">
+                    <div ng-messages="vm.nameForm.inputEmail.$error" ng-show="vm.nameForm.inputEmail.$invalid">
+                        <span class="errorMessage arrow_box" ng-message="pattern" class="text-danger">Invalid email address</span>
+                    </div>
+                </div>
+            </div>
+
         </form>
     </div>
 

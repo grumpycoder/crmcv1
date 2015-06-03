@@ -3,9 +3,9 @@
 
     var controllerId = 'createCtrl';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$scope', '$state', '$timeout', '$window', 'common', 'datacontext', createCtrl]);
+        ['$cookies', '$cookieStore', '$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'datacontext', createCtrl]);
 
-    function createCtrl($cookies, $cookieStore, $scope, $state, $timeout, $window, common, datacontext) {
+    function createCtrl($cookies, $cookieStore, $rootScope, $scope, $state, $timeout, $window, common, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -133,6 +133,7 @@
             }
             vm.person.firstname = Humanize.titleCase(vm.person.firstname.toLowerCase());
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
+            vm.person.emailAddress = vm.person.emailAddress.toLowerCase();
             $state.go('create.review');
         }
 
@@ -149,16 +150,12 @@
                 dateCreated: vm.person.dateCreated,
                 zipCode: vm.person.zipcode
             }
-            proxy.server.addNameToWall(vm.kiosk, person);
+            //proxy.server.addNameToWall(vm.kiosk, person);
+            $rootScope.person = person;
+
             vm.person = undefined;
 
-            $state.go('finish').then(
-                $timeout(function () {
-                    $state.go('welcome');
-                }, 15000)
-                );
-
-            //$state.go('finish');
+            $state.go('finish');
         }
 
         function validateFullName(value) {

@@ -27,14 +27,16 @@ using Size = System.Windows.Size;
 
 namespace crmc.wotdisplay
 {
+
     public partial class MainWindow
     {
         private readonly ApplicationDbContext db = new ApplicationDbContext();
-//        protected ApplicationDbContext db;
 
         #region Variables
 
         private static readonly Random Random = new Random();
+
+        private LocalList localList = new LocalList();
 
         private const int TopMargin = 10;
         public static int CurrentTotal;
@@ -43,8 +45,7 @@ namespace crmc.wotdisplay
         public static int CurrentPrioritySkipLimit;
 
         private const int ListSize = 25;
-        private int skipCount;
-
+        private readonly int skipCount;
 
         private readonly Canvas canvas;
         private readonly double canvasWidth;
@@ -60,12 +61,7 @@ namespace crmc.wotdisplay
 
         private readonly List<Color> colors = new List<Color>()
         {
-            //Color.FromRgb(223, 239, 224),
-            //Color.FromRgb(247, 240, 246), 
-            //Color.FromRgb(229, 245, 255), 
-            //Color.FromRgb(255, 254, 230), 
-            //Color.FromRgb(255, 243, 234)
-             Color.FromRgb(205, 238, 207),
+            Color.FromRgb(205, 238, 207),
             Color.FromRgb(247, 231, 245), 
             Color.FromRgb(213, 236, 250), 
             Color.FromRgb(246, 244, 207), 
@@ -148,7 +144,10 @@ namespace crmc.wotdisplay
                     PopulateListAsync(widget);
                 }
 
-                var d = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(Settings.Default.AddNewItemSpeed) };
+                var d = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed)
+                };
                 var widget1 = widget;
                 d.Tick += (s, args) => timer_Tick(d, widget1);
                 d.Start();
@@ -239,7 +238,10 @@ namespace crmc.wotdisplay
         {
             var d = (DispatcherTimer)(sender);
             // Reset timer interval in the chance options has changed
-            d.Interval = TimeSpan.FromSeconds(Settings.Default.AddNewItemSpeed);
+            if (!widget.IsPriorityList)
+            {
+                d.Interval = TimeSpan.FromSeconds(Settings.Default.AddNewItemSpeed);
+            }
 
             if (!widget.PersonList.Any())
             {
@@ -255,12 +257,31 @@ namespace crmc.wotdisplay
                 }
                 return;
             }
-
-
+            
             AddNameToQuadDisplay(widget.CurrentPerson, widget.SectionSetting.Quadrant);
             widget.SetNextPerson();
 
-            if (widget.CurrentPerson != widget.LastPerson) return;
+            var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * SpeedModifier).ToInt() / 2;
+
+            var removeList = new List<LocalItem>();
+
+            foreach (var localItem in widget.LocalList.LocalItems)
+            {
+                if (localItem.LastTickTime >= speed)
+                {
+                    AddNameToQuadDisplay(localItem.Person, widget.SectionSetting.Quadrant);
+                    localItem.RotationCount += 1;
+                    localItem.LastTickTime = 0;
+                }
+                localItem.LastTickTime += Settings.Default.AddNewItemSpeed;
+                if(localItem.RotationCount > 3) removeList.Add(localItem);
+            }
+            foreach (var localItem in removeList)
+            {
+                widget.LocalList.LocalItems.Remove(localItem);
+            }
+
+            if (widget.CurrentPerson.Id != widget.LastPerson.Id) return;
 
             switch (widget.IsPriorityList)
             {
@@ -289,16 +310,17 @@ namespace crmc.wotdisplay
             }
         }
 
+        
         async void PopulateListAsync(Widget widget)
         {
                await Task.Run(() =>
                {
                    //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
                    var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
+                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
 
                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
-
+                   //Debug.WriteLine(url);
                    var syncClient = new WebClient();
                    var content = syncClient.DownloadString(url);
 
@@ -336,106 +358,126 @@ namespace crmc.wotdisplay
             }
         }
 
-        public void AddNewNameToDisplay(string name, int quadrant)
+        public void AddNewNameToDisplay(Person person, int quadrant)
         {
             var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
-            //var maxFontSize = Settings.Default.MaxFontSize + (Settings.Default.MaxFontSize * .10).ToInt();
-            var maxFontSize = Settings.Default.MaxFontSize*2; 
+            var maxFontSize = Settings.Default.MaxFontSize * 2;
             var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * SpeedModifier).ToInt();
 
-            var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
-            var leftMargin = (rightMargin - quadSize).ToInt();
-            var left = RandomNumber(leftMargin, rightMargin);
-            var midPoint = canvasHeight / 4;
-
-            // Create a name scope for the page.
-            NameScope.SetNameScope(this, new NameScope());
-            var myLabel = new Label { Content = name, FontSize = maxFontSize, Name = "label1", Foreground = new SolidColorBrush(Colors.White) };
-            RegisterName(myLabel.Name, myLabel);
-
-            // Correct left position if name is too long to fit within canvas right margin
-            myLabel.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-            myLabel.Arrange(new Rect(myLabel.DesiredSize));
-            var w = myLabel.ActualWidth;
-            if ((left + w) > canvasWidth)
+            Dispatcher.Invoke(() =>
             {
-                left = left > (canvasWidth - w).ToInt() ? (canvasWidth - w).ToInt() : RandomNumber(leftMargin, (canvasWidth - w).ToInt());
-            }
+                // Create a name scope for the page.
+                NameScope.SetNameScope(this, new NameScope());
 
-            //myLabel.FontSize = 1;
+                var rightMargin = (canvasWidth/4*quadrant).ToInt();
+                var leftMargin = (rightMargin - quadSize).ToInt();
+                var left = RandomNumber(leftMargin, rightMargin);
+                var midPoint = canvasHeight/4;
+                var labelName = "label" + RandomNumber(1, 1000);
 
-            var growAnimation = new DoubleAnimation
-            {
-                From = 1,
-                To = maxFontSize,
-                Duration = new Duration(TimeSpan.FromSeconds(3)),
-                BeginTime = TimeSpan.FromSeconds(1)
-            };
-            Storyboard.SetTargetName(growAnimation, myLabel.Name);
-            Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
+                //Set inital size of label to max for calculation of max label size
+                //Reset to 1 after calculating size for grow animation
+                var myLabel = new Label
+                {
+                    Content = person.ToString(),
+                    FontSize = maxFontSize,
+                    FontFamily = new FontFamily(Settings.Default.FontFamily),
+                    Name = labelName,
+                    Tag = labelName, 
+                    Uid = labelName,
+                    Foreground = new SolidColorBrush(Colors.White)
+                };
+                RegisterName(myLabel.Name, myLabel);
 
-            var shrinkAnimation = new DoubleAnimation
-            {
-                From = maxFontSize,
-                To = maxFontSize - maxFontSize * .10,
-                BeginTime = TimeSpan.FromSeconds(5),
-                Duration = new Duration(TimeSpan.FromSeconds(5))
-            };
-            Storyboard.SetTargetName(shrinkAnimation, myLabel.Name);
-            Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
-
-            var upAnimation = new DoubleAnimation
-            {
-                From = midPoint,
-                To = TopMargin,
-                BeginTime = TimeSpan.FromSeconds(5),
-                Duration = new Duration(TimeSpan.FromSeconds(5))
-            };
-            Storyboard.SetTargetName(upAnimation, myLabel.Name);
-            Storyboard.SetTargetProperty(upAnimation, new PropertyPath(TopProperty));
-
-            var mySolidColorBrush = new SolidColorBrush { Color = Colors.White };
-            RegisterName("mySolidColorBrush", mySolidColorBrush);
-
-            myLabel.Foreground = mySolidColorBrush;
-
-            var colorAnimation = new ColorAnimation
-            {
-                From = RandomColor(),
-                To = RandomColor(),
-                BeginTime = TimeSpan.FromSeconds(5),
-                Duration = new Duration(TimeSpan.FromSeconds(5))
-            };
-            Storyboard.SetTargetName(colorAnimation, "mySolidColorBrush");
-            Storyboard.SetTargetProperty(colorAnimation, new PropertyPath(SolidColorBrush.ColorProperty));
+                // Correct left position if name is too long to fit within canvas right margin
+                myLabel.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                myLabel.Arrange(new Rect(myLabel.DesiredSize));
+                var w = myLabel.ActualWidth;
+                if ((left + w) > canvasWidth)
+                {
+                    left = left > (canvasWidth - w).ToInt()
+                        ? (canvasWidth - w).ToInt()
+                        : RandomNumber(leftMargin, (canvasWidth - w).ToInt());
+                }
 
 
-            var fallAnimation = new DoubleAnimation
-            {
-                From = midPoint,
-                To = canvasHeight,
-                BeginTime = TimeSpan.FromSeconds(15),
-                Duration = new Duration(TimeSpan.FromSeconds(speed))
-            };
-            Storyboard.SetTargetName(fallAnimation, myLabel.Name);
-            Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
+                //Reset font size to begin growAnimation. 
+                myLabel.FontSize = 1;
 
-            var myStoryboard = new Storyboard();
-            myStoryboard.Children.Add(growAnimation);
-            myStoryboard.Children.Add(shrinkAnimation);
-            myStoryboard.Children.Add(colorAnimation);
-            //myStoryboard.Children.Add(upAnimation);
-            myStoryboard.Children.Add(fallAnimation);
+                var growAnimation = new DoubleAnimation
+                {
+                    From = 1,
+                    To = maxFontSize,
+                    Duration = new Duration(TimeSpan.FromSeconds(3)),
+                    BeginTime = TimeSpan.FromSeconds(1)
+                };
+                Storyboard.SetTargetName(growAnimation, myLabel.Name);
+                Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
+                
+                var fontSize = CalculateFontSize(person.IsPriority);
 
-            Canvas.SetLeft(myLabel, left);
+                var shrinkAnimation = new DoubleAnimation
+                {
+                    From = maxFontSize,
+                    To = fontSize, 
+                    BeginTime = TimeSpan.FromSeconds(5),
+                    Duration = new Duration(TimeSpan.FromSeconds(5))
+                };
+                Storyboard.SetTargetName(shrinkAnimation, myLabel.Name);
+                Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
 
-            Canvas.SetTop(myLabel, midPoint);
-            Panel.SetZIndex(myLabel, 9999);
-            canvas.Children.Add(myLabel);
-            canvas.UpdateLayout();
+                var upAnimation = new DoubleAnimation
+                {
+                    From = midPoint,
+                    To = TopMargin,
+                    BeginTime = TimeSpan.FromSeconds(5),
+                    Duration = new Duration(TimeSpan.FromSeconds(5))
+                };
+                Storyboard.SetTargetName(upAnimation, myLabel.Name);
+                Storyboard.SetTargetProperty(upAnimation, new PropertyPath(TopProperty));
 
-            myStoryboard.Begin(this);
+                var mySolidColorBrush = new SolidColorBrush {Color = Colors.White};
+                RegisterName("mySolidColorBrush", mySolidColorBrush);
 
+                myLabel.Foreground = mySolidColorBrush;
+
+                var colorAnimation = new ColorAnimation
+                {
+                    From = RandomColor(),
+                    To = RandomColor(),
+                    BeginTime = TimeSpan.FromSeconds(5),
+                    Duration = new Duration(TimeSpan.FromSeconds(5))
+                };
+                Storyboard.SetTargetName(colorAnimation, "mySolidColorBrush");
+                Storyboard.SetTargetProperty(colorAnimation, new PropertyPath(SolidColorBrush.ColorProperty));
+
+
+                var fallAnimation = new DoubleAnimation
+                {
+                    From = midPoint,
+                    To = canvasHeight,
+                    BeginTime = TimeSpan.FromSeconds(15),
+                    Duration = new Duration(TimeSpan.FromSeconds(speed))
+                };
+                Storyboard.SetTargetName(fallAnimation, myLabel.Name);
+                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
+
+                var myStoryboard = new Storyboard();
+                myStoryboard.Children.Add(growAnimation);
+                myStoryboard.Children.Add(shrinkAnimation);
+                //myStoryboard.Children.Add(colorAnimation);
+                //myStoryboard.Children.Add(upAnimation);
+                myStoryboard.Children.Add(fallAnimation);
+
+                Canvas.SetLeft(myLabel, left);
+
+                Canvas.SetTop(myLabel, midPoint);
+                Panel.SetZIndex(myLabel, 9999);
+                canvas.Children.Add(myLabel);
+                canvas.UpdateLayout();
+
+                myStoryboard.Begin(this);
+            }); 
         }
 
         async void AddNameToQuadDisplay(Person person, int quadrant)
@@ -443,7 +485,7 @@ namespace crmc.wotdisplay
             await Task.Run(() =>
             {
                 if (person == null) return;
-
+                
                 var fontSize = CalculateFontSize(person.IsPriority);
                 var name = "label" + RandomNumber(1, 1000);
 
@@ -504,7 +546,6 @@ namespace crmc.wotdisplay
                     Canvas.SetTop(label, TopMargin);
                     canvas.Children.Add(label);
                     canvas.UpdateLayout();
-
                     storyboard.Begin(this);
                 });
             });
@@ -518,13 +559,23 @@ namespace crmc.wotdisplay
             return RandomNumber(minFontSize, maxFontSize);
         }
 
+        //Invoked from SignalR event
         public void AddPersonToDisplayFromKiosk(string location, Person person)
         {
             int quad;
 
             int.TryParse(location, out quad);
-            var fullname = person.Firstname + " " + person.Lastname;
-            AddNewNameToDisplay(fullname, quad);
+            AddNewNameToDisplay(person, quad);
+            var widget = widgets.FirstOrDefault(x => x.SectionSetting.Quadrant == quad);
+
+       
+            if (widget != null)
+                widget.LocalList.LocalItems.Add(new LocalItem()
+                {
+                    Kiosk = quad, 
+                    Person = person, 
+                    RotationCount = 0
+                });
         }
 
         public int RandomNumber(int min, int max)
@@ -653,7 +704,6 @@ namespace crmc.wotdisplay
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Media Ended");
             manager.Next();
             //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             manager.Play();
@@ -691,33 +741,33 @@ namespace crmc.wotdisplay
         {
             if (manager == null)
             {
-                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Next();
             manager.Play();
-            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void OnMouseDownBackMedia(object sender, MouseButtonEventArgs e)
         {
             if (manager == null)
             {
-                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Prev();
             manager.Play();
-            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void ChangeMediaVolume(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (manager != null)
             {
-                //manager.ChangeVolume(VolumeSlider.Value);
+                manager.ChangeVolume(VolumeSlider.Value);
             }
         }
 
@@ -725,7 +775,7 @@ namespace crmc.wotdisplay
         {
             if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3")))
             {
-                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
+                CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 

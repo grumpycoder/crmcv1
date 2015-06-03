@@ -147,7 +147,7 @@
         //TODO: Remove?
         function getMessageCount() { return $q.when(72); }
 
-        function getPeople(page, size, nameFilter, fuzzyMatchFilter, daysFilter, priorityFilter, orderBy) {
+        function getPeople(page, size, nameFilter, fuzzyMatchFilter, daysFilter, priorityFilter, localFilter, orderBy) {
             orderBy = orderBy || 'dateCreated desc';
             var take = size || 20;
             var skip = page ? (page - 1) * size : 0;
@@ -156,9 +156,14 @@
             var fuzzyPredicate = null;
             var dayPredicate = null;
             var priorityPredicate = null;
+            var localPredicate = null;
 
             if (priorityFilter) {
                 priorityPredicate = Predicate.create('isPriority', 'eq', true);
+            }
+
+            if (localFilter) {
+                localPredicate = Predicate.create('isDonor', 'eq', false);
             }
 
             if (nameFilter) {
@@ -172,7 +177,7 @@
             if (fuzzyMatchFilter) { fuzzyPredicate = _fuzzyMatchPredicate(fuzzyMatchFilter); }
             if (daysFilter) { dayPredicate = _daysPredicate(daysFilter) }
 
-            predicates = Predicate.and(namePredicate, fuzzyPredicate, dayPredicate, priorityPredicate);
+            predicates = Predicate.and(namePredicate, fuzzyPredicate, dayPredicate, priorityPredicate, localPredicate);
 
             if (!isNaN(nameFilter)) {
                 log('namefilter is number', nameFilter, false);

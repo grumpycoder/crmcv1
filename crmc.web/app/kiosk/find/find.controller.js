@@ -10,13 +10,13 @@
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
-
         var prevSelection = null;
         var crmc = $.connection.crmcHub;
 
         vm.cancel = cancel;
         vm.finish = finish;
         vm.goBack = goBack;
+        vm.gotoWelcome = gotoWelcome; 
         vm.kiosk = 1;
         vm.people = [];
         vm.person = undefined;
@@ -78,7 +78,7 @@
             vm.kiosk = $cookies.kiosk;
         }
 
-        //#region Internal Methods        
+        //#region Internal Methods    
         function cancel() {
             $state.go('welcome');
         }
@@ -98,6 +98,10 @@
             $window.history.back();
         }
 
+        function gotoWelcome() {
+            console.log('goto welcome');
+        }
+
         function finish() {
             var person = {
                 firstname: vm.person.firstname,
@@ -106,14 +110,11 @@
                 dateCreated: vm.person.dateCreated,
                 fuzzyMatchValue: vm.person.fuzzyMatchValue
             }
-            crmc.server.addNameToWall(vm.kiosk, person);
-            $state.go('finish').then(
-                $timeout(function () {
-                    $state.go('welcome');
-                }, 15000)
-                );
 
-            //$state.go('finish');
+            //crmc.server.addNameToWall(vm.kiosk, person);
+
+            $rootScope.person = person; 
+            $state.go('finish');
         }
 
         function pageChanged() {

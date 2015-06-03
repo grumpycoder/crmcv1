@@ -308,6 +308,7 @@
     <Content Include="app\kiosk\find\find.controller.js" />
     <Content Include="app\kiosk\find\search.html" />
     <Content Include="app\kiosk\find\searchResult.html" />
+    <Content Include="app\kiosk\finish.controller.js" />
     <Content Include="app\kiosk\finish.html" />
     <Content Include="app\dashboard\dashboard.controller.js">
       <DependentUpon>dashboard.html</DependentUpon>

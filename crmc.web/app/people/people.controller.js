@@ -16,7 +16,8 @@
         vm.daysFilter = '';
         vm.fuzzyMatchValue = '';
         vm.deletePerson = deletePerson;
-        vm.isPriority = ''; 
+        vm.isPriority = '';
+        vm.isLocal = '';
         vm.orderByField = 'lastname';
         vm.reverseSort = false;
         vm.people = [];
@@ -166,7 +167,7 @@
         function getPeople(forceRefresh) {
             var orderBy = vm.orderByField + (vm.reverseSort ? ' desc' : '');
 
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, vm.isPriority, orderBy).then(function(data) {
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch, vm.fuzzyMatchValue, vm.daysFilter, vm.isPriority, vm.isLocal, orderBy).then(function (data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
                 //Set count here to limit unnecessary call on first load since filter and total count will be same. 

@@ -11,8 +11,18 @@
     }
 </style>
 <section>
+
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-6">
+            <div class="input-group">
+                <input type="search" class="form-control input-md" placeholder="Search for..."
+                       autofocus="" ng-model="vm.peopleSearch" ng-keyup="vm.clearSearch($event)">
+                <span class="input-group-btn">
+                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-6">
             <div class="btn-group pull-right">
                 <a class="btn btn-info"
                    data-ng-click="vm.refresh()">
@@ -20,19 +30,6 @@
                 </a>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="input-group">
-                <input type="search" class="form-control input-md" placeholder="Search for..."
-                       autofocus="" ng-model="vm.peopleSearch" ng-keyup="vm.clearSearch($event)">
-                <span class="input-group-btn">
-                    <button class="btn btn-warning" type="button" ng-click="vm.search()">Go!</button>
-                </span>
-            </div><!-- /input-group -->
-        </div><!-- /.col-lg-6 -->
-
     </div>
 
     <div class="panel panel-primary">
@@ -57,6 +54,10 @@
                 </div>
 
                 <div class="pull-right">
+                    <div class="btn-group" ng-click="vm.search()">
+                        <label class="btn btn-default" ng-model="vm.isLocal" btn-radio="'local'" tooltip="Local Only" uncheckable>Local</label>
+                    </div>
+
                     <div class="btn-group" ng-click="vm.search()">
                         <label class="btn btn-success" ng-model="vm.isPriority" btn-radio="'priority'" tooltip="Priority Only" uncheckable>Priority</label>
                     </div>

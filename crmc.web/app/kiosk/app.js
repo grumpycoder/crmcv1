@@ -29,7 +29,9 @@
             })
             .state('finish', {
                 url: '/finish',
-                templateUrl: 'app/kiosk/finish.html'
+                templateUrl: 'app/kiosk/finish.html',
+                controller: 'finishCtrl',
+                controllerAs: 'vm'
             })
             .state('find', {
                 abstract: true,

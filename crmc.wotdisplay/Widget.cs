@@ -1,4 +1,6 @@
 ﻿//using crmc.domain;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using crmc.wotdisplay.models;
@@ -10,14 +12,14 @@ namespace crmc.wotdisplay
         private Person currentPerson;
         private Person lastPerson;
 
-
-        //public Widget(DispatcherTimer timer)
         public Widget()
         {
             //MyTimer = timer;
             PersonList = new List<Person>();
+            LocalList = new LocalList();
         }
 
+        public LocalList LocalList { get; set; }
         public IEnumerable<Person> PersonList { get; set; }
 
         public int SkipCount { get; set; }
@@ -32,11 +34,15 @@ namespace crmc.wotdisplay
 
         public Person LastPerson
         {
-            get { return lastPerson ?? (lastPerson = PersonList.LastOrDefault()); }
+            get
+            {
+                var list = PersonList.ToList();
+                return list.LastOrDefault();
+                //return lastPerson ?? (lastPerson = PersonList.LastOrDefault());
+            }
             set { lastPerson = value; }
         }
-
-
+        
         public void UpdatePersonList(IEnumerable<Person> list)
         {
             PersonList = list;
@@ -44,11 +50,26 @@ namespace crmc.wotdisplay
 
         public void SetNextPerson()
         {
-            CurrentPerson = PersonList.Where(i => i.Id > currentPerson.Id).OrderBy(i => i.Id).FirstOrDefault();
-            if (CurrentPerson == null)
+            var list = PersonList.ToList();
+            var idx = list.IndexOf(currentPerson);
+
+            var nextIdx = idx + 1;
+            if (nextIdx > list.Count - 1)
             {
-                currentPerson = PersonList.FirstOrDefault();
+                nextIdx = 0; 
             }
+            CurrentPerson = list[nextIdx];
+
+            //if (CurrentPerson == null)
+            //{
+            //    currentPerson = list[0];
+            //}
+
+            //CurrentPerson = PersonList.Where(i => i.Id > currentPerson.Id).OrderBy(i => i.Id).FirstOrDefault();
+            //if (CurrentPerson == null)
+            //{
+            //    currentPerson = PersonList.FirstOrDefault();
+            //}
         }
 
         public SectionSetting SectionSetting { get; set; }
@@ -63,4 +84,23 @@ namespace crmc.wotdisplay
         public int RightMargin { get; set; }
         public int Quadrant { get; set; }
     }
+
+    public class LocalList
+    {
+        public LocalList()
+        {
+            LocalItems = new List<LocalItem>();
+        }
+        public List<LocalItem> LocalItems { get; set;  } 
+    }
+
+    public class LocalItem
+    {
+        public Person Person { get; set; }
+        public int Kiosk { get; set; }
+        public int RotationCount { get; set; }
+        public double LastTickTime { get; set; }   
+    }
+
+
 }

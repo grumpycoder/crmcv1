@@ -138,24 +138,40 @@
         }
 
         function save() {
-            vm.person.fuzzyMatchValue = getFuzzyMatchValue();
-            vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
-            datacontext.create('Person', vm.person);
+            var person = {};
 
-            datacontext.save();
-            var person = {
-                firstname: vm.person.firstname,
-                lastname: vm.person.lastname,
-                fuzzyMatchValue: vm.person.fuzzyMatchValue,
-                dateCreated: vm.person.dateCreated,
-                zipCode: vm.person.zipcode
-            }
-            //proxy.server.addNameToWall(vm.kiosk, person);
-            $rootScope.person = person;
+            datacontext.findPerson(vm.person.firstname, vm.person.lastname, vm.person.zipcode, vm.person.emailAddress).then(function (data) {
+                var remotePerson = data[0];
+                //Add new person if found no match
+                if (!remotePerson) {
+                    vm.person.fuzzyMatchValue = getFuzzyMatchValue();
+                    vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
+                    datacontext.create('Person', vm.person);
 
-            vm.person = undefined;
+                    datacontext.save();
+                    log('adding new person', vm.person, false);
+                    person = {
+                        firstname: vm.person.firstname,
+                        lastname: vm.person.lastname,
+                        fuzzyMatchValue: vm.person.fuzzyMatchValue,
+                        dateCreated: vm.person.dateCreated,
+                        zipCode: vm.person.zipcode
+                    }
+                } else {
+                    person = {
+                        firstname: remotePerson.firstname,
+                        lastname: remotePerson.lastname,
+                        fuzzyMatchValue: remotePerson.fuzzyMatchValue,
+                        dateCreated: remotePerson.dateCreated,
+                        zipCode: remotePerson.zipcode
+                    }
+                    log('found existing person', person, false);
+                }
+                vm.person = undefined;
+                $rootScope.person = person;
+                $state.go('finish');
+            });
 
-            $state.go('finish');
         }
 
         function validateFullName(value) {

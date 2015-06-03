@@ -27,6 +27,7 @@
 
         var service = {
             create: create,
+            findPerson: findPerson, 
             getAppSettings: getAppSettings,
             getCensors: getCensors,
             getPeople: getPeople,
@@ -147,6 +148,39 @@
         //TODO: Remove?
         function getMessageCount() { return $q.when(72); }
 
+        function findPerson(firstname, lastname, zipcode, email) {
+
+            var predicates = null;
+
+            var namePredicate = null;
+            var emailPredicate = null;
+            var zipcodePredicate = null;
+
+            if (firstname || lastname) {
+                namePredicate = Predicate.create('firstname', 'eq', firstname)
+                                         .and('lastname', 'eq', lastname);
+            }
+            if (zipcode) {
+                zipcodePredicate = Predicate.create('zipcode', 'eq', zipcode);
+            }
+            if (email) {
+                emailPredicate = Predicate.create('emailAddress', 'eq', email);
+            }
+
+            predicates = Predicate.and(namePredicate, zipcodePredicate, emailPredicate);
+
+            return EntityQuery.from('People')
+                .where(predicates)
+                .using(manager)
+                .execute()
+                .then(success, _queryFailed);
+
+            function success(data) {
+                log('Retrieved [People] from remote storage', data.results.length, false);
+                return data.results;
+            }
+        }
+
         function getPeople(page, size, nameFilter, fuzzyMatchFilter, daysFilter, priorityFilter, localFilter, orderBy) {
             orderBy = orderBy || 'dateCreated desc';
             var take = size || 20;
@@ -178,10 +212,6 @@
             if (daysFilter) { dayPredicate = _daysPredicate(daysFilter) }
 
             predicates = Predicate.and(namePredicate, fuzzyPredicate, dayPredicate, priorityPredicate, localPredicate);
-
-            if (!isNaN(nameFilter)) {
-                log('namefilter is number', nameFilter, false);
-            };
 
             return EntityQuery.from('People')
                 .take(take)

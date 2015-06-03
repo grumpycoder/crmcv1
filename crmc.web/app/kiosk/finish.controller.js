@@ -19,7 +19,6 @@
         activate();
 
         function activate() {
-            console.log($rootScope.person);
         }
 
         //#region Internal Methods        

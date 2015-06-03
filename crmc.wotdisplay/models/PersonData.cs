@@ -22,7 +22,7 @@ namespace crmc.wotdisplay.models
         public string Zipcode { get; set; }
         public bool? IsDonor { get; set; }
         public bool? IsPriority { get; set; }
-        public double FuzzyMatchValue { get; set; }
+        public double? FuzzyMatchValue { get; set; }
         public string FullName { get; set; }
         public string DateCreated { get; set; }
     }

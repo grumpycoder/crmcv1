@@ -46,6 +46,7 @@
 
             $http.post(url, data, configuration)
                 .then(processToken($scope.userData.username))
+                .then(getUserInfo())
                 .then(loginRedirect.redirectPreLogin)
             .catch(function (response) {
                 log('login response', response, false);
@@ -68,10 +69,10 @@
         }
 
         function processToken(username) {
+            
             return function (response) {
                 currentUser.profile.username = username;
                 currentUser.profile.token = response.data.access_token;
-                getUserInfo();
                 currentUser.save();
                 return username;
             };

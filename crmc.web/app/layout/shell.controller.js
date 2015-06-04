@@ -65,7 +65,7 @@
             currentUser.profile.username = '';
             currentUser.profile.token = '';
             currentUser.remove();
-            $location.path('/');
+            $location.path('/login');
         }
 
         $rootScope.$on('spinner.toggle', function (event, args) {

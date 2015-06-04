@@ -44,9 +44,9 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencode' }
             };
 
-            $http.post(url, data, configuration)
+            return $http.post(url, data, configuration)
                 .then(processToken($scope.userData.username))
-                .then(getUserInfo())
+                .then(getUserInfo($scope.userData.username))
                 .then(loginRedirect.redirectPreLogin)
             .catch(function (response) {
                 log('login response', response, false);
@@ -60,8 +60,9 @@
             currentUser.remove();
         }
 
-        function getUserInfo() {
-            var url = common.serverUri() + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/';
+        function getUserInfo(username) {
+            //var url = common.serverUri() + '/api/accounts/localuserinfo/' + currentUser.profile.username + '/';
+            var url = common.serverUri() + '/api/accounts/localuserinfo/' + username + '/';
             $http.get(url).then(function (response) {
                 currentUser.profile.roles = response.data.roles;
                 currentUser.save();

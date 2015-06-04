@@ -58,6 +58,9 @@ namespace crmc.wotdisplay
         private readonly List<Widget> widgets = new List<Widget>();
         public AppConfig config;
         private MediaManager manager;
+        private HubConnection connection;
+        private bool _wasDisconnected = false;
+        private IHubProxy myHub;
 
         private readonly List<Color> colors = new List<Color>()
         {
@@ -66,7 +69,7 @@ namespace crmc.wotdisplay
             Color.FromRgb(213, 236, 250), 
             Color.FromRgb(246, 244, 207), 
             Color.FromRgb(246, 227, 213)
-        }; 
+        };
 
         #endregion
 
@@ -78,11 +81,14 @@ namespace crmc.wotdisplay
             config = new AppConfig();
             // Connect to hub to listen for new names to display
             // Add other hub listeners here
-            var webServer = Settings.Default.WebServerUrl; 
-            var connection = new HubConnection(webServer + "/signalr");
+            var webServer = Settings.Default.WebServerUrl;
+            connection = new HubConnection(webServer + "/signalr");
 
             //Make proxy to hub based on hub name on server
-            var myHub = connection.CreateHubProxy("crmcHub");
+            myHub = connection.CreateHubProxy("crmcHub");
+
+            connection.StateChanged += ConnectionOnStateChanged;
+            connection.Closed += ConnectionOnClosed;
 
             connection.Start().ContinueWith(task =>
             {
@@ -98,10 +104,15 @@ namespace crmc.wotdisplay
 
             }).Wait();
 
-//            myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
-            myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
+            //            myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
 
-            myHub.On("configSettingsSaved", InitDefaultSettings); 
+            SetupHubListeners();
+
+            //myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
+
+            //myHub.On("configSettingsSaved", InitDefaultSettings);
+
+
 
             Timeline.DesiredFrameRateProperty.OverrideMetadata(
                             typeof(Timeline),
@@ -154,12 +165,50 @@ namespace crmc.wotdisplay
             }
         }
 
+        private void ConnectionOnClosed()
+        {
+            Debug.WriteLine("Starting connection");
+            connection.Start();
+        }
+
+        private void SetupHubListeners()
+        {
+            myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
+
+            myHub.On("configSettingsSaved", InitDefaultSettings);
+        }
+
+        private void ConnectionOnStateChanged(StateChange stateChange)
+        {
+            Debug.WriteLine("ConnectionState Changed old: {0} to new: {1}", stateChange.OldState, stateChange.NewState);
+
+            if (stateChange.NewState == ConnectionState.Disconnected) { _wasDisconnected = true; }
+
+            if (_wasDisconnected && stateChange.OldState == ConnectionState.Connecting && stateChange.NewState == ConnectionState.Connected)
+            {
+                Debug.Write("Setup listeners");
+                SetupHubListeners();
+            }
+
+            //if (_wasDisconnected && stateChange.NewState == ConnectionState.Disconnected && stateChange.OldState != ConnectionState.Connecting)
+            //{
+                //Debug.WriteLine("Restarting connection to hub");
+                //connection.Start();
+            //}
+
+            if (stateChange.NewState == ConnectionState.Connected)
+            {
+                Debug.WriteLine("Connected to hub");
+            }
+
+        }
+
 
         private void ConfigSettingsChanged(AppConfig vm)
         {
             if (string.IsNullOrEmpty(vm.FontFamily))
             {
-                Settings.Default.FontFamily = "Arial"; 
+                Settings.Default.FontFamily = "Arial";
             }
             Settings.Default.AddNewItemSpeed = vm.AddNewItemSpeed;
             Settings.Default.AudioFilePath = vm.AudioFilePath;
@@ -181,8 +230,8 @@ namespace crmc.wotdisplay
 
             await Task.Run(() =>
             {
-                var url = Settings.Default.WebServerUrl + "/breeze/public/appconfigs"; 
-                
+                var url = Settings.Default.WebServerUrl + "/breeze/public/appconfigs";
+
                 var syncClient = new WebClient();
                 var content = syncClient.DownloadString(url);
 
@@ -257,7 +306,7 @@ namespace crmc.wotdisplay
                 }
                 return;
             }
-            
+
             AddNameToQuadDisplay(widget.CurrentPerson, widget.SectionSetting.Quadrant);
             widget.SetNextPerson();
 
@@ -274,7 +323,7 @@ namespace crmc.wotdisplay
                     localItem.LastTickTime = 0;
                 }
                 localItem.LastTickTime += Settings.Default.AddNewItemSpeed;
-                if(localItem.RotationCount > 3) removeList.Add(localItem);
+                if (localItem.RotationCount > 3) removeList.Add(localItem);
             }
             foreach (var localItem in removeList)
             {
@@ -310,38 +359,47 @@ namespace crmc.wotdisplay
             }
         }
 
-        
+
         async void PopulateListAsync(Widget widget)
         {
-               await Task.Run(() =>
-               {
-                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
-                   var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
-                   //var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Debug.WriteLine("Refreshing names for {0}", widget.SectionSetting.Quadrant);
+                    var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
 
-                   var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
-                   //Debug.WriteLine(url);
-                   var syncClient = new WebClient();
-                   var content = syncClient.DownloadString(url);
+                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
 
-                   // Create the Json serializer and parse the response
-                   PersonData personData;
-                   var serializer = new DataContractJsonSerializer(typeof (PersonData));
-                   using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
-                   {
-                       // deserialize the JSON object using the PersonData type.
-                       personData = (PersonData) serializer.ReadObject(ms);
-                   }
-                   widget.PersonList = Mapper.Map<List<Result>, List<Person>>(personData.Results);
-                   if (widget.IsPriorityList)
-                   {
-                       CurrentPriorityTotal = personData.InlineCount;
-                   }
-                   else
-                   {
-                       CurrentTotal = personData.InlineCount;
-                   }
-               });
+                    var syncClient = new WebClient();
+                    var content = syncClient.DownloadString(url);
+
+                    // Create the Json serializer and parse the response
+                    PersonData personData;
+                    var serializer = new DataContractJsonSerializer(typeof(PersonData));
+                    using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+                    {
+                        // deserialize the JSON object using the PersonData type.
+                        personData = (PersonData)serializer.ReadObject(ms);
+                    }
+                    widget.PersonList = Mapper.Map<List<Result>, List<Person>>(personData.Results);
+                    if (widget.IsPriorityList)
+                    {
+                        CurrentPriorityTotal = personData.InlineCount;
+                    }
+                    else
+                    {
+                        CurrentTotal = personData.InlineCount;
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Gobble up exception because webserver is unavailable to provides names
+                    // widget list will hold on to current names until available again. 
+                    Debug.WriteLine("Unable to refesh names on {0}", widget.SectionSetting.Quadrant);
+                    Debug.WriteLine(e.Message);
+                }
+            });
         }
 
         void PopulateListFromDb(Widget widget)
@@ -369,10 +427,10 @@ namespace crmc.wotdisplay
                 // Create a name scope for the page.
                 NameScope.SetNameScope(this, new NameScope());
 
-                var rightMargin = (canvasWidth/4*quadrant).ToInt();
+                var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
                 var leftMargin = (rightMargin - quadSize).ToInt();
                 var left = RandomNumber(leftMargin, rightMargin);
-                var midPoint = canvasHeight/4;
+                var midPoint = canvasHeight / 4;
                 var labelName = "label" + RandomNumber(1, 1000);
 
                 //Set inital size of label to max for calculation of max label size
@@ -383,7 +441,7 @@ namespace crmc.wotdisplay
                     FontSize = maxFontSize,
                     FontFamily = new FontFamily(Settings.Default.FontFamily),
                     Name = labelName,
-                    Tag = labelName, 
+                    Tag = labelName,
                     Uid = labelName,
                     Foreground = new SolidColorBrush(Colors.White)
                 };
@@ -413,13 +471,13 @@ namespace crmc.wotdisplay
                 };
                 Storyboard.SetTargetName(growAnimation, myLabel.Name);
                 Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
-                
+
                 var fontSize = CalculateFontSize(person.IsPriority);
 
                 var shrinkAnimation = new DoubleAnimation
                 {
                     From = maxFontSize,
-                    To = fontSize, 
+                    To = fontSize,
                     BeginTime = TimeSpan.FromSeconds(5),
                     Duration = new Duration(TimeSpan.FromSeconds(5))
                 };
@@ -436,7 +494,7 @@ namespace crmc.wotdisplay
                 Storyboard.SetTargetName(upAnimation, myLabel.Name);
                 Storyboard.SetTargetProperty(upAnimation, new PropertyPath(TopProperty));
 
-                var mySolidColorBrush = new SolidColorBrush {Color = Colors.White};
+                var mySolidColorBrush = new SolidColorBrush { Color = Colors.White };
                 RegisterName("mySolidColorBrush", mySolidColorBrush);
 
                 myLabel.Foreground = mySolidColorBrush;
@@ -477,7 +535,7 @@ namespace crmc.wotdisplay
                 canvas.UpdateLayout();
 
                 myStoryboard.Begin(this);
-            }); 
+            });
         }
 
         async void AddNameToQuadDisplay(Person person, int quadrant)
@@ -485,7 +543,7 @@ namespace crmc.wotdisplay
             await Task.Run(() =>
             {
                 if (person == null) return;
-                
+
                 var fontSize = CalculateFontSize(person.IsPriority);
                 var name = "label" + RandomNumber(1, 1000);
 
@@ -568,12 +626,12 @@ namespace crmc.wotdisplay
             AddNewNameToDisplay(person, quad);
             var widget = widgets.FirstOrDefault(x => x.SectionSetting.Quadrant == quad);
 
-       
+
             if (widget != null)
                 widget.LocalList.LocalItems.Add(new LocalItem()
                 {
-                    Kiosk = quad, 
-                    Person = person, 
+                    Kiosk = quad,
+                    Person = person,
                     RotationCount = 0
                 });
         }
@@ -586,11 +644,11 @@ namespace crmc.wotdisplay
 
         private Color RandomColor()
         {
-//            var r = Convert.ToByte(RandomNumber(0, 128) + 127);
-//            var g = Convert.ToByte(RandomNumber(0, 128) + 127);
-//            var b = Convert.ToByte(RandomNumber(0, 128) + 127);
-//            var color = Color.FromRgb(r, g, b);
-//            return color;
+            //            var r = Convert.ToByte(RandomNumber(0, 128) + 127);
+            //            var g = Convert.ToByte(RandomNumber(0, 128) + 127);
+            //            var b = Convert.ToByte(RandomNumber(0, 128) + 127);
+            //            var color = Color.FromRgb(r, g, b);
+            //            return color;
 
             var color = colors[RandomNumber(0, 5)];
             return color;
@@ -630,19 +688,19 @@ namespace crmc.wotdisplay
             config.UseLocalDataSource = Settings.Default.UseLocalDataSource;
 
 
-//            const string url =
-//               "http://localhost/crmc/breeze/Breeze/savechanges";
-//
-//            var syncClient = new WebClient();
-//            var content = syncClient.UploadValues(url, config);
-//
-//            // Create the Json serializer and parse the response
-//            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppConfig));
-//            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
-//            {
-//                // deserialize the JSON object using the WeatherData type.
-//                config = (AppConfig)serializer.ReadObject(ms);
-//            }
+            //            const string url =
+            //               "http://localhost/crmc/breeze/Breeze/savechanges";
+            //
+            //            var syncClient = new WebClient();
+            //            var content = syncClient.UploadValues(url, config);
+            //
+            //            // Create the Json serializer and parse the response
+            //            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppConfig));
+            //            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
+            //            {
+            //                // deserialize the JSON object using the WeatherData type.
+            //                config = (AppConfig)serializer.ReadObject(ms);
+            //            }
 
             var client = new RestClient(Settings.Default.WebServerUrl);
             var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
@@ -657,8 +715,8 @@ namespace crmc.wotdisplay
             });
 
 
-//            var connection = new HubConnection("http://localhost/crmc/signalr");
-            var connection = new HubConnection(Settings.Default.WebServerUrl +  "/signalr");
+            //            var connection = new HubConnection("http://localhost/crmc/signalr");
+            var connection = new HubConnection(Settings.Default.WebServerUrl + "/signalr");
 
             //Make proxy to hub based on hub name on server
             var myHub = connection.CreateHubProxy("CRMCHub");
@@ -676,9 +734,9 @@ namespace crmc.wotdisplay
                 }
 
             }).Wait();
-            
+
             myHub.Invoke<AppConfig>("SaveConfigSettings", config);
-//            ConnectionManager.HubProxy.Invoke("SaveConfigSettings", config);
+            //            ConnectionManager.HubProxy.Invoke("SaveConfigSettings", config);
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)

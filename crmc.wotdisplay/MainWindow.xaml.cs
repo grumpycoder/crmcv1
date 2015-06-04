@@ -418,7 +418,8 @@ namespace crmc.wotdisplay
 
         public void AddNewNameToDisplay(Person person, int quadrant)
         {
-            var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
+            //var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
+            var minFontSize = Settings.Default.MaxFontSize; 
             var maxFontSize = Settings.Default.MaxFontSize * 2;
             var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * SpeedModifier).ToInt();
 
@@ -472,7 +473,7 @@ namespace crmc.wotdisplay
                 Storyboard.SetTargetName(growAnimation, myLabel.Name);
                 Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
 
-                var fontSize = CalculateFontSize(person.IsPriority);
+                var fontSize = Settings.Default.MaxFontSize;
 
                 var shrinkAnimation = new DoubleAnimation
                 {

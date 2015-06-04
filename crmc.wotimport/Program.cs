@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Data.Entity.Migrations;
 using System.Data.Entity.Validation;
 using System.Data.OleDb;
 using System.Data.SqlClient;
@@ -20,15 +21,74 @@ namespace WotImport
 {
     class Program
     {
+        static IList<Censor> censorList;
+        private static ApplicationDbContext db; 
+
         static void Main(string[] args)
         {
+            db = new ApplicationDbContext();
+
+            censorList = db.Censors.OrderByDescending(c => c.Word).ToList();
 
             //PopulateCensorList();
-            PopulatePersonList();
+            //PopulatePersonList();
 
+            CleanDatabasename();
             Console.WriteLine("Done");
             Console.ReadLine();
 
+        }
+
+        private static void CleanDatabasename()
+        {
+            
+            string[] prefixes =
+                        {
+                            "dr. & mrs.", "mr. & mrs.", "mr & mrs", "mr. ", "dr. & mrs. ", "mr. & mrs. ", "mr & mrs ",
+                            "mr", "mr.", "ms.", "ms", "mrs.", "mrs", "dr.", "dr", "drs.", "drs", "miss", "md", "m.d.", "md.", "phd", "ph.d", "dds", "dds.", 
+                            "mr ", "mr. ", "ms. ", "ms ", "mrs. ", "mrs ", "dr. ", "dr ", "drs. ", "drs ", "miss ", "md ", "m.d. ", "md. ", "phd ", "ph.d ", "dds ", "dds. ", 
+                            "inc.", ",inc", ",inc.", ", inc", ", inc.", "l.l.c.", ", llc", ", l.l.c",
+                            ",inc", "m.t.t", "csc", "esq.", ", esq.", ", esq", ",esq.", ",esq", 
+                            "p.a.", "md,", ", m.d.", ", md", ", r.n.", ", rn", 
+                            "the rev", "rev and mrs.", "rev and mrs", "rev & mrs.", "rev & mrs", "rev.", "rev", "reverend", "the reverend", "the rev.", "the rt. rev.", "the revs", "the revs.", "reverend", 
+                            "pastor", "pastor/teacher", "pastora", "father", "sister", "ed.d.", "ed. d.", "ed.d", "esq.", "llc", "p.c.", "ph.d.", "d.v.m.", ",p.c", ",p.c.", "m.a.", 
+                            "attorney at law", "attorney", "atty.", "atty", "fr.", "capt.", "captain", "col.", "colonel", "lt/col", "lt.", "lcdr.", "lcdr ", "cdr.", "cdr ",
+                            "usn", "usnr-r", "usnr", "(ret.)", "ret.", "maj.", "m. sgt.", "sgt.", "smsgt", "sgt", "cpt.", "usaf (ret)", "usaf(ret)", "usaf ret", 
+                            "usaf", "prof.", "professor", "d.o.", "o.p.", "o.f.m", "(retired)", "(r)", "(ret)", "msgr.", "msgr", "sfcc.", "sfcc", "sfc.", "sfc", ",md", 
+                            "gen.", "general", "cpl.", "cpl", "usmcr", "usmc", "in memory of:", "in memory of :", "(in memory of)", "in memory of" , "j.d.", "ll.m.", "d.m.d", "d.d.s", "r.n.",
+                            "p.a", ", p.a.", ", p.c.", ",p.c.", "cmdr.", "cmdr. ", 
+                            "rn,", "psy.d.", "o.s.b", "ph d", ", ph.d", ", ph.d.", ", phd" , "bsee", "&", ","
+                        };
+
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower()) || prefixes.Contains(p.Firstname.ToLower())).OrderBy(p => p.Id);
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Firstname.ToLower())).OrderBy(p => p.Id);
+            //var personList = db.Persons.Where(p => p.Id == 222877).OrderBy(p => p.Id);
+            //var personList = db.Persons.Where(p => p.Lastname.Contains("d.v.m.")).OrderBy(p => p.Id);
+            var personList = db.Persons.OrderBy(p => p.Id).Skip(400000).Take(100000);
+
+            foreach (var person in personList)
+            {
+                var fullname = person.Firstname + " " + person.Lastname;
+                var fullArray = fullname.Split(' ');
+                var cleanFullName = String.Join(" ", fullArray.Where(s => !prefixes.Contains(s.ToLower().Trim())));
+                var temp = new List<string>(cleanFullName.Split(' '));
+
+                var ln = temp.Last();
+                temp.Remove(temp.Last());
+                var fn = string.Join(" ", temp);
+
+                var fuzzyMatchValue = (decimal) GetMatchValue(cleanFullName);
+
+                person.Firstname = fn.Replace(',', ' ');
+                person.Lastname = ln.Replace(',', ' ');
+                person.FuzzyMatchValue = fuzzyMatchValue;
+                if (person.EmailAddress != null)
+                    person.EmailAddress = person.EmailAddress.ToLower();
+
+                Console.WriteLine("Updating {0}:{1} : {2}", person.Id, fullname, person.Firstname + " " + person.Lastname);
+                //Console.WriteLine("{0}: {1}", fn + " " + ln, fuzzyMatchValue);
+            }
+            db.SaveChanges(); 
         }
 
         private static void PopulatePersonList()

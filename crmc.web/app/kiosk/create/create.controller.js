@@ -146,6 +146,9 @@
                 if (!remotePerson) {
                     vm.person.fuzzyMatchValue = getFuzzyMatchValue();
                     vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
+                    vm.person.isDonor = false;
+                    vm.person.isPriority = false;
+                    
                     datacontext.create('Person', vm.person);
 
                     datacontext.save();

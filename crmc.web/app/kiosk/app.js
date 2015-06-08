@@ -68,6 +68,9 @@
                 templateUrl: 'app/kiosk/settings/settings.html',
                 controller: 'settings',
                 controllerAs: 'vm'
+            }).state('down', {
+                url: 'down',
+                templateUrl: 'app/kiosk/down.html'
             });
 
         $urlRouterProvider.otherwise('/welcome');

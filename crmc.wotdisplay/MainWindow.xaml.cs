@@ -168,6 +168,8 @@ namespace crmc.wotdisplay
         private void ConnectionOnClosed()
         {
             Debug.WriteLine("Starting connection");
+            myHub = null;
+            myHub = myHub = connection.CreateHubProxy("crmcHub");
             connection.Start();
         }
 
@@ -479,7 +481,7 @@ namespace crmc.wotdisplay
                 {
                     From = maxFontSize,
                     To = fontSize,
-                    BeginTime = TimeSpan.FromSeconds(5),
+                    BeginTime = TimeSpan.FromSeconds(10),
                     Duration = new Duration(TimeSpan.FromSeconds(5))
                 };
                 Storyboard.SetTargetName(shrinkAnimation, myLabel.Name);

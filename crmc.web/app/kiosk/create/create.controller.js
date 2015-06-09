@@ -11,8 +11,8 @@
         var log = getLogFn(controllerId);
         var arrayMax = Function.prototype.apply.bind(Math.max, null);
         var arrayMin = Function.prototype.apply.bind(Math.min, null);
-        var crmc = $.connection.crmcHub;
-        var proxy = $.connection.crmcHub;
+        //var crmc = $.connection.crmcHub;
+        //var proxy = $.connection.crmcHub;
 
         vm.blackList = [];
         vm.cancel = cancel;
@@ -56,9 +56,9 @@
         function activate() {
             common.activateController([getBlackList()], controllerId).then(function () {
                 log('Activated Create Input View', null, false);
-                $.connection.hub.start().done(function () {
-                    log('hub connection successful', null, false);
-                });
+                //$.connection.hub.start().done(function () {
+                //    log('hub connection successful', null, false);
+                //});
                 createValidationWatch();
                 vm.setFocus();
             });

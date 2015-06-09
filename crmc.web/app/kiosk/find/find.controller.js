@@ -11,12 +11,12 @@
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
         var prevSelection = null;
-        var crmc = $.connection.crmcHub;
+        //var crmc = $.connection.crmcHub;
 
         vm.cancel = cancel;
         vm.finish = finish;
         vm.goBack = goBack;
-        vm.gotoWelcome = gotoWelcome; 
+        vm.gotoWelcome = gotoWelcome;
         vm.kiosk = 1;
         vm.people = [];
         vm.person = undefined;
@@ -71,9 +71,9 @@
             common.activateController([], controllerId)
                  .then(function () {
                      log('Activated Find Person View', null, false);
-                     $.connection.hub.start().done(function () {
-                         log('hub connection successful', null, false);
-                     });
+                     //$.connection.hub.start().done(function () {
+                     //    log('hub connection successful', null, false);
+                     //});
                  });
             vm.kiosk = $cookies.kiosk;
         }
@@ -112,8 +112,8 @@
             }
 
             //crmc.server.addNameToWall(vm.kiosk, person);
-
-            $rootScope.person = person; 
+            prevSelection.$selected = false;
+            $rootScope.person = person;
             $state.go('finish');
         }
 
@@ -130,12 +130,13 @@
                 vm.showValidationErrors = true;
                 return;
             }
-
             getPeople();
             $state.go('find.searchresult');
         }
 
+      
         function toggleName(person) {
+         
             if (prevSelection) {
                 prevSelection.$selected = false;
             }

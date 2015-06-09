@@ -1,5 +1,5 @@
 ﻿
-(function() {
+(function () {
     'use strict';
 
     var controllerId = 'finishCtrl';
@@ -14,11 +14,22 @@
 
         vm.gotoWelcome = gotoWelcome;
         vm.title = 'finishCtrl';
-        
+
+
+        $.connection.hub.disconnected(function () {
+            setTimeout(function () {
+                log('Trying to reconnect to hub', null, false);
+                $.connection.hub.start();
+            }, 5000); // Restart connection after 5 seconds.
+        });
+
 
         activate();
 
         function activate() {
+            $.connection.hub.start().done(function () {
+                console.log('hub connection successful', null, false);
+            });
         }
 
         //#region Internal Methods        

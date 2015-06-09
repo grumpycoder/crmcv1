@@ -18,7 +18,7 @@
 
         $.connection.hub.disconnected(function () {
             setTimeout(function () {
-                log('Trying to reconnect to hub', null, false);
+                console.log('Trying to reconnect to hub', null, false);
                 $.connection.hub.start();
             }, 5000); // Restart connection after 5 seconds.
         });

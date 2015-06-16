@@ -45,7 +45,7 @@ namespace crmc.wotdisplay
         public static int CurrentPrioritySkipLimit;
 
         private const int ListSize = 25;
-        private readonly int skipCount;
+        private int skipCount;
 
         private readonly Canvas canvas;
         private readonly double canvasWidth;
@@ -194,8 +194,8 @@ namespace crmc.wotdisplay
 
             //if (_wasDisconnected && stateChange.NewState == ConnectionState.Disconnected && stateChange.OldState != ConnectionState.Connecting)
             //{
-                //Debug.WriteLine("Restarting connection to hub");
-                //connection.Start();
+            //Debug.WriteLine("Restarting connection to hub");
+            //connection.Start();
             //}
 
             if (stateChange.NewState == ConnectionState.Connected)
@@ -337,6 +337,9 @@ namespace crmc.wotdisplay
             switch (widget.IsPriorityList)
             {
                 case false:
+                    skipCount += ListSize;
+                    widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount += ListSize;
+                    CurrentSkipLimit = skipCount;
                     widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : widget.SkipCount += ListSize;
                     CurrentSkipLimit = widget.SkipCount;
                     break;
@@ -371,8 +374,8 @@ namespace crmc.wotdisplay
                     Debug.WriteLine("Refreshing names for {0}", widget.SectionSetting.Quadrant);
                     var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
 
-                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
-
+                    //var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
+                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), skipCount, widget.ListSize);
                     var syncClient = new WebClient();
                     var content = syncClient.DownloadString(url);
 
@@ -421,7 +424,7 @@ namespace crmc.wotdisplay
         public void AddNewNameToDisplay(Person person, int quadrant)
         {
             //var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
-            var minFontSize = Settings.Default.MaxFontSize; 
+            var minFontSize = Settings.Default.MaxFontSize;
             var maxFontSize = Settings.Default.MaxFontSize * 2;
             var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * SpeedModifier).ToInt();
 

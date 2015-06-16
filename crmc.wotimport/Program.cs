@@ -28,7 +28,7 @@ namespace WotImport
         {
             db = new ApplicationDbContext();
 
-            censorList = db.Censors.OrderByDescending(c => c.Word).ToList();
+            //censorList = db.Censors.OrderByDescending(c => c.Word).ToList();
 
             //PopulateCensorList();
             //PopulatePersonList();
@@ -59,23 +59,47 @@ namespace WotImport
                             "p.a", ", p.a.", ", p.c.", ",p.c.", "cmdr.", "cmdr. ", 
                             "rn,", "psy.d.", "o.s.b", "ph d", ", ph.d", ", ph.d.", ", phd" , "bsee", "&", ","
                         };
+            //string[] prefixes =
+            //{
+            //    "jr", 
+            //    "jr.", 
+            //    "Jr.", 
+            //    "Jr", 
+            //    ", jr"
+            //};
 
-            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower()) || prefixes.Contains(p.Firstname.ToLower())).OrderBy(p => p.Id);
-            //var personList = db.Persons.Where(p => prefixes.Contains(p.Firstname.ToLower())).OrderBy(p => p.Id);
-            //var personList = db.Persons.Where(p => p.Id == 222877).OrderBy(p => p.Id);
+            var personList = db.Persons.Where(p => p.Firstname != "" && p.Lastname != " ").OrderBy(p => p.Id).Skip(0).Take(100000);
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower()) || prefixes.Contains(p.Firstname.ToLower()) && p.Firstname == null).OrderBy(p => p.Id).Skip(0).Take(100);
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower()) && p.Id == 233718).OrderBy(p => p.Id); //.Skip(0).Take(100);
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower())).Where(i => i.Firstname == null).OrderBy(p => p.Id); //.Skip(0).Take(100);
+            //var personList = db.Persons.Where(p => p.Firstname == null).OrderBy(p => p.Id).Skip(0).Take(100);
+            //var personList = db.Persons.Where(p => prefixes.Contains(p.Lastname.ToLower())).OrderBy(p => p.Id);
+            //var personList = db.Persons.Where(p => p.Lastname.Length == 1).OrderBy(p => p.Id);
             //var personList = db.Persons.Where(p => p.Lastname.Contains("d.v.m.")).OrderBy(p => p.Id);
-            var personList = db.Persons.OrderBy(p => p.Id).Skip(400000).Take(100000);
+            //var personList = db.Persons.OrderBy(p => p.Id).Skip(400000).Take(100000);
 
             foreach (var person in personList)
             {
-                var fullname = person.Firstname + " " + person.Lastname;
-                var fullArray = fullname.Split(' ');
-                var cleanFullName = String.Join(" ", fullArray.Where(s => !prefixes.Contains(s.ToLower().Trim())));
-                var temp = new List<string>(cleanFullName.Split(' '));
+                
+                var first = person.Firstname.Trim() ?? "";
+                var last = person.Lastname.Trim() ?? "";
 
-                var ln = temp.Last();
-                temp.Remove(temp.Last());
-                var fn = string.Join(" ", temp);
+                var fullname = first + " " + last; 
+
+                var fullArray = fullname.Trim().Split(' ');
+                var cleanFullName = String.Join(" ", fullArray.Where(s => !prefixes.Contains(s.ToLower().Trim())));
+                var 
+                    temp = new List<string>(cleanFullName.Split(' '));
+
+                var fn = temp.First();
+                temp.Remove(temp.First());
+                var ln = string.Join(" ", temp);
+
+                //var fn = string.Join(" ", temp);
+
+                //var ln = temp.Last();
+                //temp.Remove(temp.Last());
+                //var fn = string.Join(" ", temp);
 
                 var fuzzyMatchValue = (decimal) GetMatchValue(cleanFullName);
 
@@ -85,10 +109,23 @@ namespace WotImport
                 if (person.EmailAddress != null)
                     person.EmailAddress = person.EmailAddress.ToLower();
 
-                Console.WriteLine("Updating {0}:{1} : {2}", person.Id, fullname, person.Firstname + " " + person.Lastname);
+                //Console.WriteLine("Updating {0}:{1} : {2}", person.Id, fullname, person.Firstname + " " + person.Lastname);
+                Console.WriteLine(string.Format("FullName: {0}", fullname));
+                Console.WriteLine(string.Format("First: {0}  Last: {1}", person.Firstname, person.Lastname));
+                Debug.WriteLine(person.Firstname);
                 //Console.WriteLine("{0}: {1}", fn + " " + ln, fuzzyMatchValue);
+                db.SaveChangesAsync();
+
             }
-            db.SaveChanges(); 
+            Console.WriteLine("Save database changes ...");
+            //db.SaveChangesAsync();
+            Console.WriteLine("Done");
+        }
+
+        private static string getString(object o)
+        {
+            if (o == DBNull.Value) return null;
+            return (string)o;
         }
 
         private static void PopulatePersonList()

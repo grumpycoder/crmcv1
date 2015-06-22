@@ -4,6 +4,7 @@ using System.Web.Http;
 using Breeze.ContextProvider;
 using crmc.web.Data;
 using crmc.web.Models;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace crmc.web.Controllers
@@ -30,7 +31,9 @@ namespace crmc.web.Controllers
         [HttpGet]
         public IQueryable<Person> People()
         {
-            return repository.People;
+            //return repository.People;
+            var data = repository.People.GroupBy(c => new { c.Lastname, c.Firstname }).SelectMany(c => c).AsQueryable();
+            return data;
         }
 
         [HttpGet]

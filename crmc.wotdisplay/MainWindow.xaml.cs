@@ -337,11 +337,15 @@ namespace crmc.wotdisplay
             switch (widget.IsPriorityList)
             {
                 case false:
-                    skipCount += ListSize;
-                    widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount += ListSize;
+                    //skipCount += ListSize;
+                    skipCount = RandomNumber(1, CurrentTotal); 
+                    widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount;
                     CurrentSkipLimit = skipCount;
-                    widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : widget.SkipCount += ListSize;
-                    CurrentSkipLimit = widget.SkipCount;
+                    //widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount += ListSize;
+                    //CurrentSkipLimit = skipCount;
+                    Debug.WriteLine(skipCount);
+                    //widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : widget.SkipCount += ListSize;
+                    //CurrentSkipLimit = widget.SkipCount;
                     break;
                 case true:
                     widget.SkipCount = CurrentPrioritySkipLimit >= CurrentPriorityTotal
@@ -374,8 +378,8 @@ namespace crmc.wotdisplay
                     Debug.WriteLine("Refreshing names for {0}", widget.SectionSetting.Quadrant);
                     var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
 
-                    //var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
-                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), skipCount, widget.ListSize);
+                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
+                    //var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), skipCount, widget.ListSize);
                     var syncClient = new WebClient();
                     var content = syncClient.DownloadString(url);
 

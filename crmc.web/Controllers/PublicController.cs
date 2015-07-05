@@ -31,9 +31,9 @@ namespace crmc.web.Controllers
         [HttpGet]
         public IQueryable<Person> People()
         {
-            //return repository.People;
-            var data = repository.People.GroupBy(c => new { c.Lastname, c.Firstname }).SelectMany(c => c).AsQueryable();
-            return data;
+            return repository.People;
+//            var data = repository.People.GroupBy(c => new { c.Lastname, c.Firstname }).SelectMany(c => c).AsQueryable();
+            //return data;
         }
 
         [HttpGet]

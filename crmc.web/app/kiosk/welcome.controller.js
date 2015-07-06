@@ -10,21 +10,16 @@
         var keyCount = 0;
 
         function unlockSettings(key) {
-            keyCode = keyCode + key.toString();
-            keyCount += 1;
-            if (keyCount === 4) {
-                $state.go('settings');
+            
+            if (key === 1) {
+                keyCode = key;
+            } else {
+                keyCode += key.toString();
             }
 
-            //if (keyCode === '1234' && keyCode.length === 4) {
-            //    console.log('let me in');
-            //    $state.go('settings');
-            //}
-
-            //if (keyCode.length >= 4 && keyCode !== '1234') {
-            //    console.log('invalid code. resetting');
-            //    keyCode = key;
-            //}
+            if (keyCode === '1234') {
+                $state.go('settings');
+            }
             console.log(keyCode);
         }
 

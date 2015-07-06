@@ -13,7 +13,26 @@
         vm.gotoCreate = gotoCreate;
         vm.gotoSearch = gotoSearch;
 
+        
+        vm.unlockSettings = unlockSettings;
+        var keyCode = '';
+
+        function unlockSettings(key) {
+
+            if (key === 1) {
+                keyCode = key;
+            } else {
+                keyCode += key.toString();
+            }
+
+            if (keyCode === '1234') {
+                $state.go('settings');
+            }
+            console.log(keyCode);
+        }
+
         activate();
+
 
         function activate() {
 //            usSpinnerService.spin('spinner-1');

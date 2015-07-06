@@ -318,7 +318,6 @@
     <Content Include="app\kiosk\down.html" />
     <Content Include="app\kiosk\settings\settings.html" />
     <Content Include="app\kiosk\settings\settings.controller.js" />
-    <Content Include="app\kiosk\welcome.controller.js" />
     <Content Include="app\kiosk\welcome.html" />
     <Content Include="app\kiosk\welcome.js">
       <DependentUpon>welcome.html</DependentUpon>

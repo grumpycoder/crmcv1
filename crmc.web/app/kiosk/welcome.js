@@ -13,19 +13,26 @@
         vm.gotoCreate = gotoCreate;
         vm.gotoSearch = gotoSearch;
 
-        
+
         vm.unlockSettings = unlockSettings;
         var keyCode = '';
 
         function unlockSettings(key) {
-
-            if (key === 1) {
+            console.log(key);
+            if (keyCode.length > 4) {
                 keyCode = key;
-            } else {
+            }
+            else {
                 keyCode += key.toString();
             }
 
-            if (keyCode === '1234') {
+            //if (key === 1) {
+            //    keyCode = key;
+            //} else {
+            //    keyCode += key.toString();
+            //}
+
+            if (keyCode === '1212') {
                 $state.go('settings');
             }
             console.log(keyCode);
@@ -35,7 +42,7 @@
 
 
         function activate() {
-//            usSpinnerService.spin('spinner-1');
+            //            usSpinnerService.spin('spinner-1');
         }
 
         function gotoCreate() {

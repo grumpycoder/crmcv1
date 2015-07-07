@@ -28,15 +28,15 @@
 
         function activate() {
             $.connection.hub.start().done(function () {
-                console.log('hub connection successful', null, false);
+                console.log('hub connection successful');
             });
         }
 
         //#region Internal Methods        
 
-        var timer = $timeout(function () {
+        var timer = $timeout(function() {
             $state.go('welcome');
-        }, 15000)
+        }, 15000);
 
         var timer2 = $timeout(function () {
             if (person) {

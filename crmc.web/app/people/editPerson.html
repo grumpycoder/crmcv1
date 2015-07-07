@@ -12,7 +12,7 @@
                    ng-model="person.firstname"
                    placeholder="First Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z, `-]*$/"
+                   ng-pattern="/^[a-zA-Z, `-.]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.firstname.$invalid && !person.firstname.$dirty}" />
@@ -30,7 +30,7 @@
                    ng-model="person.lastname"
                    placeholder="Last Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z, `-]*$/"
+                   ng-pattern="/^[a-zA-Z, `-.]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.lastname.$invalid && !person.lastname.$pristine}" />
@@ -51,6 +51,17 @@
                     />
             <span ng-messages="personForm.email.$error" ng-show="personForm.email.$invalid">
                 <span class="help-block text-danger" ng-message="email" class="text-danger">Invalid email address</span>
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Account Number</label>
+
+            <input type="text" name="accountId" class="form-control"
+                   ng-model="person.accountId"
+                   placeholder="Account number" />
+            <span ng-messages="personForm.accountId.$error" ng-show="personForm.accountId.$invalid">
+                <span class="help-block text-danger" ng-message="accountId" class="text-danger">Invalid Account Number</span>
             </span>
         </div>
 

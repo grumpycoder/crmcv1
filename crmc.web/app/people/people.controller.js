@@ -70,6 +70,7 @@
                         firstname: person.firstname,
                         lastname: person.lastname,
                         emailAddress: person.emailAddress,
+                        accountId: person.accountId, 
                         zipcode: person.zipcode,
                         isDonor: person.isDonor,
                         isPriority: person.isPriority,
@@ -80,6 +81,7 @@
                         person.firstname = $scope.person.firstname;
                         person.lastname = $scope.person.lastname;
                         person.email = $scope.person.email;
+                        person.accountId = $scope.person.accountId;
                         person.zipcode = $scope.person.zipcode;
                         person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
                         person.isPriority = $scope.person.isPriority;
@@ -123,6 +125,7 @@
                         firstname: person.firstname,
                         lastname: person.lastname,
                         emailAddress: person.emailAddress,
+                        accountId: person.accountId,
                         zipcode: person.zipcode,
                         isDonor: person.isDonor,
                         isPriority: person.isPriority, 
@@ -133,6 +136,7 @@
                         person.firstname = $scope.person.firstname;
                         person.lastname = $scope.person.lastname;
                         person.emailAddress = $scope.person.emailAddress;
+                        person.accountId = $scope.person.accountId;
                         person.zipcode = $scope.person.zipcode;
                         person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
                         person.isPriority = $scope.person.isPriority;

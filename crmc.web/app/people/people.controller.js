@@ -51,9 +51,9 @@
                 });
         }
 
-        $.connection.hub.start().done(function () {
+        $.connection.hub.start().done(function() {
             console.log('connection started');
-        })
+        });
 
         var proxy = $.connection.crmcHub;
 
@@ -120,7 +120,7 @@
                 templateUrl: 'app/people/editPerson.html',
 //                windowTemplateUrl: 'app/people/customModal.html', 
                 controller: function ($scope, $modalInstance, person, datacontext) {
-
+                    log('person', person, false);
                     $scope.person = {
                         firstname: person.firstname,
                         lastname: person.lastname,

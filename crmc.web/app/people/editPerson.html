@@ -12,7 +12,7 @@
                    ng-model="person.firstname"
                    placeholder="First Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z, `-.]*$/"
+                   ng-pattern="/^[a-zA-Z, .`-]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.firstname.$invalid && !person.firstname.$dirty}" />
@@ -30,7 +30,7 @@
                    ng-model="person.lastname"
                    placeholder="Last Name"
                    ng-required="true"
-                   ng-pattern="/^[a-zA-Z, `-.]*$/"
+                   ng-pattern="/^[a-zA-Z, .`-]*$/"
                    ng-minlength="2"
                    ng-maxlength="50"
                    ng-class="{error: person.lastname.$invalid && !person.lastname.$pristine}" />

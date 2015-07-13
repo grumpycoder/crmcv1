@@ -21,6 +21,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoMapper;
 using crmc.wotdisplay.models;
+using NLog;
 using Color = System.Windows.Media.Color;
 using FontFamily = System.Windows.Media.FontFamily;
 using Size = System.Windows.Size;
@@ -73,9 +74,13 @@ namespace crmc.wotdisplay
 
         #endregion
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public MainWindow()
         {
             InitializeComponent();
+            logger.Info("Started WOT Application");
+
             Mapper.CreateMap<Result, Person>();
             Mapper.CreateMap<Person, Result>();
             config = new AppConfig();
@@ -92,27 +97,20 @@ namespace crmc.wotdisplay
 
             connection.Start().ContinueWith(task =>
             {
+                logger.Info("Starting hub connection.");
                 if (task.IsFaulted)
                 {
-                    Debug.WriteLine("There was an error opening the connection:{0}",
+                    logger.Warn("There was an error opening the connection:{0}",
                                       task.Exception.GetBaseException());
                 }
                 else
                 {
-                    Debug.WriteLine("Connected");
+                    logger.Info("Successfully connected to hub.");
                 }
 
             }).Wait();
 
-            //            myHub.On<string, string>("nameAddedToWall", (kiosk, name) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, name)));
-
             SetupHubListeners();
-
-            //myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
-
-            //myHub.On("configSettingsSaved", InitDefaultSettings);
-
-
 
             Timeline.DesiredFrameRateProperty.OverrideMetadata(
                             typeof(Timeline),
@@ -133,8 +131,6 @@ namespace crmc.wotdisplay
 
             InitDefaultSettings();
             InitAudio();
-
-            //db.Persons.Take(400).Load();
 
             //Initialize widgets
             widgets.Add(new Widget() { ListSize = 25, IsPriorityList = false, SkipCount = 0, SectionSetting = new SectionSetting() { Quadrant = 1 } });
@@ -167,44 +163,52 @@ namespace crmc.wotdisplay
 
         private void ConnectionOnClosed()
         {
-            Debug.WriteLine("Starting connection");
+            logger.Info("Connection closed. Starting new hub and connecting");
             myHub = null;
             myHub = myHub = connection.CreateHubProxy("crmcHub");
-            connection.Start();
+            //connection.Start();
+            connection.Start().ContinueWith(task =>
+            {
+                logger.Info("Starting hub connection.");
+                if (task.IsFaulted)
+                {
+                    logger.Warn("There was an error opening the connection:{0}",
+                                      task.Exception.GetBaseException());
+                }
+                else
+                {
+                    logger.Info("Successfully connected to hub.");
+                }
+
+            }).Wait();
         }
 
         private void SetupHubListeners()
         {
+            logger.Info("Setting up listeners on hub for kiosk names added.");
             myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
+            logger.Info("Setting up listeners on hub for configuration changes.");
             myHub.On("configSettingsSaved", InitDefaultSettings);
         }
 
         private void ConnectionOnStateChanged(StateChange stateChange)
         {
-            Debug.WriteLine("ConnectionState Changed old: {0} to new: {1}", stateChange.OldState, stateChange.NewState);
+            logger.Info("ConnectionState Changed old: {0} to new: {1}", stateChange.OldState, stateChange.NewState);
 
             if (stateChange.NewState == ConnectionState.Disconnected) { _wasDisconnected = true; }
 
             if (_wasDisconnected && stateChange.OldState == ConnectionState.Connecting && stateChange.NewState == ConnectionState.Connected)
             {
-                Debug.Write("Setup listeners");
                 SetupHubListeners();
             }
 
-            //if (_wasDisconnected && stateChange.NewState == ConnectionState.Disconnected && stateChange.OldState != ConnectionState.Connecting)
-            //{
-            //Debug.WriteLine("Restarting connection to hub");
-            //connection.Start();
-            //}
-
             if (stateChange.NewState == ConnectionState.Connected)
             {
-                Debug.WriteLine("Connected to hub");
+                logger.Info("Connected to hub.");
             }
 
         }
-
 
         private void ConfigSettingsChanged(AppConfig vm)
         {
@@ -233,6 +237,7 @@ namespace crmc.wotdisplay
             await Task.Run(() =>
             {
                 var url = Settings.Default.WebServerUrl + "/breeze/public/appconfigs";
+                logger.Info("Retrieving default settings from {0}", url);
 
                 var syncClient = new WebClient();
                 var content = syncClient.DownloadString(url);
@@ -264,12 +269,15 @@ namespace crmc.wotdisplay
                 Settings.Default.Volume = config.Volume;
                 Settings.Default.UseLocalDataSource = config.UseLocalDataSource;
                 Settings.Default.Save();
+
+                logger.Info("Update local configuration complete.");
             });
 
         }
 
         void InitAudio()
         {
+            logger.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
             if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
@@ -281,8 +289,7 @@ namespace crmc.wotdisplay
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             manager.ChangeVolume(0.75);
-
-
+            logger.Info("Audio initialization complete.");
         }
 
         private async void timer_Tick(object sender, Widget widget)
@@ -337,15 +344,9 @@ namespace crmc.wotdisplay
             switch (widget.IsPriorityList)
             {
                 case false:
-                    //skipCount += ListSize;
-                    skipCount = RandomNumber(1, CurrentTotal); 
+                    skipCount = RandomNumber(1, CurrentTotal - widget.ListSize); 
                     widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount;
                     CurrentSkipLimit = skipCount;
-                    //widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount += ListSize;
-                    //CurrentSkipLimit = skipCount;
-                    Debug.WriteLine(skipCount);
-                    //widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : widget.SkipCount += ListSize;
-                    //CurrentSkipLimit = widget.SkipCount;
                     break;
                 case true:
                     widget.SkipCount = CurrentPrioritySkipLimit >= CurrentPriorityTotal
@@ -354,32 +355,37 @@ namespace crmc.wotdisplay
                     CurrentPrioritySkipLimit = widget.SkipCount;
                     break;
             }
-            //await Task.FromResult(Settings.Default.UseLocalDataSource ? PopulateListFromDb(widget) : PopulateListAsync(widget));
 
             if (Settings.Default.UseLocalDataSource)
             {
-                //await Task.FromResult(PopulateListFromDb(widget));
                 PopulateListFromDb(widget);
             }
             else
             {
-                //await Task.FromResult(PopulateListAsync(widget));
                 PopulateListAsync(widget);
             }
         }
-
-
+        
         async void PopulateListAsync(Widget widget)
         {
             await Task.Run(() =>
             {
                 try
                 {
-                    Debug.WriteLine("Refreshing names for {0}", widget.SectionSetting.Quadrant);
                     var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
-
-                    var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount, widget.ListSize);
-                    //var url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), skipCount, widget.ListSize);
+                    var randomSkipCount = RandomNumber(0, CurrentTotal - widget.ListSize);
+                    
+                    var url = ""; 
+                    if (widget.IsPriorityList)
+                    {
+                        url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount,
+                            widget.ListSize);
+                    }
+                    else
+                    {
+                        url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), randomSkipCount, widget.ListSize);    
+                    }
+                    logger.Debug("Getting names from {0}", url);
                     var syncClient = new WebClient();
                     var content = syncClient.DownloadString(url);
 
@@ -405,8 +411,8 @@ namespace crmc.wotdisplay
                 {
                     // Gobble up exception because webserver is unavailable to provides names
                     // widget list will hold on to current names until available again. 
-                    Debug.WriteLine("Unable to refesh names on {0}", widget.SectionSetting.Quadrant);
-                    Debug.WriteLine(e.Message);
+                    logger.Error("Unable to refesh names for quadrant {0}", widget.SectionSetting.Quadrant);
+                    logger.Error(e.Message);
                 }
             });
         }
@@ -654,12 +660,6 @@ namespace crmc.wotdisplay
 
         private Color RandomColor()
         {
-            //            var r = Convert.ToByte(RandomNumber(0, 128) + 127);
-            //            var g = Convert.ToByte(RandomNumber(0, 128) + 127);
-            //            var b = Convert.ToByte(RandomNumber(0, 128) + 127);
-            //            var color = Color.FromRgb(r, g, b);
-            //            return color;
-
             var color = colors[RandomNumber(0, 5)];
             return color;
         }
@@ -697,56 +697,22 @@ namespace crmc.wotdisplay
             config.Volume = Settings.Default.Volume;
             config.UseLocalDataSource = Settings.Default.UseLocalDataSource;
 
-
-            //            const string url =
-            //               "http://localhost/crmc/breeze/Breeze/savechanges";
-            //
-            //            var syncClient = new WebClient();
-            //            var content = syncClient.UploadValues(url, config);
-            //
-            //            // Create the Json serializer and parse the response
-            //            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AppConfig));
-            //            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
-            //            {
-            //                // deserialize the JSON object using the WeatherData type.
-            //                config = (AppConfig)serializer.ReadObject(ms);
-            //            }
-
             var client = new RestClient(Settings.Default.WebServerUrl);
             var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
             request.AddBody(config);
 
+            logger.Info("Saving configuration changes.");
             client.ExecuteAsync(request, response =>
             {
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
-
+                    logger.Warn("Unable to save configuration");
+                    logger.Warn(response.StatusCode);
                 }
             });
 
-
-            //            var connection = new HubConnection("http://localhost/crmc/signalr");
-            var connection = new HubConnection(Settings.Default.WebServerUrl + "/signalr");
-
-            //Make proxy to hub based on hub name on server
-            var myHub = connection.CreateHubProxy("CRMCHub");
-
-            connection.Start().ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.WriteLine("There was an error opening the connection:{0}",
-                                      task.Exception.GetBaseException());
-                }
-                else
-                {
-                    Debug.WriteLine("Connected");
-                }
-
-            }).Wait();
-
+            logger.Info("Sending notification to hub of configuration settings updated. ");
             myHub.Invoke<AppConfig>("SaveConfigSettings", config);
-            //            ConnectionManager.HubProxy.Invoke("SaveConfigSettings", config);
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -757,12 +723,11 @@ namespace crmc.wotdisplay
 
         private void BtnCloseApp_OnClick(object sender, RoutedEventArgs e)
         {
-            //Logger.Trace("Wall application closing");
-            //Conn.Dispose();
             if (manager != null)
             {
                 manager.Stop();
             }
+            logger.Info("Application Exited by user control.");
             mainWindow.Close();
         }
 

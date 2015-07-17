@@ -49,5 +49,17 @@ namespace crmc.web.Hubs
             return Clients.All.configSettingsSaved();
         }
 
+        public override Task OnConnected()
+        {
+            var name = Context.User.Identity.Name;
+
+            return base.OnConnected();
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            
+            return base.OnDisconnected(stopCalled);
+        }
     }
 }

@@ -142,10 +142,11 @@
     <Compile Include="AnimationEventArgs.cs" />
     <Compile Include="Helpers\Extension.cs" />
     <Compile Include="Infrastructure\ApplicationDbContext.cs" />
+    <Compile Include="Infrastructure\Downloader.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="models\AppConfig.cs" />
     <Compile Include="models\Person.cs" />
-    <Compile Include="models\PersonData.cs" />
+    <Compile Include="PersonRepository.cs" />
     <Compile Include="Song.cs" />
     <Compile Include="Widget.cs" />
     <Page Include="MainWindow.xaml">

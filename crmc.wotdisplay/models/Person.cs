@@ -18,27 +18,6 @@ namespace crmc.wotdisplay.models
             get { return string.Format("{0} {1}", Firstname, Lastname); }
         }
 
-        public DateTime DateCreated { get; set; }
-
-
-        //For EF...
-        public Person()
-        {
-
-        }
-
-        public Person(string accountId, string firstname, string lastname, string emailaddress, string zipcode, bool isdonor = false, bool ispriority = false)
-        {
-            //AccountId = accountId;
-            Firstname = firstname;
-            Lastname = lastname;
-            EmailAddress = emailaddress;
-            Zipcode = zipcode;
-            IsDonor = isdonor;
-            IsPriority = ispriority;
-            DateCreated = DateTime.Now;
-        }
-
         public override string ToString()
         {
             return string.Format("{0} {1}", Firstname, Lastname);

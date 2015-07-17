@@ -1,16 +1,9 @@
-﻿using crmc.wotdisplay.helpers;
-using crmc.wotdisplay.Infrastructure;
-using crmc.wotdisplay.Properties;
-using Microsoft.AspNet.SignalR.Client;
-using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization.Json;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,107 +11,77 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
-using AutoMapper;
+using crmc.wotdisplay.helpers;
+using crmc.wotdisplay.Infrastructure;
 using crmc.wotdisplay.models;
+using crmc.wotdisplay.Properties;
+using Microsoft.AspNet.SignalR.Client;
 using NLog;
-using Color = System.Windows.Media.Color;
-using FontFamily = System.Windows.Media.FontFamily;
-using Size = System.Windows.Size;
+//TODO: Refactor out RestSharp. Use httpclient
+using RestSharp;
+using DataFormat = RestSharp.DataFormat;
 
 namespace crmc.wotdisplay
 {
 
     public partial class MainWindow
     {
-        private readonly ApplicationDbContext db = new ApplicationDbContext();
+        #region Display Variables
 
-        #region Variables
-
-        private static readonly Random Random = new Random();
-
-        private LocalList localList = new LocalList();
-
+        private Canvas canvas;
+        private double canvasWidth;
+        private double canvasHeight;
+        private double quadSize;
         private const int TopMargin = 10;
-        public static int CurrentTotal;
-        public static int CurrentPriorityTotal;
-        public static int CurrentSkipLimit;
-        public static int CurrentPrioritySkipLimit;
-
-        private const int ListSize = 25;
-        private int skipCount;
-
-        private readonly Canvas canvas;
-        private readonly double canvasWidth;
-        private readonly double canvasHeight;
-        private readonly double quadSize;
-        private const double SpeedModifier = 10;
-
-        //private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private readonly List<Widget> widgets = new List<Widget>();
-        public AppConfig config;
-        private MediaManager manager;
-        private HubConnection connection;
-        private bool _wasDisconnected = false;
-        private IHubProxy myHub;
-
-        private readonly List<Color> colors = new List<Color>()
-        {
-            Color.FromRgb(205, 238, 207),
-            Color.FromRgb(247, 231, 245), 
-            Color.FromRgb(213, 236, 250), 
-            Color.FromRgb(246, 244, 207), 
-            Color.FromRgb(246, 227, 213)
-        };
 
         #endregion
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        #region Variables
+
+        private const string WebServer = "http://localhost/crmc"; //Settings.Default.WebServerUrl;
+        private readonly MediaManager manager;
+        private readonly List<Widget> Widgets;
+        private readonly PersonRepository repository;
+        private readonly CancellationToken cancelToken = new CancellationToken();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        public AppConfig appConfig;
+        private readonly List<Color> colors;
+        private const double ScreenSpeedModifier = 10;
+        private HubConnection connection;
+        private IHubProxy myHub;
+
+        //TODO: Refactor
+        private static readonly Random Random = new Random();
+
+        #endregion
 
         public MainWindow()
         {
             InitializeComponent();
-            logger.Info("Started WOT Application");
+            Log.Info("Application Startup");
 
-            Mapper.CreateMap<Result, Person>();
-            Mapper.CreateMap<Person, Result>();
-            config = new AppConfig();
-            // Connect to hub to listen for new names to display
-            // Add other hub listeners here
-            var webServer = Settings.Default.WebServerUrl;
-            connection = new HubConnection(webServer + "/signalr");
+            appConfig = new AppConfig();
+            manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
+            repository = new PersonRepository(WebServer);
+            Widgets = new List<Widget>();
 
-            //Make proxy to hub based on hub name on server
-            myHub = connection.CreateHubProxy("crmcHub");
-
-            connection.StateChanged += ConnectionOnStateChanged;
-            connection.Closed += ConnectionOnClosed;
-
-            connection.Start().ContinueWith(task =>
+            colors = new List<Color>()
             {
-                logger.Info("Starting hub connection.");
-                if (task.IsFaulted)
-                {
-                    logger.Warn("There was an error opening the connection:{0}",
-                                      task.Exception.GetBaseException());
-                }
-                else
-                {
-                    logger.Info("Successfully connected to hub.");
-                }
+                Color.FromRgb(205, 238, 207), 
+                Color.FromRgb(247, 231, 245),  
+                Color.FromRgb(213, 236, 250),  
+                Color.FromRgb(246, 244, 207),  
+                Color.FromRgb(246, 227, 213) 
+            };
 
-            }).Wait();
+            this.Loaded += MainWindow_Loaded;
+        }
 
-            SetupHubListeners();
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
 
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(
-                            typeof(Timeline),
-                            new FrameworkPropertyMetadata { DefaultValue = 80 }
-                            );
-
+            // configure and update display settings
             canvas = wallCanvas;
-
             canvas.Height = SystemParameters.PrimaryScreenHeight;
             canvas.Width = SystemParameters.PrimaryScreenWidth;
             expanderSettings.Width = SystemParameters.PrimaryScreenWidth;
@@ -129,319 +92,292 @@ namespace crmc.wotdisplay
             canvasHeight = canvas.Height;
             quadSize = canvasWidth / 4;
 
-            InitDefaultSettings();
-            InitAudio();
+            //HACK: Test if needed. 
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(
+                typeof(Timeline),
+                new FrameworkPropertyMetadata { DefaultValue = 80 }
+                );
 
-            //Initialize widgets
-            widgets.Add(new Widget() { ListSize = 25, IsPriorityList = false, SkipCount = 0, SectionSetting = new SectionSetting() { Quadrant = 1 } });
-            widgets.Add(new Widget() { ListSize = 25, IsPriorityList = false, SkipCount = skipCount += ListSize, SectionSetting = new SectionSetting() { Quadrant = 2 } });
-            widgets.Add(new Widget() { ListSize = 25, IsPriorityList = false, SkipCount = skipCount += ListSize * 2, SectionSetting = new SectionSetting() { Quadrant = 3 } });
-            widgets.Add(new Widget() { ListSize = 25, IsPriorityList = false, SkipCount = skipCount += ListSize * 3, SectionSetting = new SectionSetting() { Quadrant = 4 } });
-            widgets.Add(new Widget() { ListSize = 25, IsPriorityList = true, SkipCount = 0, SectionSetting = new SectionSetting() { Quadrant = 0 } });
 
-            // Create and start new Timers
-            foreach (var widget in widgets)
+            // Setup Hub Connection
+            connection = new HubConnection(WebServer + "/signalr");
+
+            //Make proxy to hub based on hub name on server
+            myHub = connection.CreateHubProxy("crmcHub");
+
+            connection.StateChanged += ConnectionOnStateChanged;
+            connection.Closed += ConnectionOnClosed;
+            await connection.Start();
+
+            // Initialize Default Application Settings
+            InitializeDefaultSettings();
+
+            InitializeAudioSettings();
+            manager.Play();
+
+            //Create display widgets one for each quadrant
+            for (var i = 1; i < 5; i++)
             {
-                if (Settings.Default.UseLocalDataSource)
-                {
-                    PopulateListFromDb(widget);
-                }
-                else
-                {
-                    PopulateListAsync(widget);
-                }
+                Widgets.Add(new Widget() { IsPriorityList = false, Quadrant = i });
+            }
+            //priority name widget
+            Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
 
-                var d = new DispatcherTimer
+            //Begin recursive display of widget names
+            await LoadWidgetsAsync().ContinueWith((t) =>
+            {
+                foreach (var widget in Widgets)
                 {
-                    Interval = TimeSpan.FromSeconds(widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed)
-                };
-                var widget1 = widget;
-                d.Tick += (s, args) => timer_Tick(d, widget1);
-                d.Start();
+                    var widget1 = widget;
+                    //Task.Run(() => DisplayWidgetAsync(widget1), cancelToken);
+                    Task.Run(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
+                }
+            }, cancelToken);
+
+            Log.Debug("Finished Startup");
+        }
+
+
+        private async Task DisplayWidgetLocalNamesAsync(Widget widget)
+        {
+            while (true)
+            {
+                var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
+                var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
+
+                // Special loop scenario for locally added names from kiosks
+                var localItemsToRemove = new List<LocalItem>();
+                foreach (var localItem in widget.LocalList.LocalItems)
+                {
+                    if (localItem.LastTickTime >= speed)
+                    {
+                        Log.Debug("Display local name " + localItem.Person.FullName);
+                        await AnimateDisplayNameToUI(localItem.Person, widget.Quadrant, cancelToken);
+                        localItem.RotationCount += 1;
+                        localItem.LastTickTime = 0;
+                    }
+                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                    if (localItem.RotationCount > 3) localItemsToRemove.Add(localItem);
+                    localItem.LastTickTime += Settings.Default.AddNewItemSpeed;
+                }
+                foreach (var localItem in localItemsToRemove)
+                {
+                    widget.LocalList.LocalItems.Remove(localItem);
+                    Log.Debug("Removing " + localItem.Person.Firstname);
+                }
             }
         }
 
-        private void ConnectionOnClosed()
+        private async Task DisplayWidgetAsync(Widget widget)
         {
-            logger.Info("Connection closed. Starting new hub and connecting");
-            myHub = null;
-            myHub = myHub = connection.CreateHubProxy("crmcHub");
-            //connection.Start();
-            connection.Start().ContinueWith(task =>
+            while (true)
             {
-                logger.Info("Starting hub connection.");
-                if (task.IsFaulted)
-                {
-                    logger.Warn("There was an error opening the connection:{0}",
-                                      task.Exception.GetBaseException());
-                }
-                else
-                {
-                    logger.Info("Successfully connected to hub.");
-                }
+                var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
+                var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
 
-            }).Wait();
+                foreach (var person in widget.PersonList)
+                {
+                    if (widget.IsPriorityList) Log.Debug("Displaying Priority: " + person.FullName);
+
+                    await AnimateDisplayNameToUI(person, widget.Quadrant, cancelToken);
+                    //var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
+                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                }
+                var temp = widget.PersonList.ToList();
+                widget.PersonList = await repository.Get(25, widget.IsPriorityList).ContinueWith(task =>
+                {
+                    //If unable to get new list of people from repo set to last know list
+                    return widget.PersonList = temp;
+                }, cancelToken);
+
+            }
+        }
+
+        public async Task LoadWidgetsAsync()
+        {
+            foreach (var widget in Widgets)
+            {
+                widget.PersonList = await repository.Get(25, widget.IsPriorityList);
+            }
+        }
+
+        private static async Task<AppConfig> DownloadDefaultSettings(string url)
+        {
+            var config = await Downloader.DownloadConfigDataAsync(url);
+            return config;
         }
 
         private void SetupHubListeners()
         {
-            logger.Info("Setting up listeners on hub for kiosk names added.");
+            Log.Info("Setting up listeners on hub for kiosk names added.");
             myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
-            logger.Info("Setting up listeners on hub for configuration changes.");
-            myHub.On("configSettingsSaved", InitDefaultSettings);
+            Log.Info("Setting up listeners on hub for configuration changes.");
+            myHub.On("configSettingsSaved", InitializeDefaultSettings);
+        }
+
+        private void ConnectionOnClosed()
+        {
+            Log.Info("Connection closed. Starting new hub and connecting");
+            //Start new connection. Don't know why connection will not reconnect after disconnecting. 
+            connection.Stop();
+            connection = null;
+            connection = new HubConnection(WebServer + "/signalr");
+            myHub = connection.CreateHubProxy("crmcHub");
+            connection.StateChanged += ConnectionOnStateChanged;
+            connection.Closed += ConnectionOnClosed;
+
+            connection.Start().ContinueWith(task =>
+            {
+                if (!task.IsFaulted) return;
+                Log.Warn("Error occurred connecting to hub");
+                Log.Warn(task.Exception);
+            });
         }
 
         private void ConnectionOnStateChanged(StateChange stateChange)
         {
-            logger.Info("ConnectionState Changed old: {0} to new: {1}", stateChange.OldState, stateChange.NewState);
+            Log.Info("ConnectionState Changed from : {0} to : {1}", stateChange.OldState, stateChange.NewState);
 
-            if (stateChange.NewState == ConnectionState.Disconnected) { _wasDisconnected = true; }
-
-            if (_wasDisconnected && stateChange.OldState == ConnectionState.Connecting && stateChange.NewState == ConnectionState.Connected)
+            if (stateChange.NewState == ConnectionState.Connected)
             {
                 SetupHubListeners();
             }
 
-            if (stateChange.NewState == ConnectionState.Connected)
-            {
-                logger.Info("Connected to hub.");
-            }
 
         }
 
-        private void ConfigSettingsChanged(AppConfig vm)
+        public async void InitializeDefaultSettings()
         {
-            if (string.IsNullOrEmpty(vm.FontFamily))
+            const string configUrl = WebServer + "/breeze/public/appconfigs";
+            await DownloadDefaultSettings(configUrl).ContinueWith(async (r) =>
             {
-                Settings.Default.FontFamily = "Arial";
-            }
-            Settings.Default.AddNewItemSpeed = vm.AddNewItemSpeed;
-            Settings.Default.AudioFilePath = vm.AudioFilePath;
-            Settings.Default.ScrollSpeed = vm.ScrollSpeed;
-            Settings.Default.FontFamily = vm.FontFamily;
-            Settings.Default.HubName = vm.HubName;
-            Settings.Default.MaxFontSize = vm.MaxFontSize;
-            Settings.Default.MinFontSize = vm.MinFontSize;
-            Settings.Default.MaxFontSizeVIP = vm.MaxFontSizeVIP;
-            Settings.Default.MinFontSizeVIP = vm.MinFontSizeVIP;
-            Settings.Default.WebServerUrl = vm.WebServerURL;
-            Settings.Default.UseLocalDataSource = vm.UseLocalDataSource;
-            Settings.Default.Volume = vm.Volume;
-            Settings.Default.Save();
-        }
-
-        async void InitDefaultSettings()
-        {
-
-            await Task.Run(() =>
-            {
-                var url = Settings.Default.WebServerUrl + "/breeze/public/appconfigs";
-                logger.Info("Retrieving default settings from {0}", url);
-
-                var syncClient = new WebClient();
-                var content = syncClient.DownloadString(url);
-
-                // Create the Json serializer and parse the response
-                var serializer = new DataContractJsonSerializer(typeof(AppConfig));
-                using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
-                {
-                    // deserialize the JSON object using the WeatherData type.
-                    config = (AppConfig)serializer.ReadObject(ms);
-                }
-
-                if (config == null) return;
-
-                if (string.IsNullOrEmpty(config.FontFamily))
-                {
-                    Settings.Default.FontFamily = "Arial";
-                }
-                Settings.Default.AddNewItemSpeed = config.AddNewItemSpeed;
-                Settings.Default.AudioFilePath = config.AudioFilePath;
-                Settings.Default.ScrollSpeed = config.ScrollSpeed;
-                Settings.Default.FontFamily = config.FontFamily;
-                Settings.Default.HubName = config.HubName;
-                Settings.Default.MaxFontSize = config.MaxFontSize;
-                Settings.Default.MinFontSize = config.MinFontSize;
-                Settings.Default.MaxFontSizeVIP = config.MaxFontSizeVIP;
-                Settings.Default.MinFontSizeVIP = config.MinFontSizeVIP;
-                Settings.Default.WebServerUrl = config.WebServerURL;
-                Settings.Default.Volume = config.Volume;
-                Settings.Default.UseLocalDataSource = config.UseLocalDataSource;
+                var result = await r;
+                appConfig = result;
+                Settings.Default.AddNewItemSpeed = appConfig.AddNewItemSpeed;
+                Settings.Default.AudioFilePath = appConfig.AudioFilePath;
+                Settings.Default.ScrollSpeed = appConfig.ScrollSpeed;
+                Settings.Default.FontFamily = appConfig.FontFamily;
+                Settings.Default.HubName = appConfig.HubName;
+                Settings.Default.MaxFontSize = appConfig.MaxFontSize;
+                Settings.Default.MinFontSize = appConfig.MinFontSize;
+                Settings.Default.MaxFontSizeVIP = appConfig.MaxFontSizeVIP;
+                Settings.Default.MinFontSizeVIP = appConfig.MinFontSizeVIP;
+                Settings.Default.WebServerUrl = appConfig.WebServerURL;
+                Settings.Default.Volume = appConfig.Volume;
+                Settings.Default.UseLocalDataSource = appConfig.UseLocalDataSource;
                 Settings.Default.Save();
-
-                logger.Info("Update local configuration complete.");
             });
-
         }
 
-        void InitAudio()
+        void InitializeAudioSettings()
         {
-            logger.Info("Initializing Audio settings.");
+            Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
             if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
-            manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
-            manager.Play();
+
 
             PlayButton.Source = manager.Paused
                 ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             manager.ChangeVolume(0.75);
-            logger.Info("Audio initialization complete.");
+            Log.Info("Audio initialization complete.");
         }
 
-        private async void timer_Tick(object sender, Widget widget)
+        //<< --OLD CODE BELOW HERE -->>
+
+        public async Task AnimateDisplayNameToUI(Person person, int quadrant, CancellationToken token, bool isFromKiosk = false)
         {
-            var d = (DispatcherTimer)(sender);
-            // Reset timer interval in the chance options has changed
-            if (!widget.IsPriorityList)
-            {
-                d.Interval = TimeSpan.FromSeconds(Settings.Default.AddNewItemSpeed);
-            }
+            await Task.Delay(1, token);
 
-            if (!widget.PersonList.Any())
+            if (person == null) return;
+
+            // Create a name scope for the page.
+            Dispatcher.Invoke(() =>
             {
-                if (Settings.Default.UseLocalDataSource)
+                NameScope.SetNameScope(this, new NameScope());
+
+                // Set label properties and register
+
+                var labelFontSize = CalculateFontSize(person.IsPriority);
+                if (isFromKiosk) labelFontSize = Settings.Default.MaxFontSize * 2;
+
+                var name = "label" + RandomNumber(1, 1000);
+                var label = new Label
                 {
-                    //await Task.FromResult(PopulateListFromDb(widget));
-                    PopulateListFromDb(widget);
-                }
-                else
+                    Content = person.ToString(),
+                    FontSize = labelFontSize,
+                    FontFamily = new FontFamily(Settings.Default.FontFamily),
+                    Name = name,
+                    Tag = name,
+                    Uid = name,
+                    Foreground = new SolidColorBrush(RandomColor())
+                };
+                RegisterName(name, label);
+
+                // Set label position
+                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth / 4 * quadrant).ToInt();
+                var leftMargin = (rightMargin - quadSize).ToInt();
+                if (quadrant == 0) leftMargin = 0;
+
+                // Required to calculate actual size to determine overflow off viewable area
+                label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                label.Arrange(new Rect(label.DesiredSize));
+                var labelActualWidth = label.ActualWidth;
+
+                var labelLeftPosition = RandomNumber(leftMargin, rightMargin);
+                if (labelLeftPosition + labelActualWidth > canvasWidth)
                 {
-                    //await Task.FromResult(PopulateListAsync(widget));
-                    PopulateListAsync(widget);
+                    labelLeftPosition = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
                 }
-                return;
-            }
 
-            AddNameToQuadDisplay(widget.CurrentPerson, widget.SectionSetting.Quadrant);
-            widget.SetNextPerson();
-
-            var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * SpeedModifier).ToInt() / 2;
-
-            var removeList = new List<LocalItem>();
-
-            foreach (var localItem in widget.LocalList.LocalItems)
-            {
-                if (localItem.LastTickTime >= speed)
+                // Set label animation
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / label.FontSize) * ScreenSpeedModifier).ToInt();
+                var fallAnimation = new DoubleAnimation
                 {
-                    AddNameToQuadDisplay(localItem.Person, widget.SectionSetting.Quadrant);
-                    localItem.RotationCount += 1;
-                    localItem.LastTickTime = 0;
-                }
-                localItem.LastTickTime += Settings.Default.AddNewItemSpeed;
-                if (localItem.RotationCount > 3) removeList.Add(localItem);
-            }
-            foreach (var localItem in removeList)
-            {
-                widget.LocalList.LocalItems.Remove(localItem);
-            }
+                    From = TopMargin,
+                    To = canvasHeight,
+                    BeginTime = TimeSpan.FromSeconds(0),
+                    Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
+                };
 
-            if (widget.CurrentPerson.Id != widget.LastPerson.Id) return;
+                Storyboard.SetTargetName(fallAnimation, label.Name);
+                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
 
-            switch (widget.IsPriorityList)
-            {
-                case false:
-                    skipCount = RandomNumber(1, CurrentTotal - widget.ListSize); 
-                    widget.SkipCount = CurrentSkipLimit >= CurrentTotal ? 0 : skipCount;
-                    CurrentSkipLimit = skipCount;
-                    break;
-                case true:
-                    widget.SkipCount = CurrentPrioritySkipLimit >= CurrentPriorityTotal
-                        ? 0
-                        : widget.SkipCount += ListSize * widget.SectionSetting.Quadrant;
-                    CurrentPrioritySkipLimit = widget.SkipCount;
-                    break;
-            }
+                var storyboard = new Storyboard();
+                storyboard.Children.Add(fallAnimation);
 
-            if (Settings.Default.UseLocalDataSource)
-            {
-                PopulateListFromDb(widget);
-            }
-            else
-            {
-                PopulateListAsync(widget);
-            }
-        }
-        
-        async void PopulateListAsync(Widget widget)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    var baseUrl = Settings.Default.WebServerUrl + "/breeze/public/People?$filter=IsPriority%20eq%20{0}%20and%20Lastname%20ne%20%27%27&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
-                    var randomSkipCount = RandomNumber(0, CurrentTotal - widget.ListSize);
-                    
-                    var url = ""; 
-                    if (widget.IsPriorityList)
-                    {
-                        url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), widget.SkipCount,
-                            widget.ListSize);
-                    }
-                    else
-                    {
-                        url = string.Format(baseUrl, widget.IsPriorityList.ToString().ToLower(), randomSkipCount, widget.ListSize);    
-                    }
-                    logger.Debug("Getting names from {0}", url);
-                    var syncClient = new WebClient();
-                    var content = syncClient.DownloadString(url);
+                var e = new AnimationEventArgs { TagName = label.Uid };
+                storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
+                Canvas.SetLeft(label, labelLeftPosition);
 
-                    // Create the Json serializer and parse the response
-                    PersonData personData;
-                    var serializer = new DataContractJsonSerializer(typeof(PersonData));
-                    using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(content)))
-                    {
-                        // deserialize the JSON object using the PersonData type.
-                        personData = (PersonData)serializer.ReadObject(ms);
-                    }
-                    widget.PersonList = Mapper.Map<List<Result>, List<Person>>(personData.Results);
-                    if (widget.IsPriorityList)
-                    {
-                        CurrentPriorityTotal = personData.InlineCount;
-                    }
-                    else
-                    {
-                        CurrentTotal = personData.InlineCount;
-                    }
-                }
-                catch (Exception e)
-                {
-                    // Gobble up exception because webserver is unavailable to provides names
-                    // widget list will hold on to current names until available again. 
-                    logger.Error("Unable to refesh names for quadrant {0}", widget.SectionSetting.Quadrant);
-                    logger.Error(e.Message);
-                }
+                Canvas.SetTop(label, TopMargin);
+                canvas.Children.Add(label);
+                canvas.UpdateLayout();
+                storyboard.Begin(this);
+
             });
+
+
         }
 
-        void PopulateListFromDb(Widget widget)
-        {
-            if (db.Database.Exists() && db.Persons.Any())
-            {
-                widget.PersonList =
-                    db.Persons.Local.Where(p => p.IsPriority == widget.IsPriorityList)
-                        .OrderBy(x => x.Id).Skip(widget.SkipCount).Take(widget.ListSize).OrderBy(o => o.Id);
 
-                //Update count totals while making request
-                CurrentTotal = db.Persons.Local.Count();
-                CurrentPriorityTotal = db.Persons.Local.Count(x => x.IsPriority == true);
-            }
-        }
+
 
         public void AddNewNameToDisplay(Person person, int quadrant)
         {
             //var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
             var minFontSize = Settings.Default.MaxFontSize;
             var maxFontSize = Settings.Default.MaxFontSize * 2;
-            var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * SpeedModifier).ToInt();
+            var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * ScreenSpeedModifier).ToInt();
 
             Dispatcher.Invoke(() =>
             {
                 // Create a name scope for the page.
                 NameScope.SetNameScope(this, new NameScope());
+                var quadWidth = (canvasWidth/4).ToInt(); 
 
                 var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
                 var leftMargin = (rightMargin - quadSize).ToInt();
@@ -554,77 +490,7 @@ namespace crmc.wotdisplay
             });
         }
 
-        async void AddNameToQuadDisplay(Person person, int quadrant)
-        {
-            await Task.Run(() =>
-            {
-                if (person == null) return;
 
-                var fontSize = CalculateFontSize(person.IsPriority);
-                var name = "label" + RandomNumber(1, 1000);
-
-                // Create a name scope for the page.
-                Dispatcher.Invoke(() =>
-                {
-                    NameScope.SetNameScope(this, new NameScope());
-
-                    var label = new Label
-                    {
-                        Content = person.ToString(),
-                        FontSize = fontSize,
-                        FontFamily = new FontFamily(Settings.Default.FontFamily),
-                        Name = name,
-                        Tag = name,
-                        Uid = name,
-                        Foreground = new SolidColorBrush(RandomColor())
-                    };
-                    var speed = ((Settings.Default.ScrollSpeed / label.FontSize) * SpeedModifier).ToInt();
-                    RegisterName(label.Name, label);
-
-                    var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth / 4 * quadrant).ToInt();
-                    var leftMargin = (rightMargin - quadSize).ToInt();
-                    if (quadrant == 0)
-                    {
-                        leftMargin = 0;
-                    }
-
-                    // Required to calculate actual size to determine overflow off viewable area
-                    label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-                    label.Arrange(new Rect(label.DesiredSize));
-
-                    var width = label.ActualWidth;
-                    var leftPos = RandomNumber(leftMargin, rightMargin);
-                    if (leftPos + width > canvasWidth)
-                    {
-                        leftPos = RandomNumber(leftMargin, (canvasWidth - width).ToInt());
-                    }
-
-                    var fallAnimation = new DoubleAnimation
-                    {
-                        From = TopMargin,
-                        To = canvasHeight,
-                        BeginTime = TimeSpan.FromSeconds(0),
-                        Duration = new Duration(TimeSpan.FromSeconds(speed))
-                    };
-
-                    Storyboard.SetTargetName(fallAnimation, label.Name);
-                    Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
-
-                    var storyboard = new Storyboard();
-                    storyboard.Children.Add(fallAnimation);
-
-                    var e = new AnimationEventArgs { TagName = label.Uid };
-                    storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
-                    Canvas.SetLeft(label, leftPos);
-
-                    Canvas.SetTop(label, TopMargin);
-                    canvas.Children.Add(label);
-                    canvas.UpdateLayout();
-                    storyboard.Begin(this);
-                });
-            });
-
-        }
 
         private int CalculateFontSize(bool? isPriority)
         {
@@ -640,8 +506,7 @@ namespace crmc.wotdisplay
 
             int.TryParse(location, out quad);
             AddNewNameToDisplay(person, quad);
-            var widget = widgets.FirstOrDefault(x => x.SectionSetting.Quadrant == quad);
-
+            var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
 
             if (widget != null)
                 widget.LocalList.LocalItems.Add(new LocalItem()
@@ -652,6 +517,8 @@ namespace crmc.wotdisplay
                 });
         }
 
+
+        //TODO: Refactor
         public int RandomNumber(int min, int max)
         {
             if (max <= min) min = max - 1;
@@ -684,35 +551,35 @@ namespace crmc.wotdisplay
             Settings.Default.Save();
             expanderSettings.IsExpanded = false;
 
-            config.AddNewItemSpeed = Settings.Default.AddNewItemSpeed;
-            config.AudioFilePath = Settings.Default.AudioFilePath;
-            config.ScrollSpeed = Settings.Default.ScrollSpeed;
-            config.FontFamily = Settings.Default.FontFamily;
-            config.HubName = Settings.Default.HubName;
-            config.MaxFontSize = Settings.Default.MaxFontSize;
-            config.MinFontSize = Settings.Default.MinFontSize;
-            config.MaxFontSizeVIP = Settings.Default.MaxFontSizeVIP;
-            config.MinFontSizeVIP = Settings.Default.MinFontSizeVIP;
-            config.WebServerURL = Settings.Default.WebServerUrl;
-            config.Volume = Settings.Default.Volume;
-            config.UseLocalDataSource = Settings.Default.UseLocalDataSource;
-
+            appConfig.AddNewItemSpeed = Settings.Default.AddNewItemSpeed;
+            appConfig.AudioFilePath = Settings.Default.AudioFilePath;
+            appConfig.ScrollSpeed = Settings.Default.ScrollSpeed;
+            appConfig.FontFamily = Settings.Default.FontFamily;
+            appConfig.HubName = Settings.Default.HubName;
+            appConfig.MaxFontSize = Settings.Default.MaxFontSize;
+            appConfig.MinFontSize = Settings.Default.MinFontSize;
+            appConfig.MaxFontSizeVIP = Settings.Default.MaxFontSizeVIP;
+            appConfig.MinFontSizeVIP = Settings.Default.MinFontSizeVIP;
+            appConfig.WebServerURL = Settings.Default.WebServerUrl;
+            appConfig.Volume = Settings.Default.Volume;
+            appConfig.UseLocalDataSource = Settings.Default.UseLocalDataSource;
+            //TODO: Refactor this
             var client = new RestClient(Settings.Default.WebServerUrl);
-            var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = RestSharp.DataFormat.Json };
-            request.AddBody(config);
+            var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = DataFormat.Json };
+            request.AddBody(appConfig);
 
-            logger.Info("Saving configuration changes.");
+            Log.Info("Saving configuration changes.");
             client.ExecuteAsync(request, response =>
             {
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    logger.Warn("Unable to save configuration");
-                    logger.Warn(response.StatusCode);
+                    Log.Warn("Unable to save configuration");
+                    Log.Warn(response.StatusCode);
                 }
             });
 
-            logger.Info("Sending notification to hub of configuration settings updated. ");
-            myHub.Invoke<AppConfig>("SaveConfigSettings", config);
+            Log.Info("Sending notification to hub of configuration settings updated. ");
+            myHub.Invoke<AppConfig>("SaveConfigSettings", appConfig);
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -727,13 +594,19 @@ namespace crmc.wotdisplay
             {
                 manager.Stop();
             }
-            logger.Info("Application Exited by user control.");
+            Log.Info("Application Exited by user control.");
             mainWindow.Close();
         }
 
         #endregion
 
         #region Media Events
+
+
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+
+        }
 
         private void Element_MediaEnded(object sender, RoutedEventArgs e)
         {
@@ -817,11 +690,6 @@ namespace crmc.wotdisplay
 
         #endregion
 
-        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
-        {
-
-        }
 
     }
-
 }

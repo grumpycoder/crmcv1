@@ -59,12 +59,12 @@ namespace crmc.wotdisplay
         {
             InitializeComponent();
             Log.Info("Application Startup");
-
+            WebServer = Settings.Default.WebServerUrl;
             appConfig = new AppConfig();
             manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
             repository = new PersonRepository(WebServer);
             Widgets = new List<Widget>();
-            WebServer = Settings.Default.WebServerUrl; 
+
             colors = new List<Color>()
             {
                 Color.FromRgb(205, 238, 207), 
@@ -129,7 +129,7 @@ namespace crmc.wotdisplay
                 foreach (var widget in Widgets)
                 {
                     var widget1 = widget;
-                    //Task.Run(() => DisplayWidgetAsync(widget1), cancelToken);
+                    Task.Run(() => DisplayWidgetAsync(widget1), cancelToken);
                     Task.Run(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
                 }
             }, cancelToken);
@@ -377,7 +377,7 @@ namespace crmc.wotdisplay
             {
                 // Create a name scope for the page.
                 NameScope.SetNameScope(this, new NameScope());
-                var quadWidth = (canvasWidth/4).ToInt(); 
+                var quadWidth = (canvasWidth / 4).ToInt();
 
                 var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
                 var leftMargin = (rightMargin - quadSize).ToInt();

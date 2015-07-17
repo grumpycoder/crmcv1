@@ -129,8 +129,9 @@ namespace crmc.wotdisplay
                 foreach (var widget in Widgets)
                 {
                     var widget1 = widget;
-                    Task.Run(() => DisplayWidgetAsync(widget1), cancelToken);
-                    Task.Run(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
+                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+                    var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
+                    //DisplayWidgetLocalNamesAsync(widget1);
                 }
             }, cancelToken);
 
@@ -180,15 +181,18 @@ namespace crmc.wotdisplay
                     if (widget.IsPriorityList) Log.Debug("Displaying Priority: " + person.FullName);
 
                     await AnimateDisplayNameToUI(person, widget.Quadrant, cancelToken);
-                    //var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
                 }
                 var temp = widget.PersonList.ToList();
-                widget.PersonList = await repository.Get(25, widget.IsPriorityList).ContinueWith(task =>
-                {
-                    //If unable to get new list of people from repo set to last know list
-                    return widget.PersonList = temp;
-                }, cancelToken);
+                widget.PersonList = new List<Person>();
+                widget.PersonList = await repository.Get(25, widget.IsPriorityList);
+                if (!widget.PersonList.Any()) widget.PersonList = temp; 
+
+                //    .ContinueWith(task =>
+                //{
+                //    //If unable to get new list of people from repo set to last know list
+                //    //return widget.PersonList = temp;
+                //}, cancelToken);
 
             }
         }

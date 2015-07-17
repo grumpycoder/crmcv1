@@ -38,7 +38,7 @@ namespace crmc.wotdisplay
 
         #region Variables
 
-        private const string WebServer = "http://localhost/crmc"; //Settings.Default.WebServerUrl;
+        public string WebServer;
         private readonly MediaManager manager;
         private readonly List<Widget> Widgets;
         private readonly PersonRepository repository;
@@ -64,7 +64,7 @@ namespace crmc.wotdisplay
             manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
             repository = new PersonRepository(WebServer);
             Widgets = new List<Widget>();
-
+            WebServer = Settings.Default.WebServerUrl; 
             colors = new List<Color>()
             {
                 Color.FromRgb(205, 238, 207), 
@@ -249,7 +249,7 @@ namespace crmc.wotdisplay
 
         public async void InitializeDefaultSettings()
         {
-            const string configUrl = WebServer + "/breeze/public/appconfigs";
+            var configUrl = WebServer + "/breeze/public/appconfigs";
             await DownloadDefaultSettings(configUrl).ContinueWith(async (r) =>
             {
                 var result = await r;

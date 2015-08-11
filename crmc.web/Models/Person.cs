@@ -13,6 +13,7 @@ namespace crmc.web.Models
         public bool? IsDonor { get; set; }
         public bool? IsPriority { get; set; }
         public decimal? FuzzyMatchValue { get; set; }
+        public Guid? SortOrder { get; set; }
 
         public string FullName
         {
@@ -37,6 +38,7 @@ namespace crmc.web.Models
             IsDonor = isdonor;
             IsPriority = ispriority;
             DateCreated = DateTime.Now;
+            SortOrder = Guid.NewGuid();
         }
 
         public override string ToString()

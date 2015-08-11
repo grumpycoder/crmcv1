@@ -22,7 +22,7 @@ namespace crmc.wotdisplay
         {
             var skip = isPriorityList ? 0 : rand.Next(1, 100000);
             var baseUrl = WebServer +
-                           "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=DateCreated&$skip={1}&$top={2}&$inlinecount=allpages";
+                           "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=SortOrder&$skip={1}&$top={2}&$inlinecount=allpages";
 
             var url = string.Format(baseUrl, isPriorityList.ToString().ToLower(), skip, count);
 

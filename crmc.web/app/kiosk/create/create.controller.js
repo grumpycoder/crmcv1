@@ -209,7 +209,7 @@
             cancelTimer();
             createTimer = $timeout(function () {
                 $state.go('welcome');
-            }, 10000);
+            }, 60000);
         }
 
         function cancelTimer() {

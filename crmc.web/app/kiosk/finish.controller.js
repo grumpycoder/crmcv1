@@ -34,7 +34,7 @@
 
         //#region Internal Methods        
 
-        var timer = $timeout(function() {
+        var finishTimer = $timeout(function() {
             $state.go('welcome');
         }, 15000);
 
@@ -45,7 +45,7 @@
         }, 3000);
 
         function gotoWelcome() {
-            $timeout.cancel(timer);
+            $timeout.cancel(finishTimer);
             $state.go('welcome');
         }
         //#endregion

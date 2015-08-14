@@ -65,8 +65,15 @@
             vm.kiosk = $cookies.kiosk;
         }
 
-        //#region Internal Methods        
+        //#region Internal Methods      
+
+        var timer = $timeout(function () {
+            $state.go('welcome');
+        }, 30000);
+
+        
         function cancel() {
+            $timeout.cancel(timer);
             $state.go('welcome');
         }
 
@@ -121,10 +128,12 @@
         }
 
         function goBack() {
+            $timeout.cancel(timer);
             $window.history.back();
         }
 
         function gotoReview() {
+            $timeout.cancel(timer);
             if (vm.nameForm.$invalid) {
 
                 vm.showValidationErrors = true;
@@ -135,6 +144,10 @@
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
             vm.person.emailAddress = vm.person.emailAddress.toLowerCase();
             $state.go('create.review');
+            timer = $timeout(function () {
+                $state.go('welcome');
+            }, 60000);
+
         }
 
         function save() {
@@ -172,6 +185,7 @@
                 }
                 vm.person = undefined;
                 $rootScope.person = person;
+                $timeout.cancel(timer);
                 $state.go('finish');
             });
 

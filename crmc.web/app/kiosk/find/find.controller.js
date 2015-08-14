@@ -35,13 +35,13 @@
         vm.toggleName = toggleName;
 
         vm.editItem = undefined;
-        vm.setFocus = function (event) {
+        vm.setFocus = function(event) {
             vm.editItem = event;
         }
 
         vm.lastLetterIsSpace = false;
 
-        vm.keyboardInput = function (key) {
+        vm.keyboardInput = function(key) {
             vm.showValidationErrors = true;
             var keyCode = key.currentTarget.outerText
             if (keyCode === 'SPACE') {
@@ -63,37 +63,44 @@
                 vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
             }
             vm.editItem.$render();
+            startTimer();
         }
 
         activate();
 
         function activate() {
             common.activateController([], controllerId)
-                 .then(function () {
-                     log('Activated Find Person View', null, false);
-                     //$.connection.hub.start().done(function () {
-                     //    log('hub connection successful', null, false);
-                     //});
-                 });
+                .then(function() {
+                    log('Activated Find Person View', null, false);
+                    //$.connection.hub.start().done(function () {
+                    //    log('hub connection successful', null, false);
+                    //});
+                });
             vm.kiosk = $cookies.kiosk;
         }
 
         //#region Internal Methods    
+        var findTimer; 
+        startTimer();
+
         function cancel() {
+            cancelTimer();
             $state.go('welcome');
         }
 
         function getPeople(forceRefresh) {
+            cancelTimer();
             usSpinnerService.spin('spinner-1');
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function (data) {
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function(data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
                 usSpinnerService.stop('spinner-1');
-            })
-
+            });
+            startTimer();
         }
 
         function goBack() {
+            cancelTimer();
             vm.paging.currentPage = 1;
             $window.history.back();
         }
@@ -114,12 +121,16 @@
             //crmc.server.addNameToWall(vm.kiosk, person);
             prevSelection.$selected = false;
             $rootScope.person = person;
+            cancelTimer();
             $state.go('finish');
         }
 
         function pageChanged() {
             vm.person = undefined;
-            if (!vm.paging.currentPage) { return; }
+            if (!vm.paging.currentPage) {
+                return;
+            }
+            $timeout.cancel(findTimer);
             //Get next page of people
             getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.searchText);
         }
@@ -134,9 +145,9 @@
             $state.go('find.searchresult');
         }
 
-      
+
         function toggleName(person) {
-         
+
             if (prevSelection) {
                 prevSelection.$selected = false;
             }
@@ -150,8 +161,22 @@
                 prevSelection = person;
             }
             log('selected', vm.person, null);
+            startTimer();
         }
 
-        //#endregion
+
+        function startTimer() {
+            log('starting timer', null, false);
+            cancelTimer();
+            findTimer = $timeout(function() {
+                $state.go('welcome');
+            }, 60000);
+        }
+
+        function cancelTimer() {
+            $timeout.cancel(findTimer);
+        }
+
+    //#endregion
     }
 })();

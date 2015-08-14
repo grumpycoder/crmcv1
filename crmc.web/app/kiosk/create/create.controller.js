@@ -51,6 +51,7 @@
                 vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
             }
             vm.editItem.$render();
+            startTimer();
         }
 
         function activate() {
@@ -66,14 +67,11 @@
         }
 
         //#region Internal Methods      
-
-        var timer = $timeout(function () {
-            $state.go('welcome');
-        }, 30000);
-
+        var createTimer;
+        startTimer();
         
         function cancel() {
-            $timeout.cancel(timer);
+            cancelTimer();
             $state.go('welcome');
         }
 
@@ -128,12 +126,13 @@
         }
 
         function goBack() {
-            $timeout.cancel(timer);
+            cancelTimer();
             $window.history.back();
+            startTimer();
         }
 
         function gotoReview() {
-            $timeout.cancel(timer);
+            cancelTimer();
             if (vm.nameForm.$invalid) {
 
                 vm.showValidationErrors = true;
@@ -144,9 +143,7 @@
             vm.person.lastname = Humanize.titleCase(vm.person.lastname.toLowerCase());
             vm.person.emailAddress = vm.person.emailAddress.toLowerCase();
             $state.go('create.review');
-            timer = $timeout(function () {
-                $state.go('welcome');
-            }, 60000);
+            startTimer();
 
         }
 
@@ -185,7 +182,7 @@
                 }
                 vm.person = undefined;
                 $rootScope.person = person;
-                $timeout.cancel(timer);
+                cancelTimer();
                 $state.go('finish');
             });
 
@@ -205,6 +202,18 @@
                 }
             }
             return valid;
+        }
+        
+        function startTimer() {
+            log('starting timer', null, false);
+            cancelTimer();
+            createTimer = $timeout(function () {
+                $state.go('welcome');
+            }, 10000);
+        }
+
+        function cancelTimer() {
+            $timeout.cancel(createTimer);
         }
 
         //#endregion

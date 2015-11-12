@@ -38,6 +38,12 @@
             $state.go('welcome');
         }, 3000);
 
+        var timer2 = $timeout(function () {
+            if (person) {
+                crmc.server.addNameToWall(kiosk, $rootScope.person);
+            }
+        }, 1000);
+
         function gotoWelcome() {
             $timeout.cancel(finishTimer);
             $state.go('welcome');

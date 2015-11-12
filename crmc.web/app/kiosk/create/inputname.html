@@ -58,9 +58,8 @@
                     <input type="text" class="form-control" id="inputZipCode"
                            name="inputZipCode"
                            ng-focus="vm.setFocus(vm.nameForm.inputZipCode)"
-                           required
                            ng-model="vm.person.zipcode"
-                           placeholder="ZIP Code"
+                           placeholder="ZIP Code (optional)"
                            zip-code>
                     <span class="errorMessage arrow_box" ng-show="vm.showValidationErrors && vm.nameForm.inputZipCode.$error.required" class="text-danger">Required</span>
                     <div ng-messages="vm.nameForm.inputZipCode.$error" ng-show="vm.nameForm.inputZipCode.$invalid && (vm.nameForm.inputZipCode.$touched || vm.nameForm.inputZipCode.$dirty)">

@@ -170,7 +170,7 @@
             cancelTimer();
             findTimer = $timeout(function() {
                 $state.go('welcome');
-            }, 60000);
+            }, 30000);
         }
 
         function cancelTimer() {

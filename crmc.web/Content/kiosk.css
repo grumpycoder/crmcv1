@@ -256,3 +256,16 @@ td {
         background-color: #7a7a7a;
         color: #000;
     }
+
+div {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+* {
+    -ms-scroll-chaining: none;
+}

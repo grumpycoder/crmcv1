@@ -5,9 +5,9 @@
 
     var controllerId = 'settings';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$scope', 'common', 'datacontext', viewmodel]);
+        ['$scope', 'common', 'datacontext', viewmodel]);
 
-    function viewmodel($cookies, $cookieStore, $scope, common, datacontext) {
+    function viewmodel($scope, common, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -29,7 +29,7 @@
 
         function activate() {
             common.activateController([getConfigOptions()], controllerId).then(onEveryChange);
-            vm.selectedKiosk = $cookies.kiosk;
+            vm.selectedKiosk = localStorage.getItem('kiosk') ? localStorage.getItem('kiosk') : 1;
             $.connection.hub.start().done(function () {
                 log('hub connection successful', null, false);
             });
@@ -70,7 +70,7 @@
         }
 
         function saveKiosk() {
-            $cookies.kiosk = vm.selectedKiosk;
+            localStorage.setItem('kiosk', vm.selectedKiosk);
             logSuccess('Saved kiosk', null, true);
         }
 

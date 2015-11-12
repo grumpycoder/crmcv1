@@ -36,12 +36,6 @@
 
         var finishTimer = $timeout(function() {
             $state.go('welcome');
-        }, 15000);
-
-        var timer2 = $timeout(function () {
-            if (person) {
-                crmc.server.addNameToWall(kiosk, $rootScope.person);
-            }
         }, 3000);
 
         function gotoWelcome() {

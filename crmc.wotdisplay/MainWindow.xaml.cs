@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -67,11 +68,11 @@ namespace crmc.wotdisplay
 
             colors = new List<Color>()
             {
-                Color.FromRgb(205, 238, 207), 
-                Color.FromRgb(247, 231, 245),  
-                Color.FromRgb(213, 236, 250),  
-                Color.FromRgb(246, 244, 207),  
-                Color.FromRgb(246, 227, 213) 
+                Color.FromRgb(205, 238, 207),
+                Color.FromRgb(247, 231, 245),
+                Color.FromRgb(213, 236, 250),
+                Color.FromRgb(246, 244, 207),
+                Color.FromRgb(246, 227, 213)
             };
 
             this.Loaded += MainWindow_Loaded;
@@ -129,7 +130,7 @@ namespace crmc.wotdisplay
                 foreach (var widget in Widgets)
                 {
                     var widget1 = widget;
-                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+                    //                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
                     var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
                     //DisplayWidgetLocalNamesAsync(widget1);
                 }
@@ -186,7 +187,7 @@ namespace crmc.wotdisplay
                 var temp = widget.PersonList.ToList();
                 widget.PersonList = new List<Person>();
                 widget.PersonList = await repository.Get(25, widget.IsPriorityList);
-                if (!widget.PersonList.Any()) widget.PersonList = temp; 
+                if (!widget.PersonList.Any()) widget.PersonList = temp;
 
                 //    .ContinueWith(task =>
                 //{
@@ -331,11 +332,21 @@ namespace crmc.wotdisplay
                 label.Arrange(new Rect(label.DesiredSize));
                 var labelActualWidth = label.ActualWidth;
 
+
                 var labelLeftPosition = RandomNumber(leftMargin, rightMargin);
+                //                if (isFromKiosk)
+                //                {
+                //                    labelLeftPosition = (((canvasWidth.ToInt() / 4) - labelActualWidth) / 2).ToInt();
+                //                    Log.Warn("FromKiosk label left " + labelLeftPosition);
+                //                }
+                //                else
+                //                {
                 if (labelLeftPosition + labelActualWidth > canvasWidth)
                 {
                     labelLeftPosition = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
                 }
+                //                    Log.Warn("Not FromKiosk label left " + labelLeftPosition);
+                //                }
 
                 // Set label animation
                 var labelScrollSpeed = ((Settings.Default.ScrollSpeed / label.FontSize) * ScreenSpeedModifier).ToInt();
@@ -385,7 +396,8 @@ namespace crmc.wotdisplay
 
                 var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
                 var leftMargin = (rightMargin - quadSize).ToInt();
-                var left = RandomNumber(leftMargin, rightMargin);
+                //                var left = RandomNumber(leftMargin, rightMargin);
+
                 var midPoint = canvasHeight / 4;
                 var labelName = "label" + RandomNumber(1, 1000);
 
@@ -407,13 +419,16 @@ namespace crmc.wotdisplay
                 myLabel.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
                 myLabel.Arrange(new Rect(myLabel.DesiredSize));
                 var w = myLabel.ActualWidth;
-                if ((left + w) > canvasWidth)
-                {
-                    left = left > (canvasWidth - w).ToInt()
-                        ? (canvasWidth - w).ToInt()
-                        : RandomNumber(leftMargin, (canvasWidth - w).ToInt());
-                }
 
+                var offset = (quadWidth - w) / 2;
+                var left = quadWidth * (quadrant - 1) + offset;
+
+                if ((left + w) > quadWidth)
+                {
+                    if (quadrant == 1) left = 0;
+
+                    if (quadrant > 1) left = rightMargin - w;
+                }
 
                 //Reset font size to begin growAnimation. 
                 myLabel.FontSize = 1;
@@ -504,12 +519,14 @@ namespace crmc.wotdisplay
         }
 
         //Invoked from SignalR event
-        public void AddPersonToDisplayFromKiosk(string location, Person person)
+        public async void AddPersonToDisplayFromKiosk(string location, Person person)
         {
             int quad;
 
             int.TryParse(location, out quad);
             AddNewNameToDisplay(person, quad);
+            //            await AnimateDisplayNameToUI(person, quad, cancelToken, true);
+
             var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
 
             if (widget != null)

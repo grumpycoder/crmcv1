@@ -10,7 +10,8 @@
         var vm = this;
         var crmc = $.connection.crmcHub;
         var person = $rootScope.person;
-        var kiosk = $cookies.kiosk || 1;
+//        var kiosk = $cookies.kiosk || 1;
+        var kiosk = localStorage.getItem('kiosk');
 
         vm.gotoWelcome = gotoWelcome;
         vm.title = 'finishCtrl';

@@ -130,7 +130,7 @@ namespace crmc.wotdisplay
                 foreach (var widget in Widgets)
                 {
                     var widget1 = widget;
-                    //                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
                     var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
                     //DisplayWidgetLocalNamesAsync(widget1);
                 }

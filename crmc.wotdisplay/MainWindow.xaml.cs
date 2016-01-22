@@ -83,40 +83,7 @@ namespace crmc.wotdisplay
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
-            // configure and update display settings
-            canvas = wallCanvas;
-            canvas.Height = SystemParameters.PrimaryScreenHeight;
-            canvas.Width = SystemParameters.PrimaryScreenWidth;
-            expanderSettings.Width = SystemParameters.PrimaryScreenWidth;
-
-            canvas.UpdateLayout();
-
-            canvasWidth = canvas.Width;
-            canvasHeight = canvas.Height;
-            quadSize = canvasWidth / 4;
-
-            //HACK: Test if needed. 
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(
-                typeof(Timeline),
-                new FrameworkPropertyMetadata { DefaultValue = 80 }
-                );
-
-
-            // Setup Hub Connection
-            connection = new HubConnection(WebServer + "/signalr");
-
-            //Make proxy to hub based on hub name on server
-            myHub = connection.CreateHubProxy("crmcHub");
-
-            connection.StateChanged += ConnectionOnStateChanged;
-            connection.Closed += ConnectionOnClosed;
-            await connection.Start();
-
-            // Initialize Default Application Settings
-            InitializeDefaultSettings();
-
-            InitializeAudioSettings();
-            manager.Play();
+            Init();
 
             //Create display widgets one for each quadrant
             for (var i = 1; i < 5; i++)
@@ -140,6 +107,19 @@ namespace crmc.wotdisplay
             }, cancelToken);
 
             Log.Debug("Finished Startup");
+        }
+
+        private void Init()
+        {
+            ConfigureDisplay();
+
+            ConfigureConnectionManager();
+
+            InitializeDefaultSettings();
+
+            InitializeAudioSettings();
+
+            manager.Play();
         }
 
         private async Task DisplayPriorityWidgetAsync(Widget widget)
@@ -202,7 +182,7 @@ namespace crmc.wotdisplay
 
             }
         }
-        
+
         public async Task LoadWidgetsAsync()
         {
             foreach (var widget in Widgets)
@@ -220,41 +200,10 @@ namespace crmc.wotdisplay
         private void SetupHubListeners()
         {
             Log.Info("Setting up listeners on hub for kiosk names added.");
-            myHub.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
+            ConnectionManager.HubProxy.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
             Log.Info("Setting up listeners on hub for configuration changes.");
-            myHub.On("configSettingsSaved", InitializeDefaultSettings);
-        }
-
-        private void ConnectionOnClosed()
-        {
-            Log.Info("Connection closed. Starting new hub and connecting");
-            //Start new connection. Don't know why connection will not reconnect after disconnecting. 
-            connection.Stop();
-            connection = null;
-            connection = new HubConnection(WebServer + "/signalr");
-            myHub = connection.CreateHubProxy("crmcHub");
-            connection.StateChanged += ConnectionOnStateChanged;
-            connection.Closed += ConnectionOnClosed;
-
-            connection.Start().ContinueWith(task =>
-            {
-                if (!task.IsFaulted) return;
-                Log.Warn("Error occurred connecting to hub");
-                Log.Warn(task.Exception);
-            });
-        }
-
-        private void ConnectionOnStateChanged(StateChange stateChange)
-        {
-            Log.Info("ConnectionState Changed from : {0} to : {1}", stateChange.OldState, stateChange.NewState);
-
-            if (stateChange.NewState == ConnectionState.Connected)
-            {
-                SetupHubListeners();
-            }
-
-
+            ConnectionManager.HubProxy.On("configSettingsSaved", InitializeDefaultSettings);
         }
 
         public async void InitializeDefaultSettings()
@@ -355,8 +304,8 @@ namespace crmc.wotdisplay
                  RegisterName(borderName, border);
 
 
-                // Set label position
-                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
+                 // Set label position
+                 var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
                  var leftMargin = (rightMargin - quadSize).ToInt();
                  if (quadrant == 0) leftMargin = 0;
 
@@ -409,8 +358,8 @@ namespace crmc.wotdisplay
                      startTimer = 0;
                  }
 
-                // Set label animation
-                var size = random ? label.FontSize : appConfig.MaxFontSize;
+                 // Set label animation
+                 var size = random ? label.FontSize : appConfig.MaxFontSize;
                  var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
                  var midPoint = canvasHeight.ToInt().Quarter() * 2;
 
@@ -495,6 +444,65 @@ namespace crmc.wotdisplay
             var color = colors[RandomNumber(0, 5)];
             return color;
         }
+
+        #region Configuration and Init
+
+        private void ConfigureDisplay()
+        {
+            canvas = wallCanvas;
+            canvas.Height = SystemParameters.PrimaryScreenHeight;
+            canvas.Width = SystemParameters.PrimaryScreenWidth;
+            expanderSettings.Width = SystemParameters.PrimaryScreenWidth;
+
+            canvas.UpdateLayout();
+
+            canvasWidth = canvas.Width;
+            canvasHeight = canvas.Height;
+            quadSize = canvasWidth / 4;
+
+            //HACK: Test if needed. 
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(
+                typeof(Timeline),
+                new FrameworkPropertyMetadata { DefaultValue = 80 }
+                );
+        }
+
+        private void ConfigureConnectionManager()
+        {
+            ConnectionManager.Connection.StateChanged += ConnectionOnStateChanged;
+            ConnectionManager.Connection.Closed += ConnectionOnClosed;
+            ConnectionManager.ConnectAsync();
+        }
+
+        #endregion
+
+        #region ConnectionManager Events
+
+        private void ConnectionOnClosed()
+        {
+            Log.Info("Connection closed. Starting new hub and connecting");
+            //Start new connection. Don't know why connection will not reconnect after disconnecting. 
+            ConnectionManager.Connection.Stop();
+            ConnectionManager.Connection.Start().ContinueWith(task =>
+            {
+                if (!task.IsFaulted) return;
+                Log.Warn("Error occurred connecting to hub");
+                Log.Warn(task.Exception);
+            }, cancelToken);
+        }
+
+        private void ConnectionOnStateChanged(StateChange stateChange)
+        {
+            Log.Info("ConnectionState Changed from : {0} to : {1}", stateChange.OldState, stateChange.NewState);
+
+            if (stateChange.NewState == ConnectionState.Connected)
+            {
+                SetupHubListeners();
+            }
+        }
+
+
+        #endregion
 
         #region Events
 

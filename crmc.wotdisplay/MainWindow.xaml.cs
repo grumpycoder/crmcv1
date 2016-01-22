@@ -546,7 +546,7 @@ namespace crmc.wotdisplay
             {
                 NameScope.SetNameScope(this, new NameScope());
 
-                var startTimer = 0;
+                var startTimer = 5;
                 var growTime = 3;
                 var shrinkTime = 5;
 
@@ -583,6 +583,7 @@ namespace crmc.wotdisplay
                 var storyboard = new Storyboard();
                 if (!random)
                 {
+                    label.FontSize = 0.1; 
                     borderLeftMargin = leftMargin;
                     border.Width = quadSize;
 

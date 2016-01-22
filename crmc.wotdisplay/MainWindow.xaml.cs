@@ -154,7 +154,8 @@ namespace crmc.wotdisplay
                     if (localItem.LastTickTime >= speed)
                     {
                         Log.Debug("Display local name " + localItem.Person.FullName);
-                        await AnimateDisplayNameToUI(localItem.Person, widget.Quadrant, cancelToken);
+                        //await AnimateDisplayNameToUI(localItem.Person, widget.Quadrant, cancelToken);
+                        await Animate(localItem.Person, widget.Quadrant, cancelToken);
                         localItem.RotationCount += 1;
                         localItem.LastTickTime = 0;
                     }
@@ -181,7 +182,8 @@ namespace crmc.wotdisplay
                 {
                     if (widget.IsPriorityList) Log.Debug("Displaying Priority: " + person.FullName);
 
-                    await AnimateDisplayNameToUI(person, widget.Quadrant, cancelToken);
+                    //await AnimateDisplayNameToUI(person, widget.Quadrant, cancelToken);
+                    await Animate(person, widget.Quadrant, cancelToken);
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
                 }
                 var temp = widget.PersonList.ToList();
@@ -538,17 +540,18 @@ namespace crmc.wotdisplay
             return label;
         }
 
-        private async Task Animate(Person person, int quadrant, CancellationToken cancellationToken, bool random = true)
+        private async Task<double> Animate(Person person, int quadrant, CancellationToken cancellationToken, bool random = true)
         {
-            await Task.Delay(1, cancellationToken);
-
+            var totalTime = 0.0;
             Dispatcher.Invoke(() =>
             {
                 NameScope.SetNameScope(this, new NameScope());
 
                 var startTimer = 5;
                 var growTime = 3;
-                var shrinkTime = 5;
+                var shrinkTime = 3;
+                var pauseTime = 1;
+                var fallAnimationOffset = -2;
 
                 var label = CreateLabel(person);
                 label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
@@ -583,11 +586,13 @@ namespace crmc.wotdisplay
                 var storyboard = new Storyboard();
                 if (!random)
                 {
-                    label.FontSize = 0.1; 
+                    label.FontSize = 0.1;
                     borderLeftMargin = leftMargin;
                     border.Width = quadSize;
 
-                    var maxFontSize = appConfig.MaxFontSize * 2;
+                    var maxFontSize = appConfig.MaxFontSize*2;
+
+                    
                     var growAnimation = new DoubleAnimation
                     {
                         From = 0,
@@ -595,9 +600,10 @@ namespace crmc.wotdisplay
                         BeginTime = TimeSpan.FromSeconds(startTimer),
                         Duration = new Duration(TimeSpan.FromSeconds(growTime)),
                     };
-                    startTimer += growTime + 20;
+                    startTimer += growTime + pauseTime;
 
                     var fontSize = appConfig.MaxFontSize;
+                    
                     var shrinkAnimation = new DoubleAnimation
                     {
                         From = maxFontSize,
@@ -614,13 +620,18 @@ namespace crmc.wotdisplay
 
                     storyboard.Children.Add(growAnimation);
                     storyboard.Children.Add(shrinkAnimation);
-
+                    startTimer = startTimer + fallAnimationOffset;
+                }
+                else
+                {
+                    startTimer = 0;
                 }
 
                 // Set label animation
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / label.FontSize) * ScreenSpeedModifier).ToInt();
-
+                var size = random ? label.FontSize : appConfig.MaxFontSize;
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
                 var midPoint = canvasHeight.ToInt().Quarter() * 2;
+
                 var fallAnimation = new DoubleAnimation
                 {
                     From = random ? TopMargin : midPoint,
@@ -641,7 +652,10 @@ namespace crmc.wotdisplay
                 canvas.Children.Add(border);
                 canvas.UpdateLayout();
                 storyboard.Begin(this);
+
+                totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
             });
+            return totalTime;
         }
 
         //Invoked from SignalR event
@@ -650,10 +664,17 @@ namespace crmc.wotdisplay
             int quad;
 
             int.TryParse(location, out quad);
-            await Animate(person, quad, cancelToken, false);
+            Log.Debug("Sending from kiosk: " + person);
+
+            //await Animate(person, quad, cancelToken, false);
+            var time = await Animate(person, quad, cancelToken, false);
+            Log.Debug("TotalTime: " + time);
+            await Task.Delay(TimeSpan.FromSeconds(time), cancelToken);
+            Log.Debug("Should be " + time + " seconds later");
+
 
             var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
-
+            Log.Debug("Into continue with");
             if (widget != null)
                 widget.LocalList.LocalItems.Add(new LocalItem()
                 {
@@ -661,6 +682,22 @@ namespace crmc.wotdisplay
                     Person = person,
                     RotationCount = 0
                 });
+
+            //await Animate(person, quad, cancelToken, false).ContinueWith((t) =>
+            //{
+            //    //Wait for first display animation before adding to list to cycle.
+            //    var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
+            //    Log.Debug("Into continue with");
+            //    if (widget != null)
+            //        widget.LocalList.LocalItems.Add(new LocalItem()
+            //        {
+            //            Kiosk = quad,
+            //            Person = person,
+            //            RotationCount = 0
+            //        });
+            //}, cancelToken);
+
+
         }
 
 

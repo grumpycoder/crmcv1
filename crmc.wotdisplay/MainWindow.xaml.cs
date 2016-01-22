@@ -594,7 +594,7 @@ namespace crmc.wotdisplay
                         BeginTime = TimeSpan.FromSeconds(startTimer),
                         Duration = new Duration(TimeSpan.FromSeconds(growTime)),
                     };
-                    startTimer += growTime;
+                    startTimer += growTime + 20;
 
                     var fontSize = appConfig.MaxFontSize;
                     var shrinkAnimation = new DoubleAnimation

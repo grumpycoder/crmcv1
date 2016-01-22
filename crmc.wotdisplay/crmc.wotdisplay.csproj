@@ -142,6 +142,7 @@
     </ApplicationDefinition>
     <Compile Include="AnimationEventArgs.cs" />
     <Compile Include="Helpers\Extension.cs" />
+    <Compile Include="Helpers\IntExtension.cs" />
     <Compile Include="Infrastructure\ApplicationDbContext.cs" />
     <Compile Include="Infrastructure\Downloader.cs" />
     <Compile Include="MediaManager.cs" />

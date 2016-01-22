@@ -518,14 +518,138 @@ namespace crmc.wotdisplay
             return RandomNumber(minFontSize, maxFontSize);
         }
 
+
+        private Label CreateLabel(Person person)
+        {
+            var labelFontSize = CalculateFontSize(person.IsPriority);
+            var name = "label" + Guid.NewGuid().ToString("N").Substring(0, 10);
+            var label = new Label()
+            {
+                Content = person.ToString(),
+                FontSize = labelFontSize,
+                FontFamily = new FontFamily(appConfig.FontFamily),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Tag = name,
+                Uid = name,
+                Foreground = new SolidColorBrush(RandomColor())
+            };
+
+            return label;
+        }
+
+        private async Task Animate(Person person, int quadrant, CancellationToken cancellationToken, bool random = true)
+        {
+            await Task.Delay(1, cancellationToken);
+
+            Dispatcher.Invoke(() =>
+            {
+                NameScope.SetNameScope(this, new NameScope());
+
+                var startTimer = 0;
+                var growTime = 3;
+                var shrinkTime = 5;
+
+                var label = CreateLabel(person);
+                label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                label.Arrange(new Rect(label.DesiredSize));
+                var labelActualWidth = random ? label.ActualWidth : quadSize;
+
+                RegisterName(label.Name, label);
+
+                var borderName = "border" + Guid.NewGuid().ToString("N").Substring(0, 10);
+
+                var border = new Border()
+                {
+                    Name = borderName,
+                    Uid = borderName,
+                    Child = label,
+                    Width = labelActualWidth,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                RegisterName(borderName, border);
+
+
+                // Set label position
+                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
+                var leftMargin = (rightMargin - quadSize).ToInt();
+                if (quadrant == 0) leftMargin = 0;
+
+                var borderLeftMargin = RandomNumber(leftMargin, rightMargin);
+                if (borderLeftMargin + labelActualWidth > canvasWidth)
+                {
+                    borderLeftMargin = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
+                }
+                var storyboard = new Storyboard();
+                if (!random)
+                {
+                    borderLeftMargin = leftMargin;
+                    border.Width = quadSize;
+
+                    var maxFontSize = appConfig.MaxFontSize * 2;
+                    var growAnimation = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = maxFontSize,
+                        BeginTime = TimeSpan.FromSeconds(startTimer),
+                        Duration = new Duration(TimeSpan.FromSeconds(growTime)),
+                    };
+                    startTimer += growTime;
+
+                    var fontSize = appConfig.MaxFontSize;
+                    var shrinkAnimation = new DoubleAnimation
+                    {
+                        From = maxFontSize,
+                        To = fontSize,
+                        BeginTime = TimeSpan.FromSeconds(startTimer),
+                        Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
+                    };
+                    startTimer += shrinkTime;
+
+                    Storyboard.SetTargetName(growAnimation, label.Name);
+                    Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
+                    Storyboard.SetTargetName(shrinkAnimation, label.Name);
+                    Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
+
+                    storyboard.Children.Add(growAnimation);
+                    storyboard.Children.Add(shrinkAnimation);
+
+                }
+
+                // Set label animation
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / label.FontSize) * ScreenSpeedModifier).ToInt();
+
+                var midPoint = canvasHeight.ToInt().Quarter() * 2;
+                var fallAnimation = new DoubleAnimation
+                {
+                    From = random ? TopMargin : midPoint,
+                    To = canvasHeight,
+                    BeginTime = TimeSpan.FromSeconds(startTimer),
+                    Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
+                };
+
+                Storyboard.SetTargetName(fallAnimation, border.Name);
+                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
+                storyboard.Children.Add(fallAnimation);
+
+                var e = new AnimationEventArgs { TagName = border.Uid };
+                storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
+
+                Canvas.SetLeft(border, borderLeftMargin);
+                Canvas.SetTop(border, random ? TopMargin : midPoint);
+                canvas.Children.Add(border);
+                canvas.UpdateLayout();
+                storyboard.Begin(this);
+            });
+        }
+
         //Invoked from SignalR event
         public async void AddPersonToDisplayFromKiosk(string location, Person person)
         {
             int quad;
 
             int.TryParse(location, out quad);
-            AddNewNameToDisplay(person, quad);
-            //            await AnimateDisplayNameToUI(person, quad, cancelToken, true);
+            await Animate(person, quad, cancelToken, false);
 
             var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
 

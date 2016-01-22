@@ -51,6 +51,8 @@ namespace crmc.wotdisplay
         private HubConnection connection;
         private IHubProxy myHub;
 
+        private int PriorityListItemDelay = 10;
+
         //TODO: Refactor
         private static readonly Random Random = new Random();
 
@@ -131,6 +133,7 @@ namespace crmc.wotdisplay
                 {
                     var widget1 = widget;
                     var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+                    var displayPriorityTask = Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
                     var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
                     //DisplayWidgetLocalNamesAsync(widget1);
                 }
@@ -139,34 +142,42 @@ namespace crmc.wotdisplay
             Log.Debug("Finished Startup");
         }
 
+        private async Task DisplayPriorityWidgetAsync(Widget widget)
+        {
+            while (true)
+            {
+                if (!widget.IsPriorityList) break;
+
+                var speed = Settings.Default.ScrollSpeed;
+                var delay = PriorityListItemDelay;
+
+                if (widget.IsPriorityList)
+                {
+                    foreach (var person in widget.PersonList)
+                    {
+                        Log.Debug("Displaying Priority: " + person);
+                        await Animate(person, widget.Quadrant, cancelToken);
+                        await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                    }
+                }
+
+            }
+        }
 
         private async Task DisplayWidgetLocalNamesAsync(Widget widget)
         {
             while (true)
             {
                 var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
-                var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
+                var delay = 20;
 
-                // Special loop scenario for locally added names from kiosks
-                var localItemsToRemove = new List<LocalItem>();
-                foreach (var localItem in widget.LocalList.LocalItems)
+                foreach (var localItem in widget.LocalList.LocalItems.ToList())
                 {
-                    if (localItem.LastTickTime >= speed)
-                    {
-                        Log.Debug("Display local name " + localItem.Person.FullName);
-                        //await AnimateDisplayNameToUI(localItem.Person, widget.Quadrant, cancelToken);
-                        await Animate(localItem.Person, widget.Quadrant, cancelToken);
-                        localItem.RotationCount += 1;
-                        localItem.LastTickTime = 0;
-                    }
+                    Log.Debug("Display local name " + localItem.Person.FullName);
+                    await Animate(localItem.Person, widget.Quadrant, cancelToken);
+                    localItem.RotationCount += 1;
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                    if (localItem.RotationCount > 3) localItemsToRemove.Add(localItem);
-                    localItem.LastTickTime += Settings.Default.AddNewItemSpeed;
-                }
-                foreach (var localItem in localItemsToRemove)
-                {
-                    widget.LocalList.LocalItems.Remove(localItem);
-                    Log.Debug("Removing " + localItem.Person.Firstname);
+                    if (localItem.RotationCount > 3) widget.LocalList.LocalItems.Remove(localItem);
                 }
             }
         }
@@ -176,13 +187,11 @@ namespace crmc.wotdisplay
             while (true)
             {
                 var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
-                var delay = widget.IsPriorityList ? 30 : Settings.Default.AddNewItemSpeed;
+                var delay = Settings.Default.AddNewItemSpeed;
 
+                if (widget.IsPriorityList) break;
                 foreach (var person in widget.PersonList)
                 {
-                    if (widget.IsPriorityList) Log.Debug("Displaying Priority: " + person.FullName);
-
-                    //await AnimateDisplayNameToUI(person, widget.Quadrant, cancelToken);
                     await Animate(person, widget.Quadrant, cancelToken);
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
                 }
@@ -191,15 +200,9 @@ namespace crmc.wotdisplay
                 widget.PersonList = await repository.Get(25, widget.IsPriorityList);
                 if (!widget.PersonList.Any()) widget.PersonList = temp;
 
-                //    .ContinueWith(task =>
-                //{
-                //    //If unable to get new list of people from repo set to last know list
-                //    //return widget.PersonList = temp;
-                //}, cancelToken);
-
             }
         }
-
+        
         public async Task LoadWidgetsAsync()
         {
             foreach (var widget in Widgets)
@@ -293,233 +296,12 @@ namespace crmc.wotdisplay
             Log.Info("Audio initialization complete.");
         }
 
-        //<< --OLD CODE BELOW HERE -->>
-
-        public async Task AnimateDisplayNameToUI(Person person, int quadrant, CancellationToken token, bool isFromKiosk = false)
-        {
-            await Task.Delay(1, token);
-
-            if (person == null) return;
-
-            // Create a name scope for the page.
-            Dispatcher.Invoke(() =>
-            {
-                NameScope.SetNameScope(this, new NameScope());
-
-                // Set label properties and register
-
-                var labelFontSize = CalculateFontSize(person.IsPriority);
-                if (isFromKiosk) labelFontSize = Settings.Default.MaxFontSize * 2;
-
-                var name = "label" + RandomNumber(1, 1000);
-                var label = new Label
-                {
-                    Content = person.ToString(),
-                    FontSize = labelFontSize,
-                    FontFamily = new FontFamily(Settings.Default.FontFamily),
-                    Name = name,
-                    Tag = name,
-                    Uid = name,
-                    Foreground = new SolidColorBrush(RandomColor())
-                };
-                RegisterName(name, label);
-
-                // Set label position
-                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth / 4 * quadrant).ToInt();
-                var leftMargin = (rightMargin - quadSize).ToInt();
-                if (quadrant == 0) leftMargin = 0;
-
-                // Required to calculate actual size to determine overflow off viewable area
-                label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-                label.Arrange(new Rect(label.DesiredSize));
-                var labelActualWidth = label.ActualWidth;
-
-
-                var labelLeftPosition = RandomNumber(leftMargin, rightMargin);
-                //                if (isFromKiosk)
-                //                {
-                //                    labelLeftPosition = (((canvasWidth.ToInt() / 4) - labelActualWidth) / 2).ToInt();
-                //                    Log.Warn("FromKiosk label left " + labelLeftPosition);
-                //                }
-                //                else
-                //                {
-                if (labelLeftPosition + labelActualWidth > canvasWidth)
-                {
-                    labelLeftPosition = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
-                }
-                //                    Log.Warn("Not FromKiosk label left " + labelLeftPosition);
-                //                }
-
-                // Set label animation
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / label.FontSize) * ScreenSpeedModifier).ToInt();
-                var fallAnimation = new DoubleAnimation
-                {
-                    From = TopMargin,
-                    To = canvasHeight,
-                    BeginTime = TimeSpan.FromSeconds(0),
-                    Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
-                };
-
-                Storyboard.SetTargetName(fallAnimation, label.Name);
-                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
-
-                var storyboard = new Storyboard();
-                storyboard.Children.Add(fallAnimation);
-
-                var e = new AnimationEventArgs { TagName = label.Uid };
-                storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
-                Canvas.SetLeft(label, labelLeftPosition);
-
-                Canvas.SetTop(label, TopMargin);
-                canvas.Children.Add(label);
-                canvas.UpdateLayout();
-                storyboard.Begin(this);
-
-            });
-
-
-        }
-
-
-
-
-        public void AddNewNameToDisplay(Person person, int quadrant)
-        {
-            //var minFontSize = Settings.Default.MinFontSize + (Settings.Default.MinFontSize * .10).ToInt();
-            var minFontSize = Settings.Default.MaxFontSize;
-            var maxFontSize = Settings.Default.MaxFontSize * 2;
-            var speed = ((Settings.Default.ScrollSpeed / (double)minFontSize) * ScreenSpeedModifier).ToInt();
-
-            Dispatcher.Invoke(() =>
-            {
-                // Create a name scope for the page.
-                NameScope.SetNameScope(this, new NameScope());
-                var quadWidth = (canvasWidth / 4).ToInt();
-
-                var rightMargin = (canvasWidth / 4 * quadrant).ToInt();
-                var leftMargin = (rightMargin - quadSize).ToInt();
-                //                var left = RandomNumber(leftMargin, rightMargin);
-
-                var midPoint = canvasHeight / 4;
-                var labelName = "label" + RandomNumber(1, 1000);
-
-                //Set inital size of label to max for calculation of max label size
-                //Reset to 1 after calculating size for grow animation
-                var myLabel = new Label
-                {
-                    Content = person.ToString(),
-                    FontSize = maxFontSize,
-                    FontFamily = new FontFamily(Settings.Default.FontFamily),
-                    Name = labelName,
-                    Tag = labelName,
-                    Uid = labelName,
-                    Foreground = new SolidColorBrush(Colors.White)
-                };
-                RegisterName(myLabel.Name, myLabel);
-
-                // Correct left position if name is too long to fit within canvas right margin
-                myLabel.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-                myLabel.Arrange(new Rect(myLabel.DesiredSize));
-                var w = myLabel.ActualWidth;
-
-                var offset = (quadWidth - w) / 2;
-                var left = quadWidth * (quadrant - 1) + offset;
-
-                if ((left + w) > quadWidth)
-                {
-                    if (quadrant == 1) left = 0;
-
-                    if (quadrant > 1) left = rightMargin - w;
-                }
-
-                //Reset font size to begin growAnimation. 
-                myLabel.FontSize = 1;
-
-                var growAnimation = new DoubleAnimation
-                {
-                    From = 1,
-                    To = maxFontSize,
-                    Duration = new Duration(TimeSpan.FromSeconds(3)),
-                    BeginTime = TimeSpan.FromSeconds(1)
-                };
-                Storyboard.SetTargetName(growAnimation, myLabel.Name);
-                Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
-
-                var fontSize = Settings.Default.MaxFontSize;
-
-                var shrinkAnimation = new DoubleAnimation
-                {
-                    From = maxFontSize,
-                    To = fontSize,
-                    BeginTime = TimeSpan.FromSeconds(10),
-                    Duration = new Duration(TimeSpan.FromSeconds(5))
-                };
-                Storyboard.SetTargetName(shrinkAnimation, myLabel.Name);
-                Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
-
-                var upAnimation = new DoubleAnimation
-                {
-                    From = midPoint,
-                    To = TopMargin,
-                    BeginTime = TimeSpan.FromSeconds(5),
-                    Duration = new Duration(TimeSpan.FromSeconds(5))
-                };
-                Storyboard.SetTargetName(upAnimation, myLabel.Name);
-                Storyboard.SetTargetProperty(upAnimation, new PropertyPath(TopProperty));
-
-                var mySolidColorBrush = new SolidColorBrush { Color = Colors.White };
-                RegisterName("mySolidColorBrush", mySolidColorBrush);
-
-                myLabel.Foreground = mySolidColorBrush;
-
-                var colorAnimation = new ColorAnimation
-                {
-                    From = RandomColor(),
-                    To = RandomColor(),
-                    BeginTime = TimeSpan.FromSeconds(5),
-                    Duration = new Duration(TimeSpan.FromSeconds(5))
-                };
-                Storyboard.SetTargetName(colorAnimation, "mySolidColorBrush");
-                Storyboard.SetTargetProperty(colorAnimation, new PropertyPath(SolidColorBrush.ColorProperty));
-
-
-                var fallAnimation = new DoubleAnimation
-                {
-                    From = midPoint,
-                    To = canvasHeight,
-                    BeginTime = TimeSpan.FromSeconds(15),
-                    Duration = new Duration(TimeSpan.FromSeconds(speed))
-                };
-                Storyboard.SetTargetName(fallAnimation, myLabel.Name);
-                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
-
-                var myStoryboard = new Storyboard();
-                myStoryboard.Children.Add(growAnimation);
-                myStoryboard.Children.Add(shrinkAnimation);
-                //myStoryboard.Children.Add(colorAnimation);
-                //myStoryboard.Children.Add(upAnimation);
-                myStoryboard.Children.Add(fallAnimation);
-
-                Canvas.SetLeft(myLabel, left);
-
-                Canvas.SetTop(myLabel, midPoint);
-                Panel.SetZIndex(myLabel, 9999);
-                canvas.Children.Add(myLabel);
-                canvas.UpdateLayout();
-
-                myStoryboard.Begin(this);
-            });
-        }
-
-
-
         private int CalculateFontSize(bool? isPriority)
         {
             var maxFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MaxFontSizeVIP : Settings.Default.MaxFontSize;
             var minFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MinFontSizeVIP : Settings.Default.MinFontSize;
             return RandomNumber(minFontSize, maxFontSize);
         }
-
 
         private Label CreateLabel(Person person)
         {
@@ -543,118 +325,118 @@ namespace crmc.wotdisplay
         private async Task<double> Animate(Person person, int quadrant, CancellationToken cancellationToken, bool random = true)
         {
             var totalTime = 0.0;
-            Dispatcher.Invoke(() =>
-            {
-                NameScope.SetNameScope(this, new NameScope());
+            await Dispatcher.InvokeAsync(() =>
+             {
+                 NameScope.SetNameScope(this, new NameScope());
 
-                var startTimer = 5;
-                var growTime = 3;
-                var shrinkTime = 3;
-                var pauseTime = 1;
-                var fallAnimationOffset = -2;
+                 var startTimer = 5;
+                 var growTime = 3;
+                 var shrinkTime = 3;
+                 var pauseTime = 1;
+                 var fallAnimationOffset = -2;
 
-                var label = CreateLabel(person);
-                label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-                label.Arrange(new Rect(label.DesiredSize));
-                var labelActualWidth = random ? label.ActualWidth : quadSize;
+                 var label = CreateLabel(person);
+                 label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                 label.Arrange(new Rect(label.DesiredSize));
+                 var labelActualWidth = random ? label.ActualWidth : quadSize;
 
-                RegisterName(label.Name, label);
+                 RegisterName(label.Name, label);
 
-                var borderName = "border" + Guid.NewGuid().ToString("N").Substring(0, 10);
+                 var borderName = "border" + Guid.NewGuid().ToString("N").Substring(0, 10);
 
-                var border = new Border()
-                {
-                    Name = borderName,
-                    Uid = borderName,
-                    Child = label,
-                    Width = labelActualWidth,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-                RegisterName(borderName, border);
+                 var border = new Border()
+                 {
+                     Name = borderName,
+                     Uid = borderName,
+                     Child = label,
+                     Width = labelActualWidth,
+                     HorizontalAlignment = HorizontalAlignment.Center
+                 };
+                 RegisterName(borderName, border);
 
 
                 // Set label position
                 var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
-                var leftMargin = (rightMargin - quadSize).ToInt();
-                if (quadrant == 0) leftMargin = 0;
+                 var leftMargin = (rightMargin - quadSize).ToInt();
+                 if (quadrant == 0) leftMargin = 0;
 
-                var borderLeftMargin = RandomNumber(leftMargin, rightMargin);
-                if (borderLeftMargin + labelActualWidth > canvasWidth)
-                {
-                    borderLeftMargin = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
-                }
-                var storyboard = new Storyboard();
-                if (!random)
-                {
-                    label.FontSize = 0.1;
-                    borderLeftMargin = leftMargin;
-                    border.Width = quadSize;
+                 var borderLeftMargin = RandomNumber(leftMargin, rightMargin);
+                 if (borderLeftMargin + labelActualWidth > canvasWidth)
+                 {
+                     borderLeftMargin = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
+                 }
+                 var storyboard = new Storyboard();
+                 if (!random)
+                 {
+                     label.FontSize = 0.1;
+                     borderLeftMargin = leftMargin;
+                     border.Width = quadSize;
 
-                    var maxFontSize = appConfig.MaxFontSize*2;
+                     var maxFontSize = appConfig.MaxFontSize * 2;
 
-                    
-                    var growAnimation = new DoubleAnimation
-                    {
-                        From = 0,
-                        To = maxFontSize,
-                        BeginTime = TimeSpan.FromSeconds(startTimer),
-                        Duration = new Duration(TimeSpan.FromSeconds(growTime)),
-                    };
-                    startTimer += growTime + pauseTime;
 
-                    var fontSize = appConfig.MaxFontSize;
-                    
-                    var shrinkAnimation = new DoubleAnimation
-                    {
-                        From = maxFontSize,
-                        To = fontSize,
-                        BeginTime = TimeSpan.FromSeconds(startTimer),
-                        Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
-                    };
-                    startTimer += shrinkTime;
+                     var growAnimation = new DoubleAnimation
+                     {
+                         From = 0,
+                         To = maxFontSize,
+                         BeginTime = TimeSpan.FromSeconds(startTimer),
+                         Duration = new Duration(TimeSpan.FromSeconds(growTime)),
+                     };
+                     startTimer += growTime + pauseTime;
 
-                    Storyboard.SetTargetName(growAnimation, label.Name);
-                    Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
-                    Storyboard.SetTargetName(shrinkAnimation, label.Name);
-                    Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
+                     var fontSize = appConfig.MaxFontSize;
 
-                    storyboard.Children.Add(growAnimation);
-                    storyboard.Children.Add(shrinkAnimation);
-                    startTimer = startTimer + fallAnimationOffset;
-                }
-                else
-                {
-                    startTimer = 0;
-                }
+                     var shrinkAnimation = new DoubleAnimation
+                     {
+                         From = maxFontSize,
+                         To = fontSize,
+                         BeginTime = TimeSpan.FromSeconds(startTimer),
+                         Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
+                     };
+                     startTimer += shrinkTime;
+
+                     Storyboard.SetTargetName(growAnimation, label.Name);
+                     Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
+                     Storyboard.SetTargetName(shrinkAnimation, label.Name);
+                     Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
+
+                     storyboard.Children.Add(growAnimation);
+                     storyboard.Children.Add(shrinkAnimation);
+                     startTimer = startTimer + fallAnimationOffset;
+                 }
+                 else
+                 {
+                     startTimer = 0;
+                 }
 
                 // Set label animation
                 var size = random ? label.FontSize : appConfig.MaxFontSize;
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
-                var midPoint = canvasHeight.ToInt().Quarter() * 2;
+                 var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
+                 var midPoint = canvasHeight.ToInt().Quarter() * 2;
 
-                var fallAnimation = new DoubleAnimation
-                {
-                    From = random ? TopMargin : midPoint,
-                    To = canvasHeight,
-                    BeginTime = TimeSpan.FromSeconds(startTimer),
-                    Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
-                };
+                 var fallAnimation = new DoubleAnimation
+                 {
+                     From = random ? TopMargin : midPoint,
+                     To = canvasHeight,
+                     BeginTime = TimeSpan.FromSeconds(startTimer),
+                     Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
+                 };
 
-                Storyboard.SetTargetName(fallAnimation, border.Name);
-                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
-                storyboard.Children.Add(fallAnimation);
+                 Storyboard.SetTargetName(fallAnimation, border.Name);
+                 Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
+                 storyboard.Children.Add(fallAnimation);
 
-                var e = new AnimationEventArgs { TagName = border.Uid };
-                storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
+                 var e = new AnimationEventArgs { TagName = border.Uid };
+                 storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
 
-                Canvas.SetLeft(border, borderLeftMargin);
-                Canvas.SetTop(border, random ? TopMargin : midPoint);
-                canvas.Children.Add(border);
-                canvas.UpdateLayout();
-                storyboard.Begin(this);
+                 Canvas.SetLeft(border, borderLeftMargin);
+                 Canvas.SetTop(border, random ? TopMargin : midPoint);
+                 canvas.Children.Add(border);
+                 canvas.UpdateLayout();
+                 storyboard.Begin(this);
 
-                totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
-            });
+                 totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
+             });
             return totalTime;
         }
 

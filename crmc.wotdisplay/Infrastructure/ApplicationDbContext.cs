@@ -20,7 +20,7 @@ namespace crmc.wotdisplay.Infrastructure
             modelBuilder.Properties<DateTime>().Configure(c => c.HasColumnType("datetime2"));
 
             modelBuilder.Entity<Person>().ToTable("Persons");
-            modelBuilder.Entity<WallConfiguration>().ToTable("Configuration");
+            modelBuilder.Entity<Configuration>().ToTable("Configuration");
 
             base.OnModelCreating(modelBuilder);
         }

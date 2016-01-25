@@ -35,13 +35,11 @@ namespace crmc.wotdisplay
 
         #region Variables
 
-        //public string WebServer;
         private readonly MediaManager manager;
         private readonly List<Widget> Widgets;
         private PersonRepository repository;
         private readonly CancellationToken cancelToken = new CancellationToken();
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private readonly List<Color> colors;
         private const double ScreenSpeedModifier = 10;
 
         //TODO: Refactor
@@ -56,16 +54,6 @@ namespace crmc.wotdisplay
 
             manager = new MediaManager(MediaPlayer, @"C:\audio");
             Widgets = new List<Widget>();
-
-            colors = new List<Color>()
-            {
-                Color.FromRgb(205, 238, 207),
-                Color.FromRgb(247, 231, 245),
-                Color.FromRgb(213, 236, 250),
-                Color.FromRgb(246, 244, 207),
-                Color.FromRgb(246, 227, 213)
-            };
-            
             
             Loaded += MainWindow_Loaded;
 
@@ -76,6 +64,7 @@ namespace crmc.wotdisplay
 
             await Init();
             repository = new PersonRepository(SettingsManager.WallConfiguration.Webserver);
+            
 
             //Create display widgets one for each quadrant
             for (var i = 1; i < 5; i++)
@@ -227,6 +216,7 @@ namespace crmc.wotdisplay
 
         private Label CreateLabel(Person person)
         {
+            var color = SettingsManager.RandomColor();
             var labelFontSize = CalculateFontSize(person.IsPriority);
             var name = "label" + Guid.NewGuid().ToString("N").Substring(0, 10);
             var label = new Label()
@@ -238,7 +228,7 @@ namespace crmc.wotdisplay
                 Name = name,
                 Tag = name,
                 Uid = name,
-                Foreground = new SolidColorBrush(RandomColor())
+                Foreground = new SolidColorBrush(color)
             };
 
             return label;
@@ -396,13 +386,7 @@ namespace crmc.wotdisplay
             if (max <= min) min = max - 1;
             return Random.Next(min, max);
         }
-
-        private Color RandomColor()
-        {
-            var color = colors[RandomNumber(0, 5)];
-            return color;
-        }
-
+    
         #region Configuration and Init
 
         private void ConfigureDisplay()

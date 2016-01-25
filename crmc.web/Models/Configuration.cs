@@ -1,11 +1,17 @@
+using System.Collections.Generic;
+
 namespace crmc.web.Models
 {
-    public class WallConfiguration
+    public class Configuration
     {
+        public Configuration()
+        {
+            ConfigurationColors = new HashSet<ConfigurationColor>();
+        }
         public int Id { get; set; }
         public string HubName { get; set; }
         public string Webserver { get; set; }
-        public double? Volume { get; set; }
+        public double Volume { get; set; }
         public string FontFamily { get; set; }
         public int? DefaultMinFontSize { get; set; }
         public int? DefaultMaxFontSize { get; set; }
@@ -15,5 +21,6 @@ namespace crmc.web.Models
         public double DefaultPriorityNewItemDelay { get; set; }
         public double DefaultLocalNewItemDelay { get; set; }
         public string DefaultAudioFilePath { get; set; }
+        public virtual ICollection<ConfigurationColor> ConfigurationColors { get; set; }
     }
 }

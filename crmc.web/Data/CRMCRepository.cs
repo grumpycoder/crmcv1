@@ -37,9 +37,9 @@ namespace crmc.web.Data
             get { return Context.AppSettings; }
         }
 
-        public IQueryable<WallConfiguration> Configurations
+        public IQueryable<Configuration> Configurations
         {
-            get { return Context.WallConfigurations; }
+            get { return Context.Configurations; }
         }
     }
 }

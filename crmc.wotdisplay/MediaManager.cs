@@ -12,6 +12,8 @@ namespace crmc.wotdisplay
         private readonly MediaElement player;
         private readonly string filePath;
 
+
+        public string FilePath { get; set; }
         public int ActiveIndex { get; set; }
         public bool Paused { get; set; }
 
@@ -27,7 +29,7 @@ namespace crmc.wotdisplay
         {
             Paused = false;
             IsPlaying = false;
-            filePath = path;
+            FilePath = path;
             player = mediaElement;
 
             PlayStatus = PlayStatus.NotLoaded;
@@ -36,9 +38,10 @@ namespace crmc.wotdisplay
             RefreshPlaylist();
         }
 
+
         private void LoadPlaylist()
         {
-            foreach (var file in Directory.GetFiles(@filePath).Where(s => s.EndsWith(".mp3")))
+            foreach (var file in Directory.GetFiles(@FilePath).Where(s => s.EndsWith(".mp3")))
             {
                 var name = Path.GetFileNameWithoutExtension(file);
                 var path = file;

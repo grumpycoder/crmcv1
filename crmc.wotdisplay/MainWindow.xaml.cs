@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,15 +10,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using crmc.wotdisplay.helpers;
 using crmc.wotdisplay.Infrastructure;
 using crmc.wotdisplay.models;
 using crmc.wotdisplay.Properties;
 using Microsoft.AspNet.SignalR.Client;
 using NLog;
-//TODO: Refactor out RestSharp. Use httpclient
-using RestSharp;
-using DataFormat = RestSharp.DataFormat;
 
 namespace crmc.wotdisplay
 {
@@ -38,18 +35,14 @@ namespace crmc.wotdisplay
 
         #region Variables
 
-        public string WebServer;
+        //public string WebServer;
         private readonly MediaManager manager;
         private readonly List<Widget> Widgets;
-        private readonly PersonRepository repository;
+        private PersonRepository repository;
         private readonly CancellationToken cancelToken = new CancellationToken();
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private readonly List<Color> colors;
         private const double ScreenSpeedModifier = 10;
-        private HubConnection connection;
-        private IHubProxy myHub;
-
-        private int PriorityListItemDelay = 10;
 
         //TODO: Refactor
         private static readonly Random Random = new Random();
@@ -60,9 +53,8 @@ namespace crmc.wotdisplay
         {
             InitializeComponent();
             Log.Info("Application Startup");
-            WebServer = Settings.Default.WebServerUrl;
-            manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
-            repository = new PersonRepository(WebServer);
+
+            manager = new MediaManager(MediaPlayer, @"C:\audio");
             Widgets = new List<Widget>();
 
             colors = new List<Color>()
@@ -73,14 +65,17 @@ namespace crmc.wotdisplay
                 Color.FromRgb(246, 244, 207),
                 Color.FromRgb(246, 227, 213)
             };
+            
+            
+            Loaded += MainWindow_Loaded;
 
-            this.Loaded += MainWindow_Loaded;
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
-            Init();
+            await Init();
+            repository = new PersonRepository(SettingsManager.WallConfiguration.Webserver);
 
             //Create display widgets one for each quadrant
             for (var i = 1; i < 5; i++)
@@ -91,21 +86,23 @@ namespace crmc.wotdisplay
             Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
 
             //Begin recursive display of widget names
-            await LoadWidgetsAsync().ContinueWith((t) =>
+            await LoadWidgetsAsync().ContinueWith(t =>
             {
                 foreach (var widget in Widgets)
                 {
                     var widget1 = widget;
-                    var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
-                    var displayPriorityTask = Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
-                    var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
+                    Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+                    Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
+                    Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
                 }
             }, cancelToken);
+
+            manager.Play();
 
             Log.Debug("Finished Startup");
         }
 
-        private async void Init()
+        private async Task Init()
         {
             ConfigureDisplay();
 
@@ -115,7 +112,6 @@ namespace crmc.wotdisplay
 
             await InitializeAudioSettings();
 
-            manager.Play();
         }
 
         private async Task DisplayPriorityWidgetAsync(Widget widget)
@@ -198,29 +194,27 @@ namespace crmc.wotdisplay
         public async Task InitializeDefaultSettings()
         {
             const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
-            
+
             await SettingsManager.LoadAsync(configApiUrl);
             Log.Debug("WallConfig {0}", SettingsManager.WallConfiguration);
             Log.Debug(SettingsManager.WallConfiguration);
-            
+
         }
 
         public async Task InitializeAudioSettings()
         {
             Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
-            await Task.Run(() =>
-            {
-                if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
-                PlayButton.Source = manager.Paused
-                    ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
-                    : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
-                CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-                Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
-                manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
-            }, cancelToken);
+            if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
+            PlayButton.Source = manager.Paused
+                ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
+                : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
+            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+            Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
+            manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
+            
             Log.Info("Audio initialization complete.");
         }
 
@@ -339,6 +333,8 @@ namespace crmc.wotdisplay
 
                  // Set label animation
                  var size = random ? label.FontSize : (double)SettingsManager.WallConfiguration.DefaultMaxFontSize;
+
+                 //TODO: Refactor using settings.default.scrollspeed to use settings manager
                  var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
                  var midPoint = canvasHeight.ToInt().Quarter() * 2;
 
@@ -364,7 +360,7 @@ namespace crmc.wotdisplay
                  storyboard.Begin(this);
 
                  totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
-             });
+             }, DispatcherPriority.Normal, cancellationToken);
             return totalTime;
         }
 
@@ -512,12 +508,6 @@ namespace crmc.wotdisplay
         private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
 
-        }
-
-        private void Element_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            manager.Next();
-            manager.Play();
         }
 
         private void OnMouseDownPlayMedia(object sender, MouseButtonEventArgs e)

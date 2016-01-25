@@ -127,8 +127,8 @@ namespace crmc.wotdisplay
             {
                 if (!widget.IsPriorityList) break;
 
-                var speed = Settings.Default.ScrollSpeed;
-                var delay = PriorityListItemDelay;
+                //var delay = PriorityListItemDelay;
+                var delay = SettingsManager.WallConfiguration.DefaultPriorityNewItemDelay;
 
                 if (widget.IsPriorityList)
                 {
@@ -147,8 +147,9 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
-                var delay = 20;
+                //var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
+                //var delay = 20;
+                var delay = SettingsManager.WallConfiguration.DefaultLocalNewItemDelay;
 
                 foreach (var localItem in widget.LocalList.LocalItems.ToList())
                 {
@@ -165,8 +166,7 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
-                var delay = Settings.Default.AddNewItemSpeed;
+                var delay = SettingsManager.WallConfiguration.DefaultNewItemDelay;
 
                 if (widget.IsPriorityList) break;
                 foreach (var person in widget.PersonList)
@@ -176,6 +176,7 @@ namespace crmc.wotdisplay
                 }
                 var temp = widget.PersonList.ToList();
                 widget.PersonList = new List<Person>();
+                //TODO: Store personlist download amount in variable
                 widget.PersonList = await repository.Get(25, widget.IsPriorityList);
                 if (!widget.PersonList.Any()) widget.PersonList = temp;
 

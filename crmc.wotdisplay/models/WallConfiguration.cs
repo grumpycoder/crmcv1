@@ -5,7 +5,7 @@ namespace crmc.wotdisplay.models
         public int Id { get; set; }
         public string HubName { get; set; }
         public string Webserver { get; set; }
-        public double? Volume { get; set; }
+        public double Volume { get; set; }
         public string FontFamily { get; set; }
         public int? DefaultMinFontSize { get; set; }
         public int? DefaultMaxFontSize { get; set; }

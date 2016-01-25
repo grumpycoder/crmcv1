@@ -108,7 +108,7 @@ namespace crmc.wotdisplay
             Log.Debug("Finished Startup");
         }
 
-        private void Init()
+        private async void Init()
         {
             ConfigureDisplay();
 
@@ -236,7 +236,7 @@ namespace crmc.wotdisplay
             }, cancelToken);
         }
 
-        void InitializeAudioSettings()
+        public async Task InitializeAudioSettings()
         {
             Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
@@ -244,12 +244,16 @@ namespace crmc.wotdisplay
             if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
 
+            
 
             PlayButton.Source = manager.Paused
                 ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            manager.ChangeVolume(Settings.Default.Volume);
+            //manager.ChangeVolume(Settings.Default.Volume);
+            Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
+            manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
+
             Log.Info("Audio initialization complete.");
         }
 

@@ -41,10 +41,11 @@ namespace crmc.wotdisplay.Infrastructure
             return WallConfiguration;
         }
 
-        public static void SaveSettingsAsync()
+        public static async Task<bool> SaveSettingsAsync()
         {
             //TODO: Save settings back to database
             Console.WriteLine("Settings saved");
+            return true;
         }
     }
 

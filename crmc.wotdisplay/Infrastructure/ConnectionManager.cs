@@ -8,7 +8,7 @@ namespace crmc.wotdisplay.Infrastructure
 {
     public class ConnectionManager
     {
-        private static readonly string ServerUri = Settings.Default.WebServerUrl + "/signalr";
+        private static readonly string ServerUri = "http://localhost/crmc" + "/signalr";
         private static readonly string HubName = Settings.Default.HubName;
         private static readonly HubConnection connection = new HubConnection(ServerUri);
         public static IHubProxy HubProxy;

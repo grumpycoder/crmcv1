@@ -292,7 +292,7 @@ namespace crmc.wotdisplay
                 ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            manager.ChangeVolume(Settings.Default.Volume);
+            manager.ChangeVolume(0.75);
             Log.Info("Audio initialization complete.");
         }
 

@@ -240,7 +240,8 @@ namespace crmc.wotdisplay
         {
             Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
-            if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
+            //if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
+            if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
 
 

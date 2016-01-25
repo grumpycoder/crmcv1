@@ -44,7 +44,6 @@ namespace crmc.wotdisplay
         private readonly PersonRepository repository;
         private readonly CancellationToken cancelToken = new CancellationToken();
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        public AppConfig appConfig;
         private readonly List<Color> colors;
         private const double ScreenSpeedModifier = 10;
         private HubConnection connection;
@@ -62,7 +61,6 @@ namespace crmc.wotdisplay
             InitializeComponent();
             Log.Info("Application Startup");
             WebServer = Settings.Default.WebServerUrl;
-            appConfig = new AppConfig();
             manager = new MediaManager(MediaPlayer, Settings.Default.AudioFilePath);
             repository = new PersonRepository(WebServer);
             Widgets = new List<Widget>();
@@ -101,7 +99,6 @@ namespace crmc.wotdisplay
                     var displayTask = Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
                     var displayPriorityTask = Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
                     var displayLocalTask = Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
-                    //DisplayWidgetLocalNamesAsync(widget1);
                 }
             }, cancelToken);
 
@@ -114,9 +111,9 @@ namespace crmc.wotdisplay
 
             ConfigureConnectionManager();
 
-            InitializeDefaultSettings();
+            await InitializeDefaultSettings();
 
-            InitializeAudioSettings();
+            await InitializeAudioSettings();
 
             manager.Play();
         }
@@ -127,7 +124,6 @@ namespace crmc.wotdisplay
             {
                 if (!widget.IsPriorityList) break;
 
-                //var delay = PriorityListItemDelay;
                 var delay = SettingsManager.WallConfiguration.DefaultPriorityNewItemDelay;
 
                 if (widget.IsPriorityList)
@@ -147,8 +143,6 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                //var speed = ((Settings.Default.ScrollSpeed / (double)Settings.Default.MinFontSize) * ScreenSpeedModifier).ToInt() / 2;
-                //var delay = 20;
                 var delay = SettingsManager.WallConfiguration.DefaultLocalNewItemDelay;
 
                 foreach (var localItem in widget.LocalList.LocalItems.ToList())
@@ -191,68 +185,41 @@ namespace crmc.wotdisplay
             }
         }
 
-        private static async Task<AppConfig> DownloadDefaultSettings(string url)
-        {
-            var config = await Downloader.DownloadConfigDataAsync(url);
-            return config;
-        }
-
         private void SetupHubListeners()
         {
             Log.Info("Setting up listeners on hub for kiosk names added.");
             ConnectionManager.HubProxy.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
-            Log.Info("Setting up listeners on hub for configuration changes.");
-            ConnectionManager.HubProxy.On("configSettingsSaved", InitializeDefaultSettings);
+            //TODO: Refactor saving configuration watch proxy
+            //Log.Info("Setting up listeners on hub for configuration changes.");
+            //ConnectionManager.HubProxy.On("configSettingsSaved", InitializeDefaultSettings);
         }
 
-        public async void InitializeDefaultSettings()
+        public async Task InitializeDefaultSettings()
         {
-            var configApiUrl = "http://localhost/crmc/breeze/public/configurations";
-            var configUrl = WebServer + "/breeze/public/appconfigs";
-
-
+            const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
+            
             await SettingsManager.LoadAsync(configApiUrl);
             Log.Debug("WallConfig {0}", SettingsManager.WallConfiguration);
             Log.Debug(SettingsManager.WallConfiguration);
-
-            await DownloadDefaultSettings(configUrl).ContinueWith(async (r) =>
-            {
-                var result = await r;
-                appConfig = result;
-                Settings.Default.AddNewItemSpeed = appConfig.AddNewItemSpeed;
-                Settings.Default.AudioFilePath = appConfig.AudioFilePath;
-                Settings.Default.ScrollSpeed = appConfig.ScrollSpeed;
-                Settings.Default.FontFamily = appConfig.FontFamily;
-                Settings.Default.HubName = appConfig.HubName;
-                Settings.Default.MaxFontSize = appConfig.MaxFontSize;
-                Settings.Default.MinFontSize = appConfig.MinFontSize;
-                Settings.Default.MaxFontSizeVIP = appConfig.MaxFontSizeVIP;
-                Settings.Default.MinFontSizeVIP = appConfig.MinFontSizeVIP;
-                Settings.Default.WebServerUrl = appConfig.WebServerURL;
-                Settings.Default.Volume = appConfig.Volume;
-                Settings.Default.UseLocalDataSource = appConfig.UseLocalDataSource;
-                Settings.Default.Save();
-            }, cancelToken);
+            
         }
 
         public async Task InitializeAudioSettings()
         {
             Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
-            //if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
-            if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
+            await Task.Run(() =>
+            {
+                if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
-
-            
-
-            PlayButton.Source = manager.Paused
-                ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
-                : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
-            CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            //manager.ChangeVolume(Settings.Default.Volume);
-            Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
-            manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
+                PlayButton.Source = manager.Paused
+                    ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
+                    : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
+                CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
+                Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
+                manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
+            }, cancelToken);
 
             Log.Info("Audio initialization complete.");
         }
@@ -272,7 +239,7 @@ namespace crmc.wotdisplay
             {
                 Content = person.ToString(),
                 FontSize = labelFontSize,
-                FontFamily = new FontFamily(appConfig.FontFamily),
+                FontFamily = new FontFamily(SettingsManager.WallConfiguration.FontFamily),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Name = name,
                 Tag = name,
@@ -333,7 +300,7 @@ namespace crmc.wotdisplay
                      borderLeftMargin = leftMargin;
                      border.Width = quadSize;
 
-                     var maxFontSize = appConfig.MaxFontSize * 2;
+                     var maxFontSize = SettingsManager.WallConfiguration.DefaultMaxFontSize * 2;
 
 
                      var growAnimation = new DoubleAnimation
@@ -345,7 +312,7 @@ namespace crmc.wotdisplay
                      };
                      startTimer += growTime + pauseTime;
 
-                     var fontSize = appConfig.MaxFontSize;
+                     var fontSize = SettingsManager.WallConfiguration.DefaultMaxFontSize;
 
                      var shrinkAnimation = new DoubleAnimation
                      {
@@ -371,7 +338,7 @@ namespace crmc.wotdisplay
                  }
 
                  // Set label animation
-                 var size = random ? label.FontSize : appConfig.MaxFontSize;
+                 var size = random ? label.FontSize : (double)SettingsManager.WallConfiguration.DefaultMaxFontSize;
                  var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
                  var midPoint = canvasHeight.ToInt().Quarter() * 2;
 
@@ -409,7 +376,6 @@ namespace crmc.wotdisplay
             int.TryParse(location, out quad);
             Log.Debug("Sending from kiosk: " + person);
 
-            //await Animate(person, quad, cancelToken, false);
             var time = await Animate(person, quad, cancelToken, false);
             Log.Debug("TotalTime: " + time);
             await Task.Delay(TimeSpan.FromSeconds(time), cancelToken);
@@ -425,22 +391,6 @@ namespace crmc.wotdisplay
                     Person = person,
                     RotationCount = 0
                 });
-
-            //await Animate(person, quad, cancelToken, false).ContinueWith((t) =>
-            //{
-            //    //Wait for first display animation before adding to list to cycle.
-            //    var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
-            //    Log.Debug("Into continue with");
-            //    if (widget != null)
-            //        widget.LocalList.LocalItems.Add(new LocalItem()
-            //        {
-            //            Kiosk = quad,
-            //            Person = person,
-            //            RotationCount = 0
-            //        });
-            //}, cancelToken);
-
-
         }
 
 
@@ -535,36 +485,7 @@ namespace crmc.wotdisplay
         {
             Settings.Default.Save();
             expanderSettings.IsExpanded = false;
-
-            appConfig.AddNewItemSpeed = Settings.Default.AddNewItemSpeed;
-            appConfig.AudioFilePath = Settings.Default.AudioFilePath;
-            appConfig.ScrollSpeed = Settings.Default.ScrollSpeed;
-            appConfig.FontFamily = Settings.Default.FontFamily;
-            appConfig.HubName = Settings.Default.HubName;
-            appConfig.MaxFontSize = Settings.Default.MaxFontSize;
-            appConfig.MinFontSize = Settings.Default.MinFontSize;
-            appConfig.MaxFontSizeVIP = Settings.Default.MaxFontSizeVIP;
-            appConfig.MinFontSizeVIP = Settings.Default.MinFontSizeVIP;
-            appConfig.WebServerURL = Settings.Default.WebServerUrl;
-            appConfig.Volume = Settings.Default.Volume;
-            appConfig.UseLocalDataSource = Settings.Default.UseLocalDataSource;
-            //TODO: Refactor this
-            var client = new RestClient(Settings.Default.WebServerUrl);
-            var request = new RestRequest("api/configuration/SaveConfiguration", Method.POST) { RequestFormat = DataFormat.Json };
-            request.AddBody(appConfig);
-
-            Log.Info("Saving configuration changes.");
-            client.ExecuteAsync(request, response =>
-            {
-                if (response.StatusCode != HttpStatusCode.NoContent)
-                {
-                    Log.Warn("Unable to save configuration");
-                    Log.Warn(response.StatusCode);
-                }
-            });
-
-            Log.Info("Sending notification to hub of configuration settings updated. ");
-            myHub.Invoke<AppConfig>("SaveConfigSettings", appConfig);
+            //TODO: Save Configuration settings to database and update
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -596,7 +517,6 @@ namespace crmc.wotdisplay
         private void Element_MediaEnded(object sender, RoutedEventArgs e)
         {
             manager.Next();
-            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             manager.Play();
         }
 
@@ -604,28 +524,19 @@ namespace crmc.wotdisplay
         {
             if (manager == null)
             {
-                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
             manager.Play();
-
-            //PlayButton.Source = manager.Paused
-            //    ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
-            //    : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
-            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
         }
 
         private void OnMouseDownStopMedia(object sender, MouseButtonEventArgs e)
         {
             if (manager == null)
             {
-                //CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;
             }
 
             manager.Stop();
-            //CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            //PlayButton.Source = new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
         }
 
         private void OnMouseDownForwardMedia(object sender, MouseButtonEventArgs e)

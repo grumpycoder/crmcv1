@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -208,7 +207,14 @@ namespace crmc.wotdisplay
 
         public async void InitializeDefaultSettings()
         {
+            var configApiUrl = "http://localhost/crmc/breeze/public/configurations";
             var configUrl = WebServer + "/breeze/public/appconfigs";
+
+
+            await SettingsManager.LoadAsync(configApiUrl);
+            Log.Debug("WallConfig {0}", SettingsManager.WallConfiguration);
+            Log.Debug(SettingsManager.WallConfiguration);
+
             await DownloadDefaultSettings(configUrl).ContinueWith(async (r) =>
             {
                 var result = await r;
@@ -226,7 +232,7 @@ namespace crmc.wotdisplay
                 Settings.Default.Volume = appConfig.Volume;
                 Settings.Default.UseLocalDataSource = appConfig.UseLocalDataSource;
                 Settings.Default.Save();
-            });
+            }, cancelToken);
         }
 
         void InitializeAudioSettings()

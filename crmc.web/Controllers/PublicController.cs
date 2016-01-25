@@ -48,5 +48,10 @@ namespace crmc.web.Controllers
             return repository.AppConfigs.FirstOrDefault();
         }
 
+        [HttpGet]
+        public WallConfiguration Configurations()
+        {
+            return repository.Configurations.FirstOrDefault();
+        }
     }
 }

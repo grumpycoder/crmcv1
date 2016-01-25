@@ -15,11 +15,11 @@ namespace crmc.wotdisplay.Infrastructure
         private static readonly List<Color> colors = new List<Color>();
         private static readonly Random Random = new Random();
 
-        public static Configuration WallConfiguration { get; set; }
+        public static Configuration Configuration { get; set; }
 
         public static async Task<Configuration> LoadAsync(string apiUrl)
         {
-            WallConfiguration = new Configuration();
+            Configuration = new Configuration();
             //Load configuration from a repository
             using (var client = new HttpClient())
             {
@@ -31,7 +31,7 @@ namespace crmc.wotdisplay.Infrastructure
                 if (response.IsSuccessStatusCode)
                 {
                     var s = await response.Content.ReadAsStringAsync();
-                    WallConfiguration = JsonConvert.DeserializeObject<Configuration>(s);
+                    Configuration = JsonConvert.DeserializeObject<Configuration>(s);
                     LoadColors();
                 }
                 else
@@ -40,12 +40,12 @@ namespace crmc.wotdisplay.Infrastructure
                     //Console.WriteLine(response.StatusCode);
                 }
             }
-            return WallConfiguration;
+            return Configuration;
         }
 
         private static void LoadColors()
         {
-            foreach (var color in WallConfiguration.ConfigurationColors)
+            foreach (var color in Configuration.ConfigurationColors)
             {
                 if (color.RGB != null)
                 {

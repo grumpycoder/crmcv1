@@ -141,14 +141,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AnimationEventArgs.cs" />
+    <Compile Include="models\DownloadResult.cs" />
     <Compile Include="Infrastructure\SettingsManager.cs" />
     <Compile Include="Helpers\Extension.cs" />
     <Compile Include="Helpers\IntExtension.cs" />
     <Compile Include="Infrastructure\ApplicationDbContext.cs" />
-    <Compile Include="Infrastructure\Downloader.cs" />
-    <Compile Include="models\WallConfiguration.cs" />
+    <Compile Include="models\Configuration.cs" />
+    <Compile Include="models\ConfigurationColor.cs" />
     <Compile Include="MediaManager.cs" />
-    <Compile Include="models\AppConfig.cs" />
     <Compile Include="models\Person.cs" />
     <Compile Include="PersonRepository.cs" />
     <Compile Include="Song.cs" />

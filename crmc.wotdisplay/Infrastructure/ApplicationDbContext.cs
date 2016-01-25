@@ -13,7 +13,7 @@ namespace crmc.wotdisplay.Infrastructure
         }
 
         public DbSet<Person> Persons { get; set; }
-        public DbSet<AppConfig> AppSettings { get; set; }
+
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

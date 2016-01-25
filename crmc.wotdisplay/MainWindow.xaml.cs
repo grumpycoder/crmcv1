@@ -63,7 +63,7 @@ namespace crmc.wotdisplay
         {
 
             await Init();
-            repository = new PersonRepository(SettingsManager.WallConfiguration.Webserver);
+            repository = new PersonRepository(SettingsManager.Configuration.Webserver);
             
 
             //Create display widgets one for each quadrant
@@ -109,7 +109,7 @@ namespace crmc.wotdisplay
             {
                 if (!widget.IsPriorityList) break;
 
-                var delay = SettingsManager.WallConfiguration.DefaultPriorityNewItemDelay;
+                var delay = SettingsManager.Configuration.DefaultPriorityNewItemDelay;
 
                 if (widget.IsPriorityList)
                 {
@@ -128,7 +128,7 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                var delay = SettingsManager.WallConfiguration.DefaultLocalNewItemDelay;
+                var delay = SettingsManager.Configuration.DefaultLocalNewItemDelay;
 
                 foreach (var localItem in widget.LocalList.LocalItems.ToList())
                 {
@@ -145,7 +145,7 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                var delay = SettingsManager.WallConfiguration.DefaultNewItemDelay;
+                var delay = SettingsManager.Configuration.DefaultNewItemDelay;
 
                 if (widget.IsPriorityList) break;
                 foreach (var person in widget.PersonList)
@@ -185,8 +185,8 @@ namespace crmc.wotdisplay
             const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
 
             await SettingsManager.LoadAsync(configApiUrl);
-            Log.Debug("WallConfig {0}", SettingsManager.WallConfiguration);
-            Log.Debug(SettingsManager.WallConfiguration);
+            Log.Debug("WallConfig {0}", SettingsManager.Configuration);
+            Log.Debug(SettingsManager.Configuration);
 
         }
 
@@ -195,14 +195,14 @@ namespace crmc.wotdisplay
             Log.Info("Initializing Audio settings.");
             //Check if path to audio exists and has audio files
 
-            if (!Directory.GetFiles(SettingsManager.WallConfiguration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
+            if (!Directory.GetFiles(SettingsManager.Configuration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
             PlayButton.Source = manager.Paused
                 ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
                 : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            Log.Debug("Volume: {0}", SettingsManager.WallConfiguration.Volume);
-            manager.ChangeVolume(SettingsManager.WallConfiguration.Volume);
+            Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
+            manager.ChangeVolume(SettingsManager.Configuration.Volume);
             
             Log.Info("Audio initialization complete.");
         }
@@ -223,7 +223,7 @@ namespace crmc.wotdisplay
             {
                 Content = person.ToString(),
                 FontSize = labelFontSize,
-                FontFamily = new FontFamily(SettingsManager.WallConfiguration.FontFamily),
+                FontFamily = new FontFamily(SettingsManager.Configuration.FontFamily),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Name = name,
                 Tag = name,
@@ -284,7 +284,7 @@ namespace crmc.wotdisplay
                      borderLeftMargin = leftMargin;
                      border.Width = quadSize;
 
-                     var maxFontSize = SettingsManager.WallConfiguration.DefaultMaxFontSize * 2;
+                     var maxFontSize = SettingsManager.Configuration.DefaultMaxFontSize * 2;
 
 
                      var growAnimation = new DoubleAnimation
@@ -296,7 +296,7 @@ namespace crmc.wotdisplay
                      };
                      startTimer += growTime + pauseTime;
 
-                     var fontSize = SettingsManager.WallConfiguration.DefaultMaxFontSize;
+                     var fontSize = SettingsManager.Configuration.DefaultMaxFontSize;
 
                      var shrinkAnimation = new DoubleAnimation
                      {
@@ -322,7 +322,7 @@ namespace crmc.wotdisplay
                  }
 
                  // Set label animation
-                 var size = random ? label.FontSize : (double)SettingsManager.WallConfiguration.DefaultMaxFontSize;
+                 var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
 
                  //TODO: Refactor using settings.default.scrollspeed to use settings manager
                  var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();

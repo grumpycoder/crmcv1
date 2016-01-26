@@ -145,24 +145,24 @@ namespace crmc.wotdisplay
                                 if (person.RotationCount > 3) vm.People.Remove(person);
                                 break;
                             }
-                            //case QuadrantType.Priority:
-                            //    {
-                            //        if (DateTime.Now >= person.NextDisplayTime)
-                            //        {
-                            //            Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
-                            //            await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
-                            //            Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
-                            //            await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
-                            //        }
-                            //        break;
-                            //    }
-                            //case QuadrantType.Normal:
-                            //    {
-                            //        await Animate(person, vm.QuadrantIndex, cancelToken);
-                            //        Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
-                            //        await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                            //        break;
-                            //    }
+                        case QuadrantType.Priority:
+                            {
+                                if (DateTime.Now >= person.NextDisplayTime)
+                                {
+                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                                    await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
+                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                    await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
+                                }
+                                break;
+                            }
+                        case QuadrantType.Normal:
+                            {
+                                await Animate(person, vm.QuadrantIndex, cancelToken);
+                                Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                                break;
+                            }
                     }
 
                 }

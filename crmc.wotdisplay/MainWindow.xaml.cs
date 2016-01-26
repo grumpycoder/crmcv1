@@ -30,7 +30,6 @@ namespace crmc.wotdisplay
         private double canvasWidth;
         private double canvasHeight;
         private double quadSize;
-        private const int TopMargin = 10;
 
         #endregion
 
@@ -146,24 +145,24 @@ namespace crmc.wotdisplay
                                 if (person.RotationCount > 3) vm.People.Remove(person);
                                 break;
                             }
-                        case QuadrantType.Priority:
-                            {
-                                if (DateTime.Now >= person.NextDisplayTime)
-                                {
-                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
-                                    await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
-                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
-                                    await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
-                                }
-                                break;
-                            }
-                        case QuadrantType.Normal:
-                            {
-                                await Animate(person, vm.QuadrantIndex, cancelToken);
-                                Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
-                                await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                                break;
-                            }
+                            //case QuadrantType.Priority:
+                            //    {
+                            //        if (DateTime.Now >= person.NextDisplayTime)
+                            //        {
+                            //            Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                            //            await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
+                            //            Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                            //            await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
+                            //        }
+                            //        break;
+                            //    }
+                            //case QuadrantType.Normal:
+                            //    {
+                            //        await Animate(person, vm.QuadrantIndex, cancelToken);
+                            //        Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                            //        await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                            //        break;
+                            //    }
                     }
 
                 }
@@ -181,7 +180,7 @@ namespace crmc.wotdisplay
 
             await InitializeAudioSettings();
         }
-        
+
         private void SetupHubListeners()
         {
             Log.Info("Setting up listeners on hub for kiosk names added.");
@@ -216,13 +215,6 @@ namespace crmc.wotdisplay
             Log.Info("Audio initialization complete.");
         }
 
-        private int CalculateFontSize(bool? isPriority)
-        {
-            var maxFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MaxFontSizeVIP : Settings.Default.MaxFontSize;
-            var minFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MinFontSizeVIP : Settings.Default.MinFontSize;
-            return RandomNumber(minFontSize, maxFontSize);
-        }
-
         private Label CreateLabel(Person person)
         {
             var color = SettingsManager.RandomColor();
@@ -230,7 +222,14 @@ namespace crmc.wotdisplay
             var name = "label" + Guid.NewGuid().ToString("N").Substring(0, 10);
             var label = new Label()
             {
-                Content = person.ToString(), FontSize = labelFontSize, FontFamily = new FontFamily(SettingsManager.Configuration.FontFamily), HorizontalAlignment = HorizontalAlignment.Center, Name = name, Tag = name, Uid = name, Foreground = new SolidColorBrush(color)
+                Content = person.ToString(),
+                FontSize = labelFontSize,
+                FontFamily = new FontFamily(SettingsManager.Configuration.FontFamily),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Name = name,
+                Tag = name,
+                Uid = name,
+                Foreground = new SolidColorBrush(color)
             };
 
             return label;
@@ -243,11 +242,15 @@ namespace crmc.wotdisplay
             {
                 NameScope.SetNameScope(this, new NameScope());
 
-                var startTimer = 5;
-                var growTime = 3;
-                var shrinkTime = 3;
-                var pauseTime = 1;
-                var fallAnimationOffset = -2;
+                var startTimer = SettingsManager.Configuration.NewItemOnScreenDelay; //5
+                var growTime = SettingsManager.Configuration.NewItemOnScreenGrowTime; //3
+                var shrinkTime = SettingsManager.Configuration.NewItemOnScreenShrinkTime;  //3
+                var pauseTime = SettingsManager.Configuration.NewItemFallAnimationDelay; //1
+                var fallAnimationOffset = SettingsManager.Configuration.NewItemFallAnimationDelayOffset; //-2
+                var topMarginOffset = SettingsManager.Configuration.TopMarginOffset;
+                var newItemTopMargin = canvasHeight.AmountFromPercent(SettingsManager.Configuration.NewItemTopMargin);
+
+                var topMargin = random ? topMarginOffset : newItemTopMargin;
 
                 var label = CreateLabel(person);
                 label.FontSize = overrideFontSize ?? label.FontSize;
@@ -262,13 +265,18 @@ namespace crmc.wotdisplay
 
                 var border = new Border()
                 {
-                    Name = borderName, Uid = borderName, Child = label, Width = labelActualWidth, HorizontalAlignment = HorizontalAlignment.Center
+                    Name = borderName,
+                    Uid = borderName,
+                    Child = label,
+                    Width = labelActualWidth,
+                    HorizontalAlignment = HorizontalAlignment.Center
                 };
                 RegisterName(borderName, border);
 
 
+                //TODO: Set margins on quadrant view model??
                 // Set label position
-                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter()*quadrant);
+                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
                 var leftMargin = (rightMargin - quadSize).ToInt();
                 if (quadrant == 0) leftMargin = 0;
 
@@ -284,11 +292,14 @@ namespace crmc.wotdisplay
                     borderLeftMargin = leftMargin;
                     border.Width = quadSize;
 
-                    var maxFontSize = SettingsManager.Configuration.DefaultMaxFontSize*2;
+                    var maxFontSize = SettingsManager.Configuration.DefaultMaxFontSize * 2;
 
                     var growAnimation = new DoubleAnimation
                     {
-                        From = 0, To = maxFontSize, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(growTime)),
+                        From = 0,
+                        To = maxFontSize,
+                        BeginTime = TimeSpan.FromSeconds(startTimer),
+                        Duration = new Duration(TimeSpan.FromSeconds(growTime)),
                     };
                     startTimer += growTime + pauseTime;
 
@@ -296,7 +307,10 @@ namespace crmc.wotdisplay
 
                     var shrinkAnimation = new DoubleAnimation
                     {
-                        From = maxFontSize, To = fontSize, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
+                        From = maxFontSize,
+                        To = fontSize,
+                        BeginTime = TimeSpan.FromSeconds(startTimer),
+                        Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
                     };
                     startTimer += shrinkTime;
 
@@ -315,27 +329,29 @@ namespace crmc.wotdisplay
                 }
 
                 // Set label animation
-                var size = random ? label.FontSize : (double) SettingsManager.Configuration.DefaultMaxFontSize;
+                var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
 
                 //TODO: Refactor using settings.default.scrollspeed to use settings manager
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed/size)*ScreenSpeedModifier).ToInt();
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / size) * ScreenSpeedModifier).ToInt();
                 //labelScrollSpeed = 15;
-                var midPoint = canvasHeight.ToInt().Quarter()*2;
 
                 var fallAnimation = new DoubleAnimation
                 {
-                    From = random ? TopMargin : midPoint, To = canvasHeight, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
+                    From = topMargin,
+                    To = canvasHeight,
+                    BeginTime = TimeSpan.FromSeconds(startTimer),
+                    Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
                 };
 
                 Storyboard.SetTargetName(fallAnimation, border.Name);
                 Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
                 storyboard.Children.Add(fallAnimation);
 
-                var e = new AnimationEventArgs {TagName = border.Uid};
+                var e = new AnimationEventArgs { TagName = border.Uid };
                 storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
 
                 Canvas.SetLeft(border, borderLeftMargin);
-                Canvas.SetTop(border, random ? TopMargin : midPoint);
+                Canvas.SetTop(border, topMargin);
                 canvas.Children.Add(border);
                 canvas.UpdateLayout();
                 storyboard.Begin(this);
@@ -367,6 +383,12 @@ namespace crmc.wotdisplay
             if (vm != null) vm.People.Add(p);
         }
 
+        private int CalculateFontSize(bool? isPriority)
+        {
+            var maxFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MaxFontSizeVIP : Settings.Default.MaxFontSize;
+            var minFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MinFontSizeVIP : Settings.Default.MinFontSize;
+            return RandomNumber(minFontSize, maxFontSize);
+        }
 
         //TODO: Refactor
         public int RandomNumber(int min, int max)
@@ -388,10 +410,10 @@ namespace crmc.wotdisplay
 
             canvasWidth = canvas.Width;
             canvasHeight = canvas.Height;
-            quadSize = canvasWidth/4;
+            quadSize = canvasWidth / 4;
 
             //HACK: Test if needed. 
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof (Timeline), new FrameworkPropertyMetadata {DefaultValue = 80});
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 80 });
         }
 
         private void ConfigureConnectionManager()

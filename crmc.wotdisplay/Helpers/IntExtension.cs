@@ -18,5 +18,16 @@ namespace crmc.wotdisplay.helpers
         {
             return Convert.ToInt32(x);
         }
+
+        public static double PercentOf(this double value, double total)
+        {
+            return (double)((value / (double)total) * 100);
+        }
+
+        public static double AmountFromPercent(this double value, double total)
+        {
+            return (double)((value / 100) * (double)total);
+        }
+
     }
 }

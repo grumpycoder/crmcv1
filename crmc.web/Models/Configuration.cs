@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace crmc.web.Models
 {
+   
     public class Configuration
     {
         public Configuration()
@@ -22,6 +23,14 @@ namespace crmc.web.Models
         public double DefaultPriorityNewItemDelay { get; set; }
         public double DefaultLocalNewItemDelay { get; set; }
         public string DefaultAudioFilePath { get; set; }
+        public int NewItemOnScreenDelay { get; set; }
+        public int NewItemOnScreenGrowTime { get; set; }
+        public int NewItemOnScreenShrinkTime { get; set; }
+        public int NewItemFallAnimationDelay { get; set; }
+        public int NewItemFallAnimationDelayOffset { get; set; }
+        public double NewItemTopMargin { get; set; }
+        public double TopMarginOffset { get; set; }
+
         public virtual ICollection<ConfigurationColor> ConfigurationColors { get; set; }
     }
 }

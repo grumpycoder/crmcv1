@@ -188,3 +188,6 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 /crmc.wotimport/
+.vs/config/applicationhost.config
+._.git
+._.vs

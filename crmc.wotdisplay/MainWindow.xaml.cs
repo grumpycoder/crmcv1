@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AutoMapper;
 using crmc.wotdisplay.helpers;
 using crmc.wotdisplay.Infrastructure;
 using crmc.wotdisplay.models;
@@ -47,6 +48,8 @@ namespace crmc.wotdisplay
 
         #endregion
 
+        List<DisplayQuadrantViewModel> quads = new List<DisplayQuadrantViewModel>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -65,7 +68,6 @@ namespace crmc.wotdisplay
             await Init();
             repository = new PersonRepository(SettingsManager.Configuration.Webserver);
 
-            var quads = new List<DisplayQuadrantViewModel>();
             for (var i = 1; i < 5; i++)
             {
 
@@ -79,7 +81,6 @@ namespace crmc.wotdisplay
             quads.Add(priorityQuad);
 
             var localQuad = new DisplayQuadrantViewModel(QuadrantType.Local);
-            await localQuad.LoadPeopleAsync();
             quads.Add(localQuad);
 
 
@@ -90,15 +91,15 @@ namespace crmc.wotdisplay
 
 
 
-            //Create display widgets one for each quadrant
-            for (var i = 1; i < 5; i++)
-            {
-                Widgets.Add(new Widget() { IsPriorityList = false, Quadrant = i });
-            }
-            //priority name widget
-            Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
+            ////Create display widgets one for each quadrant
+            //for (var i = 1; i < 5; i++)
+            //{
+            //    Widgets.Add(new Widget() { IsPriorityList = false, Quadrant = i });
+            //}
+            ////priority name widget
+            //Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
 
-            //Begin recursive display of widget names
+            ////Begin recursive display of widget names
             //await LoadWidgetsAsync().ContinueWith(t =>
             //{
             //    foreach (var widget in Widgets)
@@ -123,12 +124,27 @@ namespace crmc.wotdisplay
                 //TODO: Set delay based on quad type   
                 foreach (var person in vm.People.ToList())
                 {
-                    await Animate(person, vm.QuadrantIndex, cancelToken);
+                    if (vm.QuadrantType == QuadrantType.Local)
+                    {
+                        Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+
+                        if (TimeSpan.FromSeconds(delay) > person.LastDisplayTime)
+                        {
+                            await Animate(person, person.QuadrantIndex, cancelToken);
+                            person.CurrentDisplayTime = DateTime.Now;
+                        }
+                        
+                        person.RotationCount += 1;
+                    }
+                    else
+                    {
+                        await Animate(person, vm.QuadrantIndex, cancelToken);
+                    }
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                    if (vm.QuadrantType == QuadrantType.Local) vm.People.Remove(person);
+                    if (vm.QuadrantType == QuadrantType.Local && person.RotationCount > 3) vm.People.Remove(person);
 
                 }
-                await vm.LoadPeopleAsync();
+                if (vm.QuadrantType != QuadrantType.Local) await vm.LoadPeopleAsync();
             }
         }
 
@@ -411,13 +427,21 @@ namespace crmc.wotdisplay
 
             var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
             Log.Debug("Into continue with");
-            if (widget != null)
-                widget.LocalList.LocalItems.Add(new LocalItem()
-                {
-                    Kiosk = quad,
-                    Person = person,
-                    RotationCount = 0
-                });
+
+            var vm = quads.FirstOrDefault(x => x.QuadrantType == QuadrantType.Local);
+            var p = Mapper.Map<Person, PersonViewModel>(person);
+            p.RotationCount = 0;
+            p.QuadrantIndex = quad;
+            vm.People.Add(p);
+
+            //if (widget != null)
+            //    widget.LocalList.LocalItems.Add(new LocalItem()
+            //    {
+            //        Kiosk = quad,
+            //        Person = person,
+            //        RotationCount = 0
+            //    });
+
         }
 
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -56,6 +57,9 @@ namespace crmc.wotdisplay
     public class PersonViewModel : Person
     {
         public int RotationCount { get; set; }
+        public int QuadrantIndex { get; set; }
+        public DateTime NextDisplayTime { get; set; }
+        public DateTime CurrentDisplayTime { get; set; }
     }
 
 }

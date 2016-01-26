@@ -54,7 +54,7 @@ namespace crmc.wotdisplay
 
             manager = new MediaManager(MediaPlayer, @"C:\audio");
             Widgets = new List<Widget>();
-            
+
             Loaded += MainWindow_Loaded;
 
         }
@@ -64,7 +64,31 @@ namespace crmc.wotdisplay
 
             await Init();
             repository = new PersonRepository(SettingsManager.Configuration.Webserver);
-            
+
+            var quads = new List<DisplayQuadrantViewModel>();
+            for (var i = 1; i < 5; i++)
+            {
+
+                var quad = new DisplayQuadrantViewModel(QuadrantType.Normal, i);
+                quads.Add(quad);
+                await quad.LoadPeopleAsync();
+            }
+
+            var priorityQuad = new DisplayQuadrantViewModel(QuadrantType.Priority);
+            await priorityQuad.LoadPeopleAsync();
+            quads.Add(priorityQuad);
+
+            var localQuad = new DisplayQuadrantViewModel(QuadrantType.Local);
+            await localQuad.LoadPeopleAsync();
+            quads.Add(localQuad);
+
+
+            foreach (var vm in quads)
+            {
+                await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
+            }
+
+
 
             //Create display widgets one for each quadrant
             for (var i = 1; i < 5; i++)
@@ -75,20 +99,37 @@ namespace crmc.wotdisplay
             Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
 
             //Begin recursive display of widget names
-            await LoadWidgetsAsync().ContinueWith(t =>
-            {
-                foreach (var widget in Widgets)
-                {
-                    var widget1 = widget;
-                    Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
-                    Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
-                    Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
-                }
-            }, cancelToken);
+            //await LoadWidgetsAsync().ContinueWith(t =>
+            //{
+            //    foreach (var widget in Widgets)
+            //    {
+            //        var widget1 = widget;
+            //        //Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
+            //        Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
+            //        Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
+            //    }
+            //}, cancelToken);
 
             manager.Play();
 
             Log.Debug("Finished Startup");
+        }
+
+        private async Task DisplayQuadrantViewModelAsync(DisplayQuadrantViewModel vm)
+        {
+            while (true)
+            {
+                var delay = SettingsManager.Configuration.DefaultNewItemDelay;
+                //TODO: Set delay based on quad type   
+                foreach (var person in vm.People.ToList())
+                {
+                    await Animate(person, vm.QuadrantIndex, cancelToken);
+                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                    if (vm.QuadrantType == QuadrantType.Local) vm.People.Remove(person);
+
+                }
+                await vm.LoadPeopleAsync();
+            }
         }
 
         private async Task Init()
@@ -203,7 +244,7 @@ namespace crmc.wotdisplay
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
             manager.ChangeVolume(SettingsManager.Configuration.Volume);
-            
+
             Log.Info("Audio initialization complete.");
         }
 
@@ -386,7 +427,7 @@ namespace crmc.wotdisplay
             if (max <= min) min = max - 1;
             return Random.Next(min, max);
         }
-    
+
         #region Configuration and Init
 
         private void ConfigureDisplay()

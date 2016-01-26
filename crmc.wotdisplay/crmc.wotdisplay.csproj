@@ -141,6 +141,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AnimationEventArgs.cs" />
+    <Compile Include="DisplayQuadrantViewModel.cs" />
     <Compile Include="models\DownloadResult.cs" />
     <Compile Include="Infrastructure\SettingsManager.cs" />
     <Compile Include="Helpers\Extension.cs" />

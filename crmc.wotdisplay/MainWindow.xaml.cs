@@ -37,7 +37,6 @@ namespace crmc.wotdisplay
         #region Variables
 
         private readonly MediaManager manager;
-        private readonly List<Widget> Widgets;
         private PersonRepository repository;
         private readonly CancellationToken cancelToken = new CancellationToken();
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -48,7 +47,7 @@ namespace crmc.wotdisplay
 
         #endregion
 
-        List<DisplayQuadrantViewModel> quads = new List<DisplayQuadrantViewModel>();
+        readonly List<DisplayQuadrantViewModel> quads = new List<DisplayQuadrantViewModel>();
 
         public MainWindow()
         {
@@ -56,7 +55,6 @@ namespace crmc.wotdisplay
             Log.Info("Application Startup");
 
             manager = new MediaManager(MediaPlayer, @"C:\audio");
-            Widgets = new List<Widget>();
 
             Loaded += MainWindow_Loaded;
 
@@ -120,28 +118,53 @@ namespace crmc.wotdisplay
         {
             while (true)
             {
-                var delay = SettingsManager.Configuration.DefaultNewItemDelay;
-                //TODO: Set delay based on quad type   
+                var delay = SettingsManager.Configuration.DefaultItemDelay;
+                var newItemDelay = SettingsManager.Configuration.DefaultNewItemDelay + delay;
+                var priorityItemDely = SettingsManager.Configuration.DefaultPriorityNewItemDelay;
+
+                //TODO: Set delay based on quad type??
                 foreach (var person in vm.People.ToList())
                 {
-                    if (vm.QuadrantType == QuadrantType.Local)
+                    switch (vm.QuadrantType)
                     {
-                        Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                        case QuadrantType.Local:
+                            {
+                                if (DateTime.Now >= person.NextDisplayTime)
+                                {
+                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                                    await
+                                        Animate(person, person.QuadrantIndex, cancelToken,
+                                            SettingsManager.Configuration.DefaultMaxFontSize);
+                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                    person.NextDisplayTime = DateTime.Now.AddSeconds(newItemDelay);
+                                    person.LastDisplayTime = DateTime.Now;
 
-                        if (TimeSpan.FromSeconds(delay) > person.LastDisplayTime)
-                        {
-                            await Animate(person, person.QuadrantIndex, cancelToken);
-                            person.CurrentDisplayTime = DateTime.Now;
-                        }
-                        
-                        person.RotationCount += 1;
+                                    Log.Debug("Last display time {0}", person.LastDisplayTime);
+                                    Log.Debug("Next display time {0}", person.NextDisplayTime);
+                                    person.RotationCount += 1;
+                                }
+                                if (person.RotationCount > 3) vm.People.Remove(person);
+                                break;
+                            }
+                        case QuadrantType.Priority:
+                            {
+                                if (DateTime.Now >= person.NextDisplayTime)
+                                {
+                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                                    await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
+                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                    await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
+                                }
+                                break;
+                            }
+                        case QuadrantType.Normal:
+                            {
+                                await Animate(person, vm.QuadrantIndex, cancelToken);
+                                Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
+                                break;
+                            }
                     }
-                    else
-                    {
-                        await Animate(person, vm.QuadrantIndex, cancelToken);
-                    }
-                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                    if (vm.QuadrantType == QuadrantType.Local && person.RotationCount > 3) vm.People.Remove(person);
 
                 }
                 if (vm.QuadrantType != QuadrantType.Local) await vm.LoadPeopleAsync();
@@ -157,76 +180,8 @@ namespace crmc.wotdisplay
             await InitializeDefaultSettings();
 
             await InitializeAudioSettings();
-
         }
-
-        private async Task DisplayPriorityWidgetAsync(Widget widget)
-        {
-            while (true)
-            {
-                if (!widget.IsPriorityList) break;
-
-                var delay = SettingsManager.Configuration.DefaultPriorityNewItemDelay;
-
-                if (widget.IsPriorityList)
-                {
-                    foreach (var person in widget.PersonList)
-                    {
-                        Log.Debug("Displaying Priority: " + person);
-                        await Animate(person, widget.Quadrant, cancelToken);
-                        await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                    }
-                }
-
-            }
-        }
-
-        private async Task DisplayWidgetLocalNamesAsync(Widget widget)
-        {
-            while (true)
-            {
-                var delay = SettingsManager.Configuration.DefaultLocalNewItemDelay;
-
-                foreach (var localItem in widget.LocalList.LocalItems.ToList())
-                {
-                    Log.Debug("Display local name " + localItem.Person.FullName);
-                    await Animate(localItem.Person, widget.Quadrant, cancelToken);
-                    localItem.RotationCount += 1;
-                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                    if (localItem.RotationCount > 3) widget.LocalList.LocalItems.Remove(localItem);
-                }
-            }
-        }
-
-        private async Task DisplayWidgetAsync(Widget widget)
-        {
-            while (true)
-            {
-                var delay = SettingsManager.Configuration.DefaultNewItemDelay;
-
-                if (widget.IsPriorityList) break;
-                foreach (var person in widget.PersonList)
-                {
-                    await Animate(person, widget.Quadrant, cancelToken);
-                    await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
-                }
-                var temp = widget.PersonList.ToList();
-                widget.PersonList = new List<Person>();
-                //TODO: Store personlist download amount in variable
-                widget.PersonList = await repository.Get(25, widget.IsPriorityList);
-                if (!widget.PersonList.Any()) widget.PersonList = temp;
-
-            }
-        }
-
-        public async Task LoadWidgetsAsync()
-        {
-            foreach (var widget in Widgets)
-            {
-                widget.PersonList = await repository.Get(25, widget.IsPriorityList);
-            }
-        }
-
+        
         private void SetupHubListeners()
         {
             Log.Info("Setting up listeners on hub for kiosk names added.");
@@ -244,7 +199,6 @@ namespace crmc.wotdisplay
             await SettingsManager.LoadAsync(configApiUrl);
             Log.Debug("WallConfig {0}", SettingsManager.Configuration);
             Log.Debug(SettingsManager.Configuration);
-
         }
 
         public async Task InitializeAudioSettings()
@@ -254,9 +208,7 @@ namespace crmc.wotdisplay
 
             if (!Directory.GetFiles(SettingsManager.Configuration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3"))) return;
 
-            PlayButton.Source = manager.Paused
-                ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative))
-                : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
+            PlayButton.Source = manager.Paused ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative)) : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
             Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
             manager.ChangeVolume(SettingsManager.Configuration.Volume);
@@ -278,136 +230,118 @@ namespace crmc.wotdisplay
             var name = "label" + Guid.NewGuid().ToString("N").Substring(0, 10);
             var label = new Label()
             {
-                Content = person.ToString(),
-                FontSize = labelFontSize,
-                FontFamily = new FontFamily(SettingsManager.Configuration.FontFamily),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Name = name,
-                Tag = name,
-                Uid = name,
-                Foreground = new SolidColorBrush(color)
+                Content = person.ToString(), FontSize = labelFontSize, FontFamily = new FontFamily(SettingsManager.Configuration.FontFamily), HorizontalAlignment = HorizontalAlignment.Center, Name = name, Tag = name, Uid = name, Foreground = new SolidColorBrush(color)
             };
 
             return label;
         }
 
-        private async Task<double> Animate(Person person, int quadrant, CancellationToken cancellationToken, bool random = true)
+        private async Task<double> Animate(Person person, int quadrant, CancellationToken cancellationToken, int? overrideFontSize = null, bool random = true)
         {
             var totalTime = 0.0;
             await Dispatcher.InvokeAsync(() =>
-             {
-                 NameScope.SetNameScope(this, new NameScope());
+            {
+                NameScope.SetNameScope(this, new NameScope());
 
-                 var startTimer = 5;
-                 var growTime = 3;
-                 var shrinkTime = 3;
-                 var pauseTime = 1;
-                 var fallAnimationOffset = -2;
+                var startTimer = 5;
+                var growTime = 3;
+                var shrinkTime = 3;
+                var pauseTime = 1;
+                var fallAnimationOffset = -2;
 
-                 var label = CreateLabel(person);
-                 label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
-                 label.Arrange(new Rect(label.DesiredSize));
-                 var labelActualWidth = random ? label.ActualWidth : quadSize;
+                var label = CreateLabel(person);
+                label.FontSize = overrideFontSize ?? label.FontSize;
 
-                 RegisterName(label.Name, label);
+                label.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
+                label.Arrange(new Rect(label.DesiredSize));
+                var labelActualWidth = random ? label.ActualWidth : quadSize;
 
-                 var borderName = "border" + Guid.NewGuid().ToString("N").Substring(0, 10);
+                RegisterName(label.Name, label);
 
-                 var border = new Border()
-                 {
-                     Name = borderName,
-                     Uid = borderName,
-                     Child = label,
-                     Width = labelActualWidth,
-                     HorizontalAlignment = HorizontalAlignment.Center
-                 };
-                 RegisterName(borderName, border);
+                var borderName = "border" + Guid.NewGuid().ToString("N").Substring(0, 10);
+
+                var border = new Border()
+                {
+                    Name = borderName, Uid = borderName, Child = label, Width = labelActualWidth, HorizontalAlignment = HorizontalAlignment.Center
+                };
+                RegisterName(borderName, border);
 
 
-                 // Set label position
-                 var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter() * quadrant);
-                 var leftMargin = (rightMargin - quadSize).ToInt();
-                 if (quadrant == 0) leftMargin = 0;
+                // Set label position
+                var rightMargin = quadrant == 0 ? canvasWidth.ToInt() : (canvasWidth.ToInt().Quarter()*quadrant);
+                var leftMargin = (rightMargin - quadSize).ToInt();
+                if (quadrant == 0) leftMargin = 0;
 
-                 var borderLeftMargin = RandomNumber(leftMargin, rightMargin);
-                 if (borderLeftMargin + labelActualWidth > canvasWidth)
-                 {
-                     borderLeftMargin = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
-                 }
-                 var storyboard = new Storyboard();
-                 if (!random)
-                 {
-                     label.FontSize = 0.1;
-                     borderLeftMargin = leftMargin;
-                     border.Width = quadSize;
+                var borderLeftMargin = RandomNumber(leftMargin, rightMargin);
+                if (borderLeftMargin + labelActualWidth > canvasWidth)
+                {
+                    borderLeftMargin = RandomNumber(leftMargin, (canvasWidth - labelActualWidth).ToInt());
+                }
+                var storyboard = new Storyboard();
+                if (!random)
+                {
+                    label.FontSize = 0.1;
+                    borderLeftMargin = leftMargin;
+                    border.Width = quadSize;
 
-                     var maxFontSize = SettingsManager.Configuration.DefaultMaxFontSize * 2;
+                    var maxFontSize = SettingsManager.Configuration.DefaultMaxFontSize*2;
 
+                    var growAnimation = new DoubleAnimation
+                    {
+                        From = 0, To = maxFontSize, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(growTime)),
+                    };
+                    startTimer += growTime + pauseTime;
 
-                     var growAnimation = new DoubleAnimation
-                     {
-                         From = 0,
-                         To = maxFontSize,
-                         BeginTime = TimeSpan.FromSeconds(startTimer),
-                         Duration = new Duration(TimeSpan.FromSeconds(growTime)),
-                     };
-                     startTimer += growTime + pauseTime;
+                    var fontSize = SettingsManager.Configuration.DefaultMaxFontSize;
 
-                     var fontSize = SettingsManager.Configuration.DefaultMaxFontSize;
+                    var shrinkAnimation = new DoubleAnimation
+                    {
+                        From = maxFontSize, To = fontSize, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
+                    };
+                    startTimer += shrinkTime;
 
-                     var shrinkAnimation = new DoubleAnimation
-                     {
-                         From = maxFontSize,
-                         To = fontSize,
-                         BeginTime = TimeSpan.FromSeconds(startTimer),
-                         Duration = new Duration(TimeSpan.FromSeconds(shrinkTime))
-                     };
-                     startTimer += shrinkTime;
+                    Storyboard.SetTargetName(growAnimation, label.Name);
+                    Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
+                    Storyboard.SetTargetName(shrinkAnimation, label.Name);
+                    Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
 
-                     Storyboard.SetTargetName(growAnimation, label.Name);
-                     Storyboard.SetTargetProperty(growAnimation, new PropertyPath(FontSizeProperty));
-                     Storyboard.SetTargetName(shrinkAnimation, label.Name);
-                     Storyboard.SetTargetProperty(shrinkAnimation, new PropertyPath(FontSizeProperty));
+                    storyboard.Children.Add(growAnimation);
+                    storyboard.Children.Add(shrinkAnimation);
+                    startTimer = startTimer + fallAnimationOffset;
+                }
+                else
+                {
+                    startTimer = 0;
+                }
 
-                     storyboard.Children.Add(growAnimation);
-                     storyboard.Children.Add(shrinkAnimation);
-                     startTimer = startTimer + fallAnimationOffset;
-                 }
-                 else
-                 {
-                     startTimer = 0;
-                 }
+                // Set label animation
+                var size = random ? label.FontSize : (double) SettingsManager.Configuration.DefaultMaxFontSize;
 
-                 // Set label animation
-                 var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
+                //TODO: Refactor using settings.default.scrollspeed to use settings manager
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed/size)*ScreenSpeedModifier).ToInt();
+                //labelScrollSpeed = 15;
+                var midPoint = canvasHeight.ToInt().Quarter()*2;
 
-                 //TODO: Refactor using settings.default.scrollspeed to use settings manager
-                 var labelScrollSpeed = ((Settings.Default.ScrollSpeed / (double)size) * ScreenSpeedModifier).ToInt();
-                 var midPoint = canvasHeight.ToInt().Quarter() * 2;
+                var fallAnimation = new DoubleAnimation
+                {
+                    From = random ? TopMargin : midPoint, To = canvasHeight, BeginTime = TimeSpan.FromSeconds(startTimer), Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
+                };
 
-                 var fallAnimation = new DoubleAnimation
-                 {
-                     From = random ? TopMargin : midPoint,
-                     To = canvasHeight,
-                     BeginTime = TimeSpan.FromSeconds(startTimer),
-                     Duration = new Duration(TimeSpan.FromSeconds(labelScrollSpeed))
-                 };
+                Storyboard.SetTargetName(fallAnimation, border.Name);
+                Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
+                storyboard.Children.Add(fallAnimation);
 
-                 Storyboard.SetTargetName(fallAnimation, border.Name);
-                 Storyboard.SetTargetProperty(fallAnimation, new PropertyPath(TopProperty));
-                 storyboard.Children.Add(fallAnimation);
+                var e = new AnimationEventArgs {TagName = border.Uid};
+                storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
 
-                 var e = new AnimationEventArgs { TagName = border.Uid };
-                 storyboard.Completed += (sender, args) => StoryboardOnCompleted(e);
+                Canvas.SetLeft(border, borderLeftMargin);
+                Canvas.SetTop(border, random ? TopMargin : midPoint);
+                canvas.Children.Add(border);
+                canvas.UpdateLayout();
+                storyboard.Begin(this);
 
-                 Canvas.SetLeft(border, borderLeftMargin);
-                 Canvas.SetTop(border, random ? TopMargin : midPoint);
-                 canvas.Children.Add(border);
-                 canvas.UpdateLayout();
-                 storyboard.Begin(this);
-
-                 totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
-             }, DispatcherPriority.Normal, cancellationToken);
+                totalTime = startTimer + fallAnimation.Duration.TimeSpan.TotalSeconds;
+            }, DispatcherPriority.Normal, cancellationToken);
             return totalTime;
         }
 
@@ -419,29 +353,18 @@ namespace crmc.wotdisplay
             int.TryParse(location, out quad);
             Log.Debug("Sending from kiosk: " + person);
 
-            var time = await Animate(person, quad, cancelToken, false);
+            var time = await Animate(person, quad, cancelToken, null, false);
             Log.Debug("TotalTime: " + time);
             await Task.Delay(TimeSpan.FromSeconds(time), cancelToken);
             Log.Debug("Should be " + time + " seconds later");
-
-
-            var widget = Widgets.FirstOrDefault(x => x.Quadrant == quad);
             Log.Debug("Into continue with");
 
             var vm = quads.FirstOrDefault(x => x.QuadrantType == QuadrantType.Local);
             var p = Mapper.Map<Person, PersonViewModel>(person);
             p.RotationCount = 0;
             p.QuadrantIndex = quad;
-            vm.People.Add(p);
-
-            //if (widget != null)
-            //    widget.LocalList.LocalItems.Add(new LocalItem()
-            //    {
-            //        Kiosk = quad,
-            //        Person = person,
-            //        RotationCount = 0
-            //    });
-
+            p.LastDisplayTime = DateTime.Now.AddSeconds(-time);
+            if (vm != null) vm.People.Add(p);
         }
 
 
@@ -465,13 +388,10 @@ namespace crmc.wotdisplay
 
             canvasWidth = canvas.Width;
             canvasHeight = canvas.Height;
-            quadSize = canvasWidth / 4;
+            quadSize = canvasWidth/4;
 
             //HACK: Test if needed. 
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(
-                typeof(Timeline),
-                new FrameworkPropertyMetadata { DefaultValue = 80 }
-                );
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof (Timeline), new FrameworkPropertyMetadata {DefaultValue = 80});
         }
 
         private void ConfigureConnectionManager()
@@ -507,7 +427,6 @@ namespace crmc.wotdisplay
                 SetupHubListeners();
             }
         }
-
 
         #endregion
 
@@ -553,10 +472,8 @@ namespace crmc.wotdisplay
 
         #region Media Events
 
-
         private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void OnMouseDownPlayMedia(object sender, MouseButtonEventArgs e)
@@ -624,7 +541,5 @@ namespace crmc.wotdisplay
         }
 
         #endregion
-
-
     }
 }

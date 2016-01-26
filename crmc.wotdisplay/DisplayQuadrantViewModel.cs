@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using AutoMapper;
 using crmc.wotdisplay.models;
@@ -59,7 +58,7 @@ namespace crmc.wotdisplay
         public int RotationCount { get; set; }
         public int QuadrantIndex { get; set; }
         public DateTime NextDisplayTime { get; set; }
-        public DateTime CurrentDisplayTime { get; set; }
+        public DateTime LastDisplayTime { get; set; }
     }
 
 }

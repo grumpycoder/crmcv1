@@ -22,11 +22,11 @@ namespace crmc.web.Models
         public double DefaultPriorityItemDelay { get; set; }
         public double DefaultLocalItemDelay { get; set; }
         public string DefaultAudioFilePath { get; set; }
-        public int NewItemOnScreenDelay { get; set; }
-        public int NewItemOnScreenGrowTime { get; set; }
-        public int NewItemOnScreenShrinkTime { get; set; }
-        public int NewItemFallAnimationDelay { get; set; }
-        public int NewItemFallAnimationDelayOffset { get; set; }
+        public double NewItemOnScreenDelay { get; set; }
+        public double NewItemOnScreenGrowTime { get; set; }
+        public double NewItemOnScreenShrinkTime { get; set; }
+        public double NewItemFallAnimationDelay { get; set; }
+        public double NewItemFallAnimationDelayOffset { get; set; }
         public double NewItemTopMargin { get; set; }
         public double TopMarginOffset { get; set; }
 

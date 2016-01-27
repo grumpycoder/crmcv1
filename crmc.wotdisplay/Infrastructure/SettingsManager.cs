@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using crmc.wotdisplay.models;
@@ -19,10 +20,13 @@ namespace crmc.wotdisplay.Infrastructure
 
         public static Configuration Configuration { get; set; }
 
+        static SettingsManager()
+        {
+            Configuration = new Configuration();
+        }
+
         public static async Task<Configuration> LoadAsync(string apiUrl)
         {
-            if(Configuration == null) Configuration = new Configuration();
-
             //Load configuration from a repository
             using (var client = new HttpClient())
             {
@@ -67,10 +71,31 @@ namespace crmc.wotdisplay.Infrastructure
             }
         }
 
-        public static async Task<bool> SaveSettingsAsync()
+        public static async Task<bool> SaveSettingsAsync(string apiUrl)
         {
             //TODO: Save settings back to database
-            Console.WriteLine(@"Settings saved");
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //BUG: [SettingsManager] Saving settings 
+                string postBody = JsonConvert.SerializeObject(Configuration, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                apiUrl = "http://localhost/crmc/breeze/public/savechanges"; 
+                var response = await client.PostAsync(apiUrl, new StringContent(postBody, Encoding.UTF8, "application/json"));
+
+                // New code:
+                if (response.IsSuccessStatusCode)
+                {
+                    Log.Debug("Saved configuration settings");
+                }
+                else
+                {
+                    //Log response status code error
+                    Log.Debug("Error saving configuration changes {0}", response.StatusCode);
+                }
+            }
             return true;
         }
 

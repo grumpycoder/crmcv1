@@ -62,6 +62,7 @@ namespace crmc.wotdisplay
         {
 
             await Init();
+            
             repository = new PersonRepository(SettingsManager.Configuration.Webserver);
 
             for (var i = 1; i < 5; i++)
@@ -85,9 +86,11 @@ namespace crmc.wotdisplay
                 await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
             }
 
+            //BUG: No music plays
             manager.Play();
+            await SettingsManager.SaveSettingsAsync("");
 
-            //Log.Debug("Finished Startup");
+            Log.Debug("Finished Startup");
         }
 
         private async Task DisplayQuadrantViewModelAsync(DisplayQuadrantViewModel vm)
@@ -154,12 +157,12 @@ namespace crmc.wotdisplay
         private async Task Init()
         {
             ConfigureDisplay();
-
-            ConfigureConnectionManager();
-
+            
             await InitializeDefaultSettings();
 
             await InitializeAudioSettings();
+
+            ConfigureConnectionManager();
         }
 
         private void SetupHubListeners()
@@ -174,14 +177,12 @@ namespace crmc.wotdisplay
 
         private async void ReInitSettings()
         {
-            //Log.Debug("Settings Changed... Reinitailizing");
-            //TODO: Store in app config??
-            const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
+            Log.Debug("Settings Changed... Reinitailizing");
+            var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer;
+            var configApiUrl = string.Format(@"{0}/breeze/public/configurations", webserver);
 
             await SettingsManager.LoadAsync(configApiUrl);
-
-            var cfg = SettingsManager.Configuration;
-
+            
             //await InitializeDefaultSettings();
             //await InitializeAudioSettings();
         }
@@ -189,12 +190,10 @@ namespace crmc.wotdisplay
 
         public async Task InitializeDefaultSettings()
         {
-            //TODO: Store in app config??
-            const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
+            var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer; 
+            var configApiUrl = string.Format(@"{0}/breeze/public/configurations", webserver);
 
             await SettingsManager.LoadAsync(configApiUrl);
-            //Log.Debug("WallConfig {0}", SettingsManager.Configuration);
-            //Log.Debug(SettingsManager.Configuration);
         }
 
         public async Task InitializeAudioSettings()
@@ -206,7 +205,7 @@ namespace crmc.wotdisplay
 
             PlayButton.Source = manager.Paused ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative)) : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            //Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
+            Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
             manager.ChangeVolume(SettingsManager.Configuration.Volume);
 
             Log.Info("Audio initialization complete.");
@@ -330,7 +329,8 @@ namespace crmc.wotdisplay
                 var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
 
                 //TODO: Refactor using settings.default.scrollspeed to use settings manager
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / size) * screenSpeedModifier).ToInt();
+                var labelScrollSpeed = (SettingsManager.Configuration.DefaultSpeedModifier / size * 10);
+
                 //labelScrollSpeed = 15;
 
                 var fallAnimation = new DoubleAnimation
@@ -467,11 +467,14 @@ namespace crmc.wotdisplay
             }
         }
 
-        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        private async void btnSaveSettings_Click(object sender, RoutedEventArgs e)
         {
             Settings.Default.Save();
             expanderSettings.IsExpanded = false;
-            //TODO: Save Configuration settings to database and update
+            var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer;
+            var configApiUrl = string.Format(@"{0}/breeze/public/savechanges", webserver);
+
+            await SettingsManager.SaveSettingsAsync(configApiUrl);
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -553,7 +556,7 @@ namespace crmc.wotdisplay
 
         private void OnMouseDownRefreshMedia(object sender, MouseButtonEventArgs e)
         {
-            if (!Directory.GetFiles(Settings.Default.AudioFilePath).Any(f => f.EndsWith(".mp3")))
+            if (!Directory.GetFiles(SettingsManager.Configuration.DefaultAudioFilePath).Any(f => f.EndsWith(".mp3")))
             {
                 CurrentSongTextBlock.Text = "Directory does not exists or contain audio files";
                 return;

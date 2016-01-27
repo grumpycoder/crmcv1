@@ -9,20 +9,20 @@ namespace crmc.wotdisplay.Infrastructure
     public class ConnectionManager
     {
         private static readonly string ServerUri = "http://localhost/crmc" + "/signalr";
-        private static readonly string HubName = Settings.Default.HubName;
+        //private static readonly string HubName = Settings.Default.HubName;
         private static readonly HubConnection connection = new HubConnection(ServerUri);
         public static IHubProxy HubProxy;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        public static string KioskName = Settings.Default.KioskName;
+        //public static string KioskName = Settings.Default.KioskName;
 
         public static HubConnection Connection { get { return connection; } }
 
         public static async void ConnectAsync()
         {
             Connection.StateChanged += ConnectionOnStateChanged;
-
-            HubProxy = Connection.CreateHubProxy(HubName);
+            var hubName = SettingsManager.Configuration.HubName; 
+            HubProxy = Connection.CreateHubProxy(hubName);
             try
             {
                 Connection.Start().ContinueWith(task =>
@@ -30,9 +30,7 @@ namespace crmc.wotdisplay.Infrastructure
                     if (task.IsFaulted) return;
                     if (Connection.State != ConnectionState.Connected) return;
 
-                    Logger.Info(string.Format("{0} Connected", KioskName));
-                    Debug.WriteLine("{0} Connected", KioskName);
-
+                    Logger.Info("{0} Connected WoT");
                 }).Wait();
 
             }

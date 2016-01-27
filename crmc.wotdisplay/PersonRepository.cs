@@ -16,7 +16,6 @@ namespace crmc.wotdisplay
 
         public string WebServer { get; set; }
         private int recordCount;
-        private DateTime lastRecordCountDateTime; 
 
         public PersonRepository(string webServer)
         {
@@ -31,7 +30,7 @@ namespace crmc.wotdisplay
             var skip = isPriorityList ? 0 : rand.Next(1, upperBound - count);
             //TODO: Refactor hardcoded url
             var baseUrl = WebServer +
-                           "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=SortOrder&$skip={1}&$top={2}&$inlinecount=allpages";
+                           "/breeze/public/People?$filter=IsPriority%20eq%20{0}&$orderby=Id&$skip={1}&$top={2}&$inlinecount=allpages";
 
             var url = string.Format(baseUrl, isPriorityList.ToString().ToLower(), skip, count);
             Log.Info("Skipping: {0}", skip);
@@ -55,8 +54,8 @@ namespace crmc.wotdisplay
                 else
                 {
                     //TODO: Log error of download
-                    //Log response status code error
-                    //Console.WriteLine(response.StatusCode);
+                    Log.Debug("Error downloading from person repository");
+                    Log.Debug("Error: {0}", response.StatusCode);
                 }
             }
 

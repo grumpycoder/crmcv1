@@ -39,7 +39,6 @@ namespace crmc.wotdisplay
         private PersonRepository repository;
         private readonly CancellationToken cancelToken = new CancellationToken();
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private const double ScreenSpeedModifier = 10;
 
         //TODO: Refactor
         private static readonly Random Random = new Random();
@@ -86,31 +85,9 @@ namespace crmc.wotdisplay
                 await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
             }
 
-
-
-            ////Create display widgets one for each quadrant
-            //for (var i = 1; i < 5; i++)
-            //{
-            //    Widgets.Add(new Widget() { IsPriorityList = false, Quadrant = i });
-            //}
-            ////priority name widget
-            //Widgets.Add(new Widget() { IsPriorityList = true, Quadrant = 0 });
-
-            ////Begin recursive display of widget names
-            //await LoadWidgetsAsync().ContinueWith(t =>
-            //{
-            //    foreach (var widget in Widgets)
-            //    {
-            //        var widget1 = widget;
-            //        //Task.Factory.StartNew(() => DisplayWidgetAsync(widget1), cancelToken);
-            //        Task.Factory.StartNew(() => DisplayPriorityWidgetAsync(widget1), cancelToken);
-            //        Task.Factory.StartNew(() => DisplayWidgetLocalNamesAsync(widget1), cancelToken);
-            //    }
-            //}, cancelToken);
-
             manager.Play();
 
-            Log.Debug("Finished Startup");
+            //Log.Debug("Finished Startup");
         }
 
         private async Task DisplayQuadrantViewModelAsync(DisplayQuadrantViewModel vm)
@@ -118,8 +95,8 @@ namespace crmc.wotdisplay
             while (true)
             {
                 var delay = SettingsManager.Configuration.DefaultItemDelay;
-                var newItemDelay = SettingsManager.Configuration.DefaultNewItemDelay + delay;
-                var priorityItemDely = SettingsManager.Configuration.DefaultPriorityNewItemDelay;
+                var localItemDelay = SettingsManager.Configuration.DefaultLocalItemDelay + delay;
+                var priorityItemDely = SettingsManager.Configuration.DefaultPriorityItemDelay;
 
                 //TODO: Set delay based on quad type??
                 foreach (var person in vm.People.ToList())
@@ -130,16 +107,16 @@ namespace crmc.wotdisplay
                             {
                                 if (DateTime.Now >= person.NextDisplayTime)
                                 {
-                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                                    //Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
                                     await
                                         Animate(person, person.QuadrantIndex, cancelToken,
                                             SettingsManager.Configuration.DefaultMaxFontSize);
-                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
-                                    person.NextDisplayTime = DateTime.Now.AddSeconds(newItemDelay);
+                                    //Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                    person.NextDisplayTime = DateTime.Now.AddSeconds(localItemDelay);
                                     person.LastDisplayTime = DateTime.Now;
 
-                                    Log.Debug("Last display time {0}", person.LastDisplayTime);
-                                    Log.Debug("Next display time {0}", person.NextDisplayTime);
+                                    //Log.Debug("Last display time {0}", person.LastDisplayTime);
+                                    //Log.Debug("Next display time {0}", person.NextDisplayTime);
                                     person.RotationCount += 1;
                                 }
                                 if (person.RotationCount > 3) vm.People.Remove(person);
@@ -149,9 +126,9 @@ namespace crmc.wotdisplay
                             {
                                 if (DateTime.Now >= person.NextDisplayTime)
                                 {
-                                    Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
-                                    await Animate(person, person.QuadrantIndex, cancelToken, SettingsManager.Configuration.DefaultMaxFontSize);
-                                    Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                    //Log.Debug("Displaying: {0} in quad {1}", person, person.QuadrantIndex);
+                                    await Animate(person, person.QuadrantIndex, cancelToken);
+                                    //Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
                                     await Task.Delay(TimeSpan.FromSeconds(priorityItemDely), cancelToken);
                                 }
                                 break;
@@ -159,14 +136,18 @@ namespace crmc.wotdisplay
                         case QuadrantType.Normal:
                             {
                                 await Animate(person, vm.QuadrantIndex, cancelToken);
-                                Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
+                                //Log.Debug("Displaying {0} in {1} for {2}", vm.QuadrantType, vm.QuadrantIndex, person);
                                 await Task.Delay(TimeSpan.FromSeconds(delay), cancelToken);
                                 break;
                             }
                     }
 
                 }
-                if (vm.QuadrantType != QuadrantType.Local) await vm.LoadPeopleAsync();
+                if (vm.QuadrantType != QuadrantType.Local)
+                {
+                    await vm.LoadPeopleAsync();
+                }
+
             }
         }
 
@@ -187,17 +168,33 @@ namespace crmc.wotdisplay
             ConnectionManager.HubProxy.On<string, Person>("nameAddedToWall", (kiosk, person) => Dispatcher.Invoke(() => AddPersonToDisplayFromKiosk(kiosk, person)));
 
             //TODO: Refactor saving configuration watch proxy
-            //Log.Info("Setting up listeners on hub for configuration changes.");
-            //ConnectionManager.HubProxy.On("configSettingsSaved", InitializeDefaultSettings);
+            Log.Info("Setting up listeners on hub for configuration changes.");
+            ConnectionManager.HubProxy.On("configSettingsSaved", ReInitSettings);
         }
 
-        public async Task InitializeDefaultSettings()
+        private async void ReInitSettings()
         {
+            //Log.Debug("Settings Changed... Reinitailizing");
+            //TODO: Store in app config??
             const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
 
             await SettingsManager.LoadAsync(configApiUrl);
-            Log.Debug("WallConfig {0}", SettingsManager.Configuration);
-            Log.Debug(SettingsManager.Configuration);
+
+            var cfg = SettingsManager.Configuration;
+
+            //await InitializeDefaultSettings();
+            //await InitializeAudioSettings();
+        }
+
+
+        public async Task InitializeDefaultSettings()
+        {
+            //TODO: Store in app config??
+            const string configApiUrl = "http://localhost/crmc/breeze/public/configurations";
+
+            await SettingsManager.LoadAsync(configApiUrl);
+            //Log.Debug("WallConfig {0}", SettingsManager.Configuration);
+            //Log.Debug(SettingsManager.Configuration);
         }
 
         public async Task InitializeAudioSettings()
@@ -209,7 +206,7 @@ namespace crmc.wotdisplay
 
             PlayButton.Source = manager.Paused ? new BitmapImage(new Uri(@"images\pause.ico", UriKind.Relative)) : new BitmapImage(new Uri(@"images\play.ico", UriKind.Relative));
             CurrentSongTextBlock.Text = string.Format("{0}: {1}", manager.PlayStatus, manager.CurrentSong.Title);
-            Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
+            //Log.Debug("Volume: {0}", SettingsManager.Configuration.Volume);
             manager.ChangeVolume(SettingsManager.Configuration.Volume);
 
             Log.Info("Audio initialization complete.");
@@ -242,6 +239,7 @@ namespace crmc.wotdisplay
             {
                 NameScope.SetNameScope(this, new NameScope());
 
+                var screenSpeedModifier = SettingsManager.Configuration.DefaultSpeedModifier; //10;
                 var startTimer = SettingsManager.Configuration.NewItemOnScreenDelay; //5
                 var growTime = SettingsManager.Configuration.NewItemOnScreenGrowTime; //3
                 var shrinkTime = SettingsManager.Configuration.NewItemOnScreenShrinkTime;  //3
@@ -249,8 +247,8 @@ namespace crmc.wotdisplay
                 var fallAnimationOffset = SettingsManager.Configuration.NewItemFallAnimationDelayOffset; //-2
                 var topMarginOffset = SettingsManager.Configuration.TopMarginOffset;
                 var newItemTopMargin = canvasHeight.AmountFromPercent(SettingsManager.Configuration.NewItemTopMargin);
-
                 var topMargin = random ? topMarginOffset : newItemTopMargin;
+
 
                 var label = CreateLabel(person);
                 label.FontSize = overrideFontSize ?? label.FontSize;
@@ -332,7 +330,7 @@ namespace crmc.wotdisplay
                 var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
 
                 //TODO: Refactor using settings.default.scrollspeed to use settings manager
-                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / size) * ScreenSpeedModifier).ToInt();
+                var labelScrollSpeed = ((Settings.Default.ScrollSpeed / size) * screenSpeedModifier).ToInt();
                 //labelScrollSpeed = 15;
 
                 var fallAnimation = new DoubleAnimation
@@ -367,13 +365,13 @@ namespace crmc.wotdisplay
             int quad;
 
             int.TryParse(location, out quad);
-            Log.Debug("Sending from kiosk: " + person);
+            //Log.Debug("Sending from kiosk: " + person);
 
             var time = await Animate(person, quad, cancelToken, null, false);
-            Log.Debug("TotalTime: " + time);
+            //Log.Debug("TotalTime: " + time);
             await Task.Delay(TimeSpan.FromSeconds(time), cancelToken);
-            Log.Debug("Should be " + time + " seconds later");
-            Log.Debug("Into continue with");
+            //Log.Debug("Should be " + time + " seconds later");
+            //Log.Debug("Into continue with");
 
             var vm = quads.FirstOrDefault(x => x.QuadrantType == QuadrantType.Local);
             var p = Mapper.Map<Person, PersonViewModel>(person);
@@ -385,9 +383,11 @@ namespace crmc.wotdisplay
 
         private int CalculateFontSize(bool? isPriority)
         {
-            var maxFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MaxFontSizeVIP : Settings.Default.MaxFontSize;
-            var minFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MinFontSizeVIP : Settings.Default.MinFontSize;
-            return RandomNumber(minFontSize, maxFontSize);
+            //var maxFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MaxFontSizeVIP : Settings.Default.MaxFontSize;
+            //var minFontSize = isPriority.GetValueOrDefault() ? Settings.Default.MinFontSizeVIP : Settings.Default.MinFontSize;
+            var maxFontSize = isPriority.GetValueOrDefault() ? SettingsManager.Configuration.DefaultPriorityMaxFontSize : SettingsManager.Configuration.DefaultMaxFontSize;
+            var minFontSize = isPriority.GetValueOrDefault() ? SettingsManager.Configuration.DefaultPriorityMinFontSize : SettingsManager.Configuration.DefaultMinFontSize;
+            return RandomNumber(minFontSize.GetValueOrDefault(), maxFontSize.GetValueOrDefault());
         }
 
         //TODO: Refactor

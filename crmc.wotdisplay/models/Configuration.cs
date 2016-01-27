@@ -18,9 +18,9 @@ namespace crmc.wotdisplay.models
         public int? DefaultPriorityMinFontSize { get; set; }
         public int? DefaultPriorityMaxFontSize { get; set; }
         public double DefaultItemDelay { get; set; }
-        public double DefaultNewItemDelay { get; set; }
-        public double DefaultPriorityNewItemDelay { get; set; }
-        public double DefaultLocalNewItemDelay { get; set; }
+        public double DefaultSpeedModifier { get; set; }
+        public double DefaultPriorityItemDelay { get; set; }
+        public double DefaultLocalItemDelay { get; set; }
         public string DefaultAudioFilePath { get; set; }
         public int NewItemOnScreenDelay { get; set; }
         public int NewItemOnScreenGrowTime { get; set; }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using crmc.wotdisplay.models;
 using Newtonsoft.Json;
+using NLog;
 
 namespace crmc.wotdisplay.Infrastructure
 {
@@ -14,12 +15,14 @@ namespace crmc.wotdisplay.Infrastructure
     {
         private static readonly List<Color> colors = new List<Color>();
         private static readonly Random Random = new Random();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public static Configuration Configuration { get; set; }
 
         public static async Task<Configuration> LoadAsync(string apiUrl)
         {
-            Configuration = new Configuration();
+            if(Configuration == null) Configuration = new Configuration();
+
             //Load configuration from a repository
             using (var client = new HttpClient())
             {
@@ -37,7 +40,7 @@ namespace crmc.wotdisplay.Infrastructure
                 else
                 {
                     //Log response status code error
-                    //Console.WriteLine(response.StatusCode);
+                    Log.Debug(response.StatusCode);
                 }
             }
             return Configuration;

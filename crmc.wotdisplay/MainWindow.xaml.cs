@@ -327,11 +327,7 @@ namespace crmc.wotdisplay
 
                 // Set label animation
                 var size = random ? label.FontSize : (double)SettingsManager.Configuration.DefaultMaxFontSize;
-
-                //TODO: Refactor using settings.default.scrollspeed to use settings manager
-                var labelScrollSpeed = (SettingsManager.Configuration.DefaultSpeedModifier / size * 10);
-
-                //labelScrollSpeed = 15;
+                var labelScrollSpeed = (size / SettingsManager.Configuration.DefaultSpeedModifier * 10);
 
                 var fallAnimation = new DoubleAnimation
                 {

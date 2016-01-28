@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace crmc.wotdisplay.models
+namespace crmc.domain
 {
     public class Configuration
     {

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Threading.Tasks;
 using AutoMapper;
+using crmc.domain;
 using crmc.wotdisplay.Infrastructure;
-using crmc.wotdisplay.models;
 using NLog;
-using NLog.Fluent;
 
-namespace crmc.wotdisplay
+namespace crmc.wotdisplay.models
 {
     public class DisplayQuadrantViewModel
     {
@@ -43,7 +41,7 @@ namespace crmc.wotdisplay
         public async Task LoadPeopleAsync()
         {
             var start = DateTime.Now; 
-            Log.Debug("Retrieving people for {0}", QuadrantIndex); 
+            Log.Info("Retrieving people for {0}", QuadrantIndex); 
             Mapper.CreateMap<Person, PersonViewModel>().ReverseMap();
             
             var url = SettingsManager.Configuration.Webserver; 
@@ -53,7 +51,7 @@ namespace crmc.wotdisplay
             People = Mapper.Map<List<Person>, List<PersonViewModel>>(list);
             var totalTime = DateTime.Now.Subtract(start);
 
-            Log.Debug("Completed retrieving people for {0} in {1}", QuadrantIndex, totalTime.TotalSeconds);
+            Log.Info("Completed retrieving people for {0} in {1}", QuadrantIndex, totalTime.TotalSeconds);
         }
 
     }

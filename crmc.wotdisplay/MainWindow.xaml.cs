@@ -12,6 +12,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AutoMapper;
+using crmc.domain;
 using crmc.wotdisplay.helpers;
 using crmc.wotdisplay.Infrastructure;
 using crmc.wotdisplay.models;
@@ -61,34 +62,42 @@ namespace crmc.wotdisplay
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
-            await Init();
-            
-            manager.Play();
-            
-            repository = new PersonRepository(SettingsManager.Configuration.Webserver);
-
-            for (var i = 1; i < 5; i++)
+                await Init();
+            try
             {
 
-                var quad = new DisplayQuadrantViewModel(QuadrantType.Normal, i);
-                quads.Add(quad);
-                await quad.LoadPeopleAsync();
+                manager.Play();
+
+                repository = new PersonRepository(SettingsManager.Configuration.Webserver);
+
+                for (var i = 1; i < 5; i++)
+                {
+
+                    var quad = new DisplayQuadrantViewModel(QuadrantType.Normal, i);
+                    quads.Add(quad);
+                    await quad.LoadPeopleAsync();
+                }
+
+                var priorityQuad = new DisplayQuadrantViewModel(QuadrantType.Priority);
+                await priorityQuad.LoadPeopleAsync();
+                quads.Add(priorityQuad);
+
+                var localQuad = new DisplayQuadrantViewModel(QuadrantType.Local);
+                quads.Add(localQuad);
+
+                Log.Debug("Finished Startup");
+
+                foreach (var vm in quads)
+                {
+                    await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
+                }
+
             }
-
-            var priorityQuad = new DisplayQuadrantViewModel(QuadrantType.Priority);
-            await priorityQuad.LoadPeopleAsync();
-            quads.Add(priorityQuad);
-
-            var localQuad = new DisplayQuadrantViewModel(QuadrantType.Local);
-            quads.Add(localQuad);
-
-            Log.Debug("Finished Startup");
-
-            foreach (var vm in quads)
+            catch (Exception ex)
             {
-                await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
-            }
 
+                Log.Error(ex.Message);
+            }
         }
 
         private async Task DisplayQuadrantViewModelAsync(DisplayQuadrantViewModel vm)

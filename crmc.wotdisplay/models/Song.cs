@@ -1,6 +1,6 @@
 using System;
 
-namespace crmc.wotdisplay
+namespace crmc.wotdisplay.models
 {
     public class Song
     {

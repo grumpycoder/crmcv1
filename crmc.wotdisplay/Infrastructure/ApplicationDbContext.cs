@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
-using crmc.wotdisplay.models;
+using crmc.domain;
 
 namespace crmc.wotdisplay.Infrastructure
 {

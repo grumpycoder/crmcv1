@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using crmc.domain;
 using crmc.web.Models;
 
 namespace crmc.web.Data

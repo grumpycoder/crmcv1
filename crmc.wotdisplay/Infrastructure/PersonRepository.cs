@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using crmc.domain;
 using crmc.wotdisplay.models;
 using Newtonsoft.Json;
 using NLog;
 
-namespace crmc.wotdisplay
+namespace crmc.wotdisplay.Infrastructure
 {
     public class PersonRepository
     {
@@ -54,8 +54,8 @@ namespace crmc.wotdisplay
                 else
                 {
                     //TODO: Log error of download
-                    Log.Debug("Error downloading from person repository");
-                    Log.Debug("Error: {0}", response.StatusCode);
+                    Log.Error("Error downloading from person repository");
+                    Log.Error("Error: {0}", response.StatusCode);
                 }
             }
 

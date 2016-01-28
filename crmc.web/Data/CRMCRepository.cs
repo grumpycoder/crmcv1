@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Breeze.ContextProvider;
 using Breeze.ContextProvider.EF6;
+using crmc.domain;
 using crmc.web.Models;
 using Newtonsoft.Json.Linq;
+using Person = crmc.domain.Person;
 
 namespace crmc.web.Data
 {

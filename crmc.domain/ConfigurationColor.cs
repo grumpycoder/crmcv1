@@ -1,4 +1,4 @@
-namespace crmc.wotdisplay.models
+namespace crmc.domain
 {
     public class ConfigurationColor
     {

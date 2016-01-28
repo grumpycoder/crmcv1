@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Controls;
+using crmc.wotdisplay.models;
 
-namespace crmc.wotdisplay
+namespace crmc.wotdisplay.Infrastructure
 {
     public class MediaManager
     {

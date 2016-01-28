@@ -2,19 +2,18 @@
 using Microsoft.AspNet.SignalR.Client;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Threading.Tasks;
 using NLog;
 
 namespace crmc.wotdisplay.Infrastructure
 {
     public class ConnectionManager
     {
-        private static readonly string ServerUri = "http://localhost/crmc" + "/signalr";
-        //private static readonly string HubName = Settings.Default.HubName;
+        private static readonly string ServerUri = SettingsManager.Configuration.Webserver + "/signalr";
         private static readonly HubConnection connection = new HubConnection(ServerUri);
         public static IHubProxy HubProxy;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        //public static string KioskName = Settings.Default.KioskName;
 
         public static HubConnection Connection { get { return connection; } }
 
@@ -30,8 +29,9 @@ namespace crmc.wotdisplay.Infrastructure
                     if (task.IsFaulted) return;
                     if (Connection.State != ConnectionState.Connected) return;
 
-                    Logger.Info("{0} Connected WoT");
+                    Logger.Info("WoT Connected to Hub {0}", ServerUri);
                 }).Wait();
+                await Task.Delay(1);
 
             }
             catch (HttpRequestException e)

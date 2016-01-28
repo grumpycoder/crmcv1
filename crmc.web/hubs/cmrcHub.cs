@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
+using crmc.domain;
 using crmc.web.Data;
 using crmc.web.Models;
 using Microsoft.AspNet.SignalR.Hubs;

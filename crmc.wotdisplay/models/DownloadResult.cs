@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using crmc.domain;
 
 namespace crmc.wotdisplay.models
 {

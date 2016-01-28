@@ -268,11 +268,8 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\Censor.cs" />
-    <Compile Include="Models\Configuration.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ModelFactory.cs" />
-    <Compile Include="Models\Person.cs" />
-    <Compile Include="Models\ConfigurationColor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
@@ -606,6 +603,12 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\crmc.domain\crmc.domain.csproj">
+      <Project>{2d49ed8f-4a56-44f2-ba82-67896a05a524}</Project>
+      <Name>crmc.domain</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -625,6 +628,8 @@
           <DevelopmentServerPort>7347</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost/crmc</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost:7347/crmc</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

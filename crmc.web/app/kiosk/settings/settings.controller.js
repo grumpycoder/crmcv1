@@ -44,6 +44,8 @@
         function getConfigOptions() {
             return datacontext.getAppSettings().then(function (response) {
                 vm.config = response;
+                console.log(vm.config);
+                console.log(response);
             }, function () {
                 logError('Unable to get configuration settings');
             });

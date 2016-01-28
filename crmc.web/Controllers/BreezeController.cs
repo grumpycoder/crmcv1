@@ -2,6 +2,7 @@
 using Breeze.WebApi2;
 using System.Web.Http;
 using Breeze.ContextProvider;
+using crmc.domain;
 using crmc.web.Data;
 using crmc.web.Models;
 using Newtonsoft.Json.Linq;
@@ -47,5 +48,10 @@ namespace crmc.web.Controllers
             return repository.AppConfigs.FirstOrDefault();
         }
 
+        [HttpGet]
+        public Configuration Configurations()
+        {
+            return repository.Configurations.FirstOrDefault();
+        }
     }
 }

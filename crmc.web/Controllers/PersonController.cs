@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.OData;
+using crmc.domain;
 using crmc.web.Data;
 using crmc.web.Models;
 

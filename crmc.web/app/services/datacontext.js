@@ -52,8 +52,20 @@
 //            })
         }
 
+        //function getAppSettings() {
+        //    return EntityQuery.from('AppConfigs')
+        //                      .using(manager)
+        //                      .execute()
+        //                      .then(success, _queryFailed);
+
+        //    function success(data) {
+        //        log('Retreived AppSettings', data.results[0], false);
+        //        return data.results[0];
+        //    }
+        //}
+
         function getAppSettings() {
-            return EntityQuery.from('AppConfigs')
+            return EntityQuery.from('Configurations')
                               .using(manager)
                               .execute()
                               .then(success, _queryFailed);

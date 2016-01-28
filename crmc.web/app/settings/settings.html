@@ -1,58 +1,165 @@
 ﻿
 <section>
 
+
+
     <div class="row">
         <div class="col-md-12">
-            <h3>Wall Configuration</h3>
-
-            <div class="form-group">
-                <label>
-                    Volume: [{{vm.getConfigVolume()}}]
-                </label>
-                <slider floor="0.1" ceiling="1.0" step="0.01" precision="2" translate-fn="vm.translateValue" ng-model="vm.config.volume"></slider>
-            </div>
-
-            <div class="form-group">
-                <label>Scroll Speed: [{{vm.config.scrollSpeed}}]</label>
-                <slider floor="1" ceiling="120" step="1" precision="2" ng-model="vm.config.scrollSpeed"></slider>
-            </div>
-
-            <div class="form-group">
-                <label>Add To Screen Speed: [{{vm.config.addNewItemSpeed}}]</label>
-                <slider floor="0.1" ceiling="5.0" step="0.01" precision="2" ng-model="vm.config.addNewItemSpeed"></slider>
-            </div>
-
-            <div class="form-group">
-                <label>
-                    Font Sizes
-                    Min: [{{vm.config.minFontSize}}]
-                    Max: [{{vm.config.maxFontSize}}]
-                </label>
-                <slider floor="1" ceiling="60" ng-model-low="vm.config.minFontSize" ng-model-high="vm.config.maxFontSize"></slider>
-            </div>
-
-            <div class="form-group">
-                <label>
-                    Priority Font Sizes -
-                    Min: [{{vm.config.minFontSizeVIP}}]
-                    Max: [{{vm.config.maxFontSizeVIP}}]
-                </label>
-                <slider floor="1" ceiling="60" ng-model-low="vm.config.minFontSizeVIP" ng-model-high="vm.config.maxFontSizeVIP"></slider>
-            </div>
-
-            <!--<div class="form-group col-md-6">
-                <label class="control-label">Font Family</label>
-                <input class="form-control" ng-model="vm.config.fontFamily"/>
-            </div>-->
-
-            <!--<div class="form-group col-md-7">
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-model="vm.config.useLocalDataSource">Use Local Datasource</label>
-                </div>
-            </div>-->
-            <button class="btn btn-danger pull-right" ng-click="vm.save()">Save Settings</button>
-
+            <a ui-sref="welcome" class="small"><i class="fa fa-angle-left"></i> Back to Welcome</a>
         </div>
+    </div>
+
+
+    <div id="setting-view">
+
+       
+
+        <div class="row">
+            <div class="col-md-12">
+                <form>
+                    <fieldset>
+                        <legend>
+                            Kiosk Station
+                        </legend>
+                        <div class="form-group">
+                            <div class="btn-group-justified">
+                                <label ng-repeat="kiosk in vm.availableKiosks" class="btn btn-primary" ng-model="vm.selectedKiosk" btn-radio="kiosk">{{kiosk}}</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="well">
+
+                    <form>
+                        <fieldset>
+                            <legend>Wall Configuration</legend>
+                            <div class="form-group">
+                                <label>Volume: </label>
+                                <label class="pull-right">[{{vm.getConfigVolume()}}]</label>
+                                <slider floor="0.0" ceiling="1.0" step="0.01" precision="2" translate-fn="vm.translateValue" ng-model="vm.config.volume"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Speed Modifier:</label>
+                                <label class="pull-right">[{{vm.config.defaultSpeedModifier}}]</label>
+                                <slider floor="0.1" ceiling="100.0" step="0.1" precision="2" ng-model="vm.config.defaultSpeedModifier"></slider>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Rotation Delay Settings</legend>
+                            <div class="form-group">
+                                <label>Default Cycle Delay (seconds): </label>
+                                <label class="pull-right">[{{vm.config.defaultItemDelay}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultItemDelay"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kiosk Cycle Delay (seconds):</label>
+                                <label class="pull-right"> [{{vm.config.defaultLocalItemDelay}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultLocalItemDelay"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Priority Name Cycle Delay (seconds):</label>
+                                <label class="pull-right"> [{{vm.config.defaultPriorityItemDelay}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultPriorityItemDelay"></slider>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Font Sizes</legend>
+                            <div class="form-group">
+                                <label>Default Font Sizes</label>
+                                <label class="pull-right">
+                                    Min: [{{vm.config.defaultMinFontSize}}]
+                                    Max: [{{vm.config.defaultMaxFontSize}}]
+                                </label>
+                                <slider floor="1" ceiling="60" ng-model-low="vm.config.defaultMinFontSize" ng-model-high="vm.config.defaultMaxFontSize"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Priority Font Sizes</label>
+                                <label class="pull-right">
+                                    Min: [{{vm.config.defaultPriorityMinFontSize}}]
+                                    Max: [{{vm.config.defaultPriorityMaxFontSize}}]
+                                </label>
+                                <slider floor="1" ceiling="60" ng-model-low="vm.config.defaultPriorityMinFontSize" ng-model-high="vm.config.defaultPriorityMaxFontSize"></slider>
+                            </div>
+                        </fieldset>
+
+
+                        <fieldset>
+                            <legend>Kiosk Entry Animations</legend>
+
+                            <div class="form-group">
+                                <label>On Screen Delay:</label>
+                                <label class="pull-right">[{{vm.config.newItemOnScreenDelay}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.newItemOnScreenDelay"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Grow Time:</label>
+                                <label class="pull-right">[{{vm.config.newItemOnScreenGrowTime}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.newItemOnScreenGrowTime"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Shrink Time:</label>
+                                <label class="pull-right">[{{vm.config.newItemOnScreenShrinkTime}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.newItemOnScreenShrinkTime"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fall Delay:</label>
+                                <label class="pull-right"> [{{vm.config.newItemFallAnimationDelay}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.newItemFallAnimationDelay"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fall Delay Offset:</label>
+                                <label class="pull-right"> [{{vm.config.newItemFallAnimationDelayOffset}}]</label>
+                                <slider floor="-10.0" ceiling="30.0" step="0.1" precision="2" ng-model="vm.config.newItemFallAnimationDelayOffset"></slider>
+                            </div>
+
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Margins</legend>
+
+                            <div class="form-group">
+                                <label>Kiosk Entry Top Margin:</label>
+                                <label class="pull-right">[{{vm.config.newItemTopMargin}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.newItemTopMargin"></slider>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Default Top Margin: </label>
+                                <label class="pull-right">[{{vm.config.topMarginOffset}}]</label>
+                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.topMarginOffset"></slider>
+                            </div>
+
+                        </fieldset>
+
+
+                        <fieldset>
+                            <legend>Colors</legend>
+
+                        </fieldset>
+
+                        <button class="btn btn-danger" ng-click="vm.save()">Save Settings</button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
 

@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "crmc.testcon
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "crmc.database", "crmc.database\crmc.database.sqlproj", "{5F459531-137D-4CF5-9DBB-B6556C6793E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crmc.wotimport", "crmc.wotimport\crmc.wotimport.csproj", "{55D82854-EA0F-439E-B9FE-F1E56EC10576}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crmc.domain", "crmc.domain\crmc.domain.csproj", "{2D49ED8F-4A56-44F2-BA82-67896A05A524}"
 EndProject
 Global
@@ -56,14 +54,6 @@ Global
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Release|x86.ActiveCfg = Release|Any CPU
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Debug|x86.ActiveCfg = Debug|x86
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Debug|x86.Build.0 = Debug|x86
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Release|x86.ActiveCfg = Release|x86
-		{55D82854-EA0F-439E-B9FE-F1E56EC10576}.Release|x86.Build.0 = Release|x86
 		{2D49ED8F-4A56-44F2-BA82-67896A05A524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D49ED8F-4A56-44F2-BA82-67896A05A524}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D49ED8F-4A56-44F2-BA82-67896A05A524}.Debug|x86.ActiveCfg = Debug|Any CPU

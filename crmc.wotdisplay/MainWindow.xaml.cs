@@ -63,6 +63,8 @@ namespace crmc.wotdisplay
 
             await Init();
             
+            manager.Play();
+            
             repository = new PersonRepository(SettingsManager.Configuration.Webserver);
 
             for (var i = 1; i < 5; i++)
@@ -80,17 +82,13 @@ namespace crmc.wotdisplay
             var localQuad = new DisplayQuadrantViewModel(QuadrantType.Local);
             quads.Add(localQuad);
 
+            Log.Debug("Finished Startup");
 
             foreach (var vm in quads)
             {
                 await Task.Factory.StartNew(() => DisplayQuadrantViewModelAsync(vm), cancelToken);
             }
 
-            //BUG: No music plays
-            manager.Play();
-            await SettingsManager.SaveSettingsAsync("");
-
-            Log.Debug("Finished Startup");
         }
 
         private async Task DisplayQuadrantViewModelAsync(DisplayQuadrantViewModel vm)
@@ -182,9 +180,12 @@ namespace crmc.wotdisplay
             var configApiUrl = string.Format(@"{0}/breeze/public/configurations", webserver);
 
             await SettingsManager.LoadAsync(configApiUrl);
+
+            await Dispatcher.InvokeAsync(async () =>
+             {
+                 await InitializeAudioSettings();
+             });
             
-            //await InitializeDefaultSettings();
-            //await InitializeAudioSettings();
         }
 
 

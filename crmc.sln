@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{2261FA
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "crmc.testconsole\TestConsole.csproj", "{6BED903A-8B10-4648-AE5F-56501A2E5327}"
+EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "crmc.database", "crmc.database\crmc.database.sqlproj", "{5F459531-137D-4CF5-9DBB-B6556C6793E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crmc.domain", "crmc.domain\crmc.domain.csproj", "{2D49ED8F-4A56-44F2-BA82-67896A05A524}"
@@ -38,6 +40,12 @@ Global
 		{A0729B54-FD3B-4BBF-9FD6-A3B0DE19346E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0729B54-FD3B-4BBF-9FD6-A3B0DE19346E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0729B54-FD3B-4BBF-9FD6-A3B0DE19346E}.Release|x86.ActiveCfg = Release|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BED903A-8B10-4648-AE5F-56501A2E5327}.Release|x86.ActiveCfg = Release|Any CPU
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F459531-137D-4CF5-9DBB-B6556C6793E4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU

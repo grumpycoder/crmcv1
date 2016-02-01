@@ -47,7 +47,7 @@
                             <div class="form-group">
                                 <label>Speed Modifier:</label>
                                 <label class="pull-right">[{{vm.config.defaultSpeedModifier}}]</label>
-                                <slider floor="0.1" ceiling="100.0" step="0.1" precision="2" ng-model="vm.config.defaultSpeedModifier"></slider>
+                                <slider floor="0.1" ceiling="20.0" step="0.1" precision="2" ng-model="vm.config.defaultSpeedModifier"></slider>
                             </div>
                         </fieldset>
 
@@ -56,19 +56,19 @@
                             <div class="form-group">
                                 <label>Default Cycle Delay (seconds): </label>
                                 <label class="pull-right">[{{vm.config.defaultItemDelay}}]</label>
-                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultItemDelay"></slider>
+                                <slider floor="0.1" ceiling="5.0" step="0.1" precision="2" ng-model="vm.config.defaultItemDelay"></slider>
                             </div>
 
                             <div class="form-group">
                                 <label>Kiosk Cycle Delay (seconds):</label>
                                 <label class="pull-right"> [{{vm.config.defaultLocalItemDelay}}]</label>
-                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultLocalItemDelay"></slider>
+                                <slider floor="0.1" ceiling="10.0" step="0.1" precision="2" ng-model="vm.config.defaultLocalItemDelay"></slider>
                             </div>
 
                             <div class="form-group">
                                 <label>Priority Name Cycle Delay (seconds):</label>
                                 <label class="pull-right"> [{{vm.config.defaultPriorityItemDelay}}]</label>
-                                <slider floor="0.1" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.defaultPriorityItemDelay"></slider>
+                                <slider floor="0.1" ceiling="30.0" step="0.1" precision="2" ng-model="vm.config.defaultPriorityItemDelay"></slider>
                             </div>
                         </fieldset>
 
@@ -147,10 +147,10 @@
                         </fieldset>
 
 
-                        <fieldset>
+                        <!--<fieldset>
                             <legend>Colors</legend>
 
-                        </fieldset>
+                        </fieldset>-->
 
                         <button class="btn btn-danger" ng-click="vm.save()">Save Settings</button>
                     </form>

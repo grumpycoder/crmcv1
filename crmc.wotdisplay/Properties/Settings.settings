@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="WebServer" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://crmc-test</Value>
+      <Value Profile="(Default)">http://crmc</Value>
     </Setting>
   </Settings>
 </SettingsFile>

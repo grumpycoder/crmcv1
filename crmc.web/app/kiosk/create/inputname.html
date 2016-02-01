@@ -1,17 +1,15 @@
 ﻿
-<div class="content">
-    <div class="center-block">
-        <div style="width: 830px; margin: 0 auto;" class="text-center">
-            <p>Enter your name below. When you're done, touch "CONTINUE".</p>
-        </div>
-    </div>
 
-    <div class="center-block">
-        <!-- <form novalidate="" name="vm.nameForm" id="nameForm"
-                   role="form" style="width: 658px; margin: 0 auto;"
-                   focus-error="true">-->
+<div class="row">
+    <div class="col-md-8 col-md-offset-2"  style="margin-top: 175px;">
+        <p>Enter your name below. When you're done, touch "CONTINUE".</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
         <form novalidate="" name="vm.nameForm" id="nameForm"
-              role="form" style="width: 658px; margin: 0 auto;"
+              role="form"
               focus-error="true">
             <!--<form novalidate="" name="vm.nameForm" id="nameForm" role="form">-->
             <div class="row">
@@ -85,119 +83,126 @@
 
         </form>
     </div>
-
-    <div class="center-block" style="margin-top: 20px;">
-        <ul id="keyboard">
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">`</span><span class="on">~</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">1</span><span class="on">!</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">2</span><span class="on">@</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">3</span><span class="on">#</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">4</span><span class="on">$</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">5</span><span class="on">%</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">6</span><span class="on">^</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">7</span><span class="on">&amp;</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">8</span><span class="on">*</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">9</span><span class="on">(</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">0</span><span class="on">)</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">-</span><span class="on">_</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">=</span><span class="on">+</span>
-            </li>
-            <li class="delete lastitem" ng-click="vm.keyboardInput($event)">DEL</li>
-            <li class="tab">TAB</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">q</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">w</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">e</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">r</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">t</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">y</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">u</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">i</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">o</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">p</li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">[</span><span class="on">{</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">]</span><span class="on">}</span>
-            </li>
-            <li class="symbol lastitem" ng-click="vm.keyboardInput($event)">
-                <span class="off">\</span><span class="on">|</span>
-            </li>
-            <li class="capslock">CAPS LOCK</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">a</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">s</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">d</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">f</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">g</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">h</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">j</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">k</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">l</li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">;</span><span class="on">:</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">'</span><span class="on">&quot;</span>
-            </li>
-            <li class="return lastitem">RETURN</li>
-            <li class="shift clear-left">SHIFT</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">z</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">x</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">c</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">v</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">b</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">n</li>
-            <li class="letter" ng-click="vm.keyboardInput($event)">m</li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">,</span><span class="on">&lt;</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">.</span><span class="on">&gt;</span>
-            </li>
-            <li class="symbol" ng-click="vm.keyboardInput($event)">
-                <span class="off">@</span><span class="on">?</span>
-            </li>
-            <li class="shift lastitem">SHIFT</li>
-            <li class="space lastitem" ng-click="vm.keyboardInput($event)">SPACE</li>
-        </ul>
-    </div>
-
 </div>
-<footer>
-    <div class="buttonRow" style="width: 658px;">
-        <button class="btn btn-danger pull-left" ng-click="vm.goBack()">
-            <i class="fa fa-angle-left"></i> GO BACK
-        </button>
-        <button class="btn btn-danger pull-right"
-                ng-click="vm.gotoReview()">
-            CONTINUE <i class="fa fa-angle-right"></i>
-        </button>
-    </div>
-</footer>
 
-<script src="Scripts/keyboard.js"></script>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="keyboard-container" style="margin-top: 50px;">
+            <ul id="keyboard">
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">`</span><span class="on">~</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">1</span><span class="on">!</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">2</span><span class="on">@</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">3</span><span class="on">#</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">4</span><span class="on">$</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">5</span><span class="on">%</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">6</span><span class="on">^</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">7</span><span class="on">&amp;</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">8</span><span class="on">*</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">9</span><span class="on">(</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">0</span><span class="on">)</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">-</span><span class="on">_</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">=</span><span class="on">+</span>
+                </li>
+                <li class="delete lastitem" ng-click="vm.keyboardInput($event)">DEL</li>
+                <li class="tab">TAB</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">q</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">w</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">e</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">r</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">t</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">y</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">u</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">i</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">o</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">p</li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">[</span><span class="on">{</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">]</span><span class="on">}</span>
+                </li>
+                <li class="symbol lastitem" ng-click="vm.keyboardInput($event)">
+                    <span class="off">\</span><span class="on">|</span>
+                </li>
+                <li class="capslock">CAPS LOCK</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">a</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">s</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">d</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">f</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">g</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">h</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">j</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">k</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">l</li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">;</span><span class="on">:</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">'</span><span class="on">&quot;</span>
+                </li>
+                <li class="return lastitem">RETURN</li>
+                <li class="shift clear-left">SHIFT</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">z</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">x</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">c</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">v</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">b</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">n</li>
+                <li class="letter" ng-click="vm.keyboardInput($event)">m</li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">,</span><span class="on">&lt;</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">.</span><span class="on">&gt;</span>
+                </li>
+                <li class="symbol" ng-click="vm.keyboardInput($event)">
+                    <span class="off">@</span><span class="on">?</span>
+                </li>
+                <li class="shift lastitem">SHIFT</li>
+                <li class="space lastitem" ng-click="vm.keyboardInput($event)">SPACE</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div style="margin-top: 50px;">
+            <button class="btn btn-danger btn-lg btn-custom pull-left" ng-click="vm.goBack()">
+                <i class="fa fa-angle-left"></i> GO BACK
+            </button>
+            <button class="btn btn-danger btn-lg btn-custom pull-right"
+                    ng-click="vm.gotoReview()">
+                CONTINUE <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+            <script src="Scripts/keyboard.js"></script>

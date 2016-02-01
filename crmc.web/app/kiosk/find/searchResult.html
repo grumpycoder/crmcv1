@@ -5,15 +5,16 @@
         font-weight: bold;
     }
 </style>
-<div class="content">
 
-    <div class="center-block">
-        <div style="width: 870px; margin: 50px auto 0 auto;">
-            <span>To select your name, touch it in the list below. Then touch "CONTINUE".</span>
-        </div>
+<div class="row">
+    <div class="col-md-12" style="margin-top: 225px;">
+            <p class="text-center">To select your name, touch it in the list below. Then touch "CONTINUE".</p>
     </div>
+</div>
 
-    <div class="center-block">
+<div class="row">
+
+    <div class="col-md-12">
         <div class="grid">
             <div class="table-container">
                 <table class="ng-table-rowselected">
@@ -36,26 +37,28 @@
             </pagination>
         </div>
     </div>
-    <div class="center-block">
-        <div style="width: 680px; margin: 0 auto; font-size: 22px;" class="text-center">
-            <span>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <p class="text-center">
                 If you are unable to find your name, you can return to the home screen to take the pledge and add
                 your name to the list.
-            </span>
+            </p>
         </div>
     </div>
+
 </div>
 
 
-<footer>
-    <div class="buttonRow" style="width: 850px;">
+<div class="row">
+    <div class="btn-row" style="margin-top: 50px;">
+
         <div class="pull-left">
-            <button class="btn btn-danger" ng-click="vm.goBack()">
+            <button class="btn btn-danger btn-lg btn-custom" ng-click="vm.goBack()">
                 <i class="fa fa-angle-left"></i> GO BACK
             </button>
         </div>
         <div class="pull-right">
-            <button class="btn btn-danger"
+            <button class="btn btn-danger btn-lg btn-custom"
                     ng-click="vm.finish()"
                     ng-disabled="!vm.person">
                 CONTINUE <i class="fa fa-angle-right"></i>
@@ -63,13 +66,14 @@
         </div>
 
         <div class="text-center">
-            <button class="btn btn-danger btn-small"
+            <button class="btn btn-danger btn-lg"
                     ng-click="vm.cancel()">
                 HOME
             </button>
         </div>
+        <!--</div>-->
     </div>
-</footer>
+</div>
 
 <pre class="code-preview">
 {{}}

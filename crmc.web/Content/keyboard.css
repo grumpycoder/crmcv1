@@ -1,4 +1,8 @@
-﻿#keyboard {
+﻿.keyboard-container {
+    width: 100%;    
+}
+
+#keyboard {
     /*margin: 0 auto;*/
     /*    padding: 0;*/
     

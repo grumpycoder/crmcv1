@@ -1,16 +1,15 @@
 ﻿<script src="Scripts/keyboard.js"></script>
 
-<div class="content noselect">
-
-    <div class="center-block ">
-        <div style="width: 658px; margin: 91px auto 0 auto;" class="text-justify">
-            <span>To find your name, type either your full name or just your last name. Then touch "CONTINUE".</span>
-        </div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2" style="margin-top: 250px;">
+        <p>To find your name, type either your full name or just your last name. Then touch "CONTINUE".</p>
     </div>
+</div>
 
-    <div class="center-block">
-
-        <form name="vm.searchForm" novalidate="" id="searchForm" role="form" style="width: 658px; margin: 30px auto 0 auto;">
+<div class="row">
+    <div class="col-md-8 col-md-offset-2" style="margin-top: 40px;">
+        <!--<form name="vm.searchForm" novalidate="" id="searchForm" role="form" style="width: 658px; margin: 30px auto 0 auto;">-->
+        <form name="vm.searchForm" novalidate="" id="searchForm" role="form">
             <div class="row">
                 <div class="col-md-12">
 
@@ -28,12 +27,13 @@
             </div>
 
         </form>
-
-
     </div>
+</div>
 
-    <div class="center-block">
-        <div class="keyboard-container" style="margin: 60px auto;">
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="keyboard-container" style="margin-top: 80px;">
             <ul id="keyboard">
                 <li class="symbol" ng-click="vm.keyboardInput($event)">
                     <span class="off">`</span><span class="on">~</span>
@@ -136,15 +136,41 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-8 col-md-offset-2" style="margin-top: 50px;">
+            <button class="btn btn-danger btn-lg btn-custom pull-left" ng-click="vm.cancel()">
+                <i class="fa fa-angle-left"></i>
+                GO BACK
+            </button>
+            <button class="btn btn-danger btn-lg btn-custom pull-right"
+                    ng-click="vm.search()">
+                CONTINUE <i class="fa fa-angle-right"></i>
+            </button>
+    </div>
+</div>
+
+<!--<div class="content noselect">
+
+    <div class="center-block ">
+        <div style="width: 658px; margin: 91px auto 0 auto;" class="text-justify">
+
+        </div>
+    </div>
+
+    <div class="center-block">
+
+
+
+
+    </div>
+
+    <div class="center-block">
+
+    </div>
+</div>
+
 <footer>
     <div class="buttonRow" style="width: 658px;">
-        <button class="btn btn-danger pull-left" ng-click="vm.cancel()">
-            <i class="fa fa-angle-left"></i>
-            GO BACK
-        </button>
-        <button class="btn btn-danger pull-right"
-                ng-click="vm.search()">
-            CONTINUE <i class="fa fa-angle-right"></i>
-        </button>
+
     </div>
-</footer>
+</footer>-->

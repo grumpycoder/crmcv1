@@ -17,9 +17,9 @@
 <body ng-app="app">
 
     <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="spinner-1" spinner-start-active="false"></span>
-
-    <div ui-view id="main-view" class="myanimation" spinner-start-active="true"></div>
-
+    <div class="container">
+        <div ui-view id="main-view" class="myanimation" spinner-start-active="true"></div>
+    </div>
     <!-- Vendor Scripts -->
     <script src="~/scripts/jquery-2.1.1.js"></script>
     <script src="~/scripts/angular.min.js"></script>

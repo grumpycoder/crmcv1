@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using Breeze.WebApi2;
 using System.Web.Http;
 using Breeze.ContextProvider;
+using crmc.domain;
 using crmc.web.Data;
 using crmc.web.Models;
 using Microsoft.Ajax.Utilities;
@@ -48,5 +50,10 @@ namespace crmc.web.Controllers
             return repository.AppConfigs.FirstOrDefault();
         }
 
+        [HttpGet]
+        public Configuration Configurations()
+        {
+            return repository.Configurations.Include(x => x.ConfigurationColors).FirstOrDefault();
+        }
     }
 }

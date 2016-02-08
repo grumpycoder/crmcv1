@@ -25,7 +25,7 @@ namespace crmc.wotdisplay.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://crmc")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/crmc")]
         public string WebServer {
             get {
                 return ((string)(this["WebServer"]));

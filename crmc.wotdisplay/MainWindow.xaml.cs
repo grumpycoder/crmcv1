@@ -62,7 +62,7 @@ namespace crmc.wotdisplay
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
-                await Init();
+            await Init();
             try
             {
 
@@ -164,7 +164,7 @@ namespace crmc.wotdisplay
         private async Task Init()
         {
             ConfigureDisplay();
-            
+
             await InitializeDefaultSettings();
 
             await InitializeAudioSettings();
@@ -184,7 +184,7 @@ namespace crmc.wotdisplay
 
         private async void ReInitSettings()
         {
-            Log.Debug("Settings Changed... Reinitailizing");
+            Log.Info("Settings Changed... Reinitailizing");
             var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer;
             var configApiUrl = string.Format(@"{0}/breeze/public/configurations", webserver);
 
@@ -194,13 +194,13 @@ namespace crmc.wotdisplay
              {
                  await InitializeAudioSettings();
              });
-            
+
         }
 
 
         public async Task InitializeDefaultSettings()
         {
-            var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer; 
+            var webserver = SettingsManager.Configuration.Webserver ?? Settings.Default.WebServer;
             var configApiUrl = string.Format(@"{0}/breeze/public/configurations", webserver);
 
             await SettingsManager.LoadAsync(configApiUrl);
@@ -308,7 +308,7 @@ namespace crmc.wotdisplay
                         Duration = new Duration(TimeSpan.FromSeconds(growTime)),
                     };
                     startTimer += growTime + pauseTime;
-                    
+
                     var shrinkAnimation = new DoubleAnimation
                     {
                         From = maxFontSize * 2,
@@ -334,8 +334,8 @@ namespace crmc.wotdisplay
 
                 // Set label animation
                 var size = random ? label.FontSize : (double)maxFontSize;
-                var duration = (screenSpeedModifier / size) * 10 ; 
-                
+                var duration = (screenSpeedModifier / size) * 10;
+
                 var fallAnimation = new DoubleAnimation
                 {
                     From = topMargin,
@@ -372,6 +372,9 @@ namespace crmc.wotdisplay
 
             var time = await Animate(person, quad, cancelToken, null, false);
             //Log.Debug("TotalTime: " + time);
+            var delay = SettingsManager.Configuration.KioskRotationDelay;
+            if (delay != null) time = (double)delay;
+
             await Task.Delay(TimeSpan.FromSeconds(time), cancelToken);
             //Log.Debug("Should be " + time + " seconds later");
             //Log.Debug("Into continue with");

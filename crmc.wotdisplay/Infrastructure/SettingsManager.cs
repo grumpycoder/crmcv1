@@ -34,6 +34,7 @@ namespace crmc.wotdisplay.Infrastructure
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 // New code:
+                Log.Info("Retriving configuration settings from {0}", apiUrl);
                 var response = await client.GetAsync(apiUrl);
                 if (response.IsSuccessStatusCode)
                 {
@@ -82,7 +83,7 @@ namespace crmc.wotdisplay.Infrastructure
                 //BUG: [SettingsManager] Saving settings 
                 string postBody = JsonConvert.SerializeObject(Configuration, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
                 //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                apiUrl = "http://localhost/crmc/breeze/public/savechanges"; 
+                //apiUrl = "http://localhost/crmc/breeze/public/savechanges"; 
                 var response = await client.PostAsync(apiUrl, new StringContent(postBody, Encoding.UTF8, "application/json"));
 
                 // New code:

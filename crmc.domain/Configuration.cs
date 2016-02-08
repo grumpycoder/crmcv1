@@ -31,5 +31,6 @@ namespace crmc.domain
         public double TopMarginOffset { get; set; }
 
         public virtual ICollection<ConfigurationColor> ConfigurationColors { get; set; }
+        public double? KioskRotationDelay { get; set; }
     }
 }

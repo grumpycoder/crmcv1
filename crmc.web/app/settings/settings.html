@@ -47,7 +47,7 @@
                             <div class="form-group">
                                 <label>Speed Modifier:</label>
                                 <label class="pull-right">[{{vm.config.defaultSpeedModifier}}]</label>
-                                <slider floor="0.1" ceiling="20.0" step="0.1" precision="2" ng-model="vm.config.defaultSpeedModifier"></slider>
+                                <slider floor="0.1" ceiling="100.0" step="0.1" precision="2" ng-model="vm.config.defaultSpeedModifier"></slider>
                             </div>
                         </fieldset>
 
@@ -62,7 +62,7 @@
                             <div class="form-group">
                                 <label>Kiosk Cycle Delay (seconds):</label>
                                 <label class="pull-right"> [{{vm.config.defaultLocalItemDelay}}]</label>
-                                <slider floor="0.1" ceiling="10.0" step="0.1" precision="2" ng-model="vm.config.defaultLocalItemDelay"></slider>
+                                <slider floor="0.1" ceiling="20.0" step="0.1" precision="2" ng-model="vm.config.defaultLocalItemDelay"></slider>
                             </div>
 
                             <div class="form-group">
@@ -127,6 +127,12 @@
                                 <slider floor="-10.0" ceiling="30.0" step="0.1" precision="2" ng-model="vm.config.newItemFallAnimationDelayOffset"></slider>
                             </div>
 
+                            <div class="form-group">
+                                <label>Kiosk Rotation Delay:</label>
+                                <label class="pull-right"> [{{vm.config.kioskRotationDelay}}]</label>
+                                <slider floor="1.0" ceiling="60.0" step="0.1" precision="2" ng-model="vm.config.kioskRotationDelay"></slider>
+                            </div>
+
                         </fieldset>
 
                         <fieldset>
@@ -146,6 +152,17 @@
 
                         </fieldset>
 
+                        <fieldset>
+                            <legend>Font</legend>
+
+                            <div class="form-group">
+                                <label>Font:</label>
+                                <label class="pull-right">[{{vm.config.fontFamily}}]</label>
+                                <input type="text" class="form-control" ng-model="vm.config.fontFamily"/>
+                            </div>
+
+
+                        </fieldset>
 
                         <!--<fieldset>
                             <legend>Colors</legend>

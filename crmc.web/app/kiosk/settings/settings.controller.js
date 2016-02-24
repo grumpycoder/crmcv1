@@ -13,67 +13,48 @@
         var log = getLogFn(controllerId);
         var logError = getLogFn(controllerId, 'error');
         var logSuccess = getLogFn(controllerId, 'success');
-
         var crmc = $.connection.crmcHub;
 
-        vm.title = 'Settings';
-        vm.config = {};
         vm.availableKiosks = ['1', '2', '3', '4'];
-
-        vm.save = save;
-        vm.saveKiosk = saveKiosk;
-        vm.selectedKiosk = {};
+        vm.config = {};
         vm.getConfigVolume = getConfigVolume;
+        vm.save = save;
+        vm.selectedKiosk = {};
+        vm.title = 'Settings';
 
         activate();
 
         function activate() {
-            common.activateController([getConfigOptions()], controllerId).then(onEveryChange);
+            common.activateController([loadConfigurationOptions()], controllerId).then();
+            createKioskWatcher();
             vm.selectedKiosk = localStorage.getItem('kiosk') ? localStorage.getItem('kiosk') : 1;
             $.connection.hub.start().done(function () {
                 log('hub connection successful', null, false);
             });
         }
 
-        function onEveryChange() {
-            // Begin observing model for changes
-            //            Object.observe(vm.config.volume, configObserver);
-            Object.observe(vm, kioskObserver);
+        function createKioskWatcher() {
+            log('create watcher for kiosk change', null, false);
+            $scope.$watch('vm.selectedKiosk', function () {
+                localStorage.setItem('kiosk', vm.selectedKiosk);
+                logSuccess('Kiosk local storage set', vm.selectedKiosk, true);
+            })
         }
 
-        function getConfigOptions() {
+        function loadConfigurationOptions() {
             return datacontext.getAppSettings().then(function (response) {
                 vm.config = response;
-                console.log(vm.config);
-                console.log(response);
+                log('config', vm.config, null);
             }, function () {
                 logError('Unable to get configuration settings');
             });
         }
 
-        // Set up our observer
-        function configObserver(changes) {
-            common.debouncedThrottle(controllerId, saveConfiguration, 1000);
-        }
-
-        function kioskObserver(changes) {
-            common.debouncedThrottle(controllerId, saveKiosk, 500);
-        }
-
-        function saveConfiguration() {
-            save();
-        }
-
         function save() {
             datacontext.save().then(function () {
-                log('Saved Settings');
+                log('Saved Settings', vm.config, null);
                 crmc.server.configSettingsSaved();
             });
-        }
-
-        function saveKiosk() {
-            localStorage.setItem('kiosk', vm.selectedKiosk);
-            logSuccess('Saved kiosk', null, true);
         }
 
         function getConfigVolume() {

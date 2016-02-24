@@ -14,6 +14,7 @@
         'angularSpinner',
         'ui.slider',
         'ui.bootstrap',
+        'ui.validate',
         'breeze.angular',
         'breeze.directives'
     ])
@@ -80,4 +81,5 @@
         // Include $route to kick start the router.
         datacontext.loadMetadata();
     }]);
+
 }());

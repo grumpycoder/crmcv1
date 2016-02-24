@@ -297,6 +297,7 @@
     </Content>
     <Content Include="app\dashboard\test.controller.js" />
     <Content Include="app\dashboard\test.html" />
+    <Content Include="app\directives\blacklist.directive.js" />
     <Content Include="app\directives\spinner.directive.js" />
     <Content Include="app\kiosk\app.js" />
     <Content Include="app\kiosk\config.js" />
@@ -570,6 +571,8 @@
     </Content>
     <Content Include="Scripts\ui-bootstrap-tpls.min.js" />
     <Content Include="Scripts\validate-popover.js" />
+    <Content Include="Scripts\validate.js" />
+    <Content Include="Scripts\validate.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

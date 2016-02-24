@@ -4,20 +4,18 @@
 
     var controllerId = 'findCtrl';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
+        ['$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
 
-    function findCtrl($cookies, $cookieStore, $rootScope, $scope, $state, $timeout, $window, common, config, datacontext, usSpinnerService) {
+    function findCtrl($rootScope, $scope, $state, $timeout, $window, common, config, datacontext, usSpinnerService) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
         var prevSelection = null;
-        //var crmc = $.connection.crmcHub;
 
         vm.cancel = cancel;
         vm.finish = finish;
         vm.goBack = goBack;
         vm.gotoWelcome = gotoWelcome;
-        vm.kiosk = 1;
         vm.people = [];
         vm.person = undefined;
         vm.title = 'Find Your Name';
@@ -72,11 +70,7 @@
             common.activateController([], controllerId)
                 .then(function() {
                     log('Activated Find Person View', null, false);
-                    //$.connection.hub.start().done(function () {
-                    //    log('hub connection successful', null, false);
-                    //});
                 });
-            vm.kiosk = $cookies.kiosk;
         }
 
         //#region Internal Methods    
@@ -106,7 +100,7 @@
         }
 
         function gotoWelcome() {
-            console.log('goto welcome');
+            log('goto welcome', null, false);
         }
 
         function finish() {
@@ -118,7 +112,6 @@
                 fuzzyMatchValue: vm.person.fuzzyMatchValue
             }
 
-            //crmc.server.addNameToWall(vm.kiosk, person);
             prevSelection.$selected = false;
             $rootScope.person = person;
             cancelTimer();

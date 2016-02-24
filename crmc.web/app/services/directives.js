@@ -6,11 +6,11 @@
 
     var app = angular.module('app');
 
-    app.directive('valBlacklist', function () {
+    app.directive('valblacklistName', function () {
         return {
             restrict: 'A',
             require: 'ngModel',
-            scope: { blacklist: '=valBlacklist' },
+            scope: { blacklist: '=' },
             link: function (scope, elem, attrs, ngModel) {
 
                 //For DOM -> model validation
@@ -26,6 +26,7 @@
                 function validate(value) {
                     var valid = true;
 
+                    console.log(scope.blacklist);
                     if (typeof value === "undefined") {
                         value = "";
                     }

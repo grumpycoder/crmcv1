@@ -3,10 +3,12 @@
 
     var controllerId = 'welcome';
     angular.module('app').controller(controllerId,
-                  ['$scope', '$state', 'usSpinnerService', welcome]);
+                  ['common', '$scope', '$state', 'usSpinnerService', 'datacontext', welcome]);
 
-    function welcome($scope, $state, usSpinnerService) {
+    function welcome(common, $scope, $state, usSpinnerService, datacontext) {
         var vm = this;
+        var getLogFn = common.logger.getLogFn;
+        var log = getLogFn(controllerId);
 
         vm.activate = activate;
         vm.title = 'welcome';
@@ -18,7 +20,6 @@
         var keyCode = '';
 
         function unlockSettings(key) {
-            console.log(key);
             if (keyCode.length > 4) {
                 keyCode = key;
             }
@@ -26,23 +27,31 @@
                 keyCode += key.toString();
             }
 
-            //if (key === 1) {
-            //    keyCode = key;
-            //} else {
-            //    keyCode += key.toString();
-            //}
-
             if (keyCode === '1212') {
                 $state.go('settings');
             }
-            console.log(keyCode);
+            log('keyCode', keyCode, false);
         }
 
         activate();
 
 
         function activate() {
-            //            usSpinnerService.spin('spinner-1');
+            common.activateController([loadBlacklist()], controllerId).then(function() {
+                log('Activated welcome view', null, false);
+            });
+            
+        }
+
+        function loadBlacklist() {
+            var list = [];
+            datacontext.getCensors(true).then(function (data) {
+                data.forEach(function (item) {
+                    list.push(item.word.toUpperCase());
+                });
+                log('loading blacklist to local storage', list, false);
+                localStorage.setItem('blacklist', JSON.stringify(list));
+            });
         }
 
         function gotoCreate() {

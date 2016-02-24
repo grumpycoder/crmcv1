@@ -3,33 +3,32 @@
 
     var controllerId = 'createCtrl';
     angular.module('app').controller(controllerId,
-        ['$cookies', '$cookieStore', '$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'datacontext', createCtrl]);
+        ['$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'datacontext', createCtrl]);
 
-    function createCtrl($cookies, $cookieStore, $rootScope, $scope, $state, $timeout, $window, common, datacontext) {
+    function createCtrl($rootScope, $scope, $state, $timeout, $window, common, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
         var arrayMax = Function.prototype.apply.bind(Math.max, null);
         var arrayMin = Function.prototype.apply.bind(Math.min, null);
-        //var crmc = $.connection.crmcHub;
-        //var proxy = $.connection.crmcHub;
 
-        vm.blackList = [];
+        vm.blackList = JSON.parse(localStorage.getItem('blacklist')) || [];
         vm.cancel = cancel;
+        vm.editItem = undefined;
         vm.goBack = goBack;
         vm.gotoReview = gotoReview;
-        vm.kiosk = 1;
-        vm.save = save;
+        vm.lastLetterIsSpace = false;
         vm.person = {
-            emailAddress: ''
+            emailAddress: '',
+            firstname: '',
+            lastname: ''
         };
+        vm.save = save;
         vm.showValidationErrors = false;
         vm.title = 'Add Your Name';
-        vm.lastLetterIsSpace = false;
 
         activate();
 
-        vm.editItem = undefined;
         vm.setFocus = function (event) {
             vm.editItem = event || vm.nameForm.inputFirstName;
         }
@@ -55,57 +54,66 @@
         }
 
         function activate() {
-            common.activateController([getBlackList()], controllerId).then(function () {
+            common.activateController([], controllerId).then(function () {
                 log('Activated Create Input View', null, false);
-                //$.connection.hub.start().done(function () {
-                //    log('hub connection successful', null, false);
-                //});
-                createValidationWatch();
+                createValidationWatcher();
                 vm.setFocus();
             });
-            vm.kiosk = $cookies.kiosk;
         }
 
         //#region Internal Methods      
         var createTimer;
         startTimer();
-        
+
         function cancel() {
             cancelTimer();
             $state.go('welcome');
         }
 
-        function createValidationWatch() {
-
-            $scope.$watch('vm.person.lastname', function (newVal, oldVal) {
+        function createValidationWatcher() {
+            log('creating watcher', vm.person, false);
+            $scope.$watchCollection('vm.person', function (newVal, oldVal) {
                 if (vm.person) {
-                    var fullName = vm.person.firstname + ' ' + vm.person.lastname;
-                    //validateFullName(fullName);
-                    if (!validateFullName(fullName)) {
-                        vm.nameForm.inputFirstName.$setValidity('valBlacklist', false);
-                        vm.nameForm.inputLastName.$setValidity('valBlacklist', false);
+                    var valid = validatePerson(vm.person);
+
+                    if (valid) {
+                        vm.nameForm.inputFirstName.$setValidity('blacklist', true);
+                        vm.nameForm.inputLastName.$setValidity('blacklist', true);
                     } else {
-                        if (vm.nameForm.inputFirstName) {
-                            vm.nameForm.inputFirstName.$setValidity('valBlacklist', true);
-                        }
-                        if (vm.nameForm.inputLastName) {
-                            vm.nameForm.inputLastName.$setValidity('valBlacklist', true);
-                        }
+                        vm.nameForm.inputFirstName.$setValidity('blacklist', false);
+                        vm.nameForm.inputLastName.$setValidity('blacklist', false);
                     }
                 }
             })
         }
 
-        function getBlackList() {
-            //TODO: Load blacklist in localstorage
-            var list = [];
-            datacontext.getCensors(true).then(function (data) {
-                data.forEach(function (item) {
-                    vm.blackList.push(item.word);
-                    list.push(item.word);
+        function validatePerson(person) {
+            if (person.lastname.length == 0 || person.firstname.length == 0) return true;
+            var fullName = person.firstname + ' ' + person.lastname;
+            fullName = fullName.toUpperCase();
+            var index = vm.blackList.indexOf(fullName);
+            //Left for debugging in console window
+            log('fullname', fullName.toUpperCase(), false);
+            log('indexOf', vm.blackList.indexOf(fullName), false);
+            log('index', index, false);
+
+            return index === -1;
+        }
+
+        function loadBlackListNames() {
+            if (!localStorage.getItem('blacklist')) {
+                console.log('loading blacklist from remote storage')
+                datacontext.getCensors(true).then(function (data) {
+                    data.forEach(function (item) {
+                        if (item.word !== null) {
+                            vm.blackList.push(item.word.toUpperCase());
+                        }
+                    });
+                    return vm.blackList;
                 });
-                return vm.blackList;
-            });
+            } else {
+                vm.blackList = JSON.parse(localStorage.getItem('blacklist'));
+            }
         }
 
         function getFuzzyMatchValue() {
@@ -148,62 +156,23 @@
         }
 
         function save() {
-            var person = {};
 
-            datacontext.findPerson(vm.person.firstname, vm.person.lastname, vm.person.zipcode, vm.person.emailAddress).then(function (data) {
-                var remotePerson = data[0];
-                //Add new person if found no match
-                if (!remotePerson) {
-                    vm.person.fuzzyMatchValue = getFuzzyMatchValue();
-                    vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
-                    vm.person.isDonor = false;
-                    vm.person.isPriority = false;
-                    
-                    datacontext.create('Person', vm.person);
+            vm.person.fuzzyMatchValue = getFuzzyMatchValue();
+            vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
+            vm.person.isDonor = false;
+            vm.person.isPriority = false;
 
-                    datacontext.save();
-                    log('adding new person', vm.person, false);
-                    person = {
-                        firstname: vm.person.firstname,
-                        lastname: vm.person.lastname,
-                        fuzzyMatchValue: vm.person.fuzzyMatchValue,
-                        dateCreated: vm.person.dateCreated,
-                        zipCode: vm.person.zipcode
-                    }
-                } else {
-                    person = {
-                        firstname: remotePerson.firstname,
-                        lastname: remotePerson.lastname,
-                        fuzzyMatchValue: remotePerson.fuzzyMatchValue,
-                        dateCreated: remotePerson.dateCreated,
-                        zipCode: remotePerson.zipcode
-                    }
-                    log('found existing person', person, false);
-                }
-                vm.person = undefined;
-                $rootScope.person = person;
-                cancelTimer();
-                $state.go('finish');
-            });
+            datacontext.create('Person', vm.person);
+
+            datacontext.save();
+            log('adding new person', vm.person, false);
+            vm.person = undefined;
+            $rootScope.person = vm.person;
+            cancelTimer();
+            $state.go('finish');
 
         }
 
-        function validateFullName(value) {
-            var valid = true;
-            if (typeof value === "undefined") {
-                value = "";
-            }
-
-            if (typeof vm.blackList !== "undefined") {
-                var matchSet = FuzzySet(vm.blackList);
-                var score = matchSet.get(value, 'useLevenshtein')[0][0];
-                if (score === 1) {
-                    valid = false;
-                }
-            }
-            return valid;
-        }
-        
         function startTimer() {
             log('starting timer', null, false);
             cancelTimer();

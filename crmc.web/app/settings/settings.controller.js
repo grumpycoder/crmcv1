@@ -13,32 +13,33 @@
         var log = getLogFn(controllerId);
         var logError = getLogFn(controllerId, 'error');
         var logSuccess = getLogFn(controllerId, 'success');
-
         var crmc = $.connection.crmcHub;
 
-        vm.title = 'Settings';
-        vm.config = {};
         vm.availableKiosks = ['1', '2', '3', '4'];
-
-        vm.save = save;
-        vm.saveKiosk = saveKiosk;
-        vm.selectedKiosk = {};
+        vm.config = {};
         vm.getConfigVolume = getConfigVolume;
+        vm.save = save;
+        vm.selectedKiosk = {};
+        vm.title = 'Settings';
 
         activate();
 
         function activate() {
-            common.activateController([getConfigOptions()], controllerId).then(onEveryChange);
-            vm.selectedKiosk = $cookies.kiosk;
+            common.activateController([getConfigOptions()], controllerId).then();
+            vm.selectedKiosk = localStorage.getItem('kiosk') ? localStorage.getItem('kiosk') : 1;
+            createKioskWatcher();
+
             $.connection.hub.start().done(function () {
                 log('hub connection successful', null, false);
             });
         }
 
-        function onEveryChange() {
-            // Begin observing model for changes
-            //            Object.observe(vm.config.volume, configObserver);
-            Object.observe(vm, kioskObserver);
+        function createKioskWatcher() {
+            log('create watcher for kiosk change', null, false);
+            $scope.$watch('vm.selectedKiosk', function () {
+                localStorage.setItem('kiosk', vm.selectedKiosk);
+                logSuccess('Kiosk local storage set [' + vm.selectedKiosk + ']');
+            })
         }
 
         function getConfigOptions() {
@@ -49,29 +50,16 @@
             });
         }
 
-        // Set up our observer
-        function configObserver(changes) {
-            common.debouncedThrottle(controllerId, saveConfiguration, 1000);
-        }
-
-        function kioskObserver(changes) {
-            common.debouncedThrottle(controllerId, saveKiosk, 500);
-        }
-
         function saveConfiguration() {
             save();
         }
 
         function save() {
             datacontext.save().then(function () {
-                log('Saved Settings');
+                log('Saved Settings', vm.config, false);
+                log('Saved Settings', null, true);
                 crmc.server.configSettingsSaved();
             });
-        }
-
-        function saveKiosk() {
-            $cookies.kiosk = vm.selectedKiosk;
-            logSuccess('Saved kiosk', null, true);
         }
 
         function getConfigVolume() {

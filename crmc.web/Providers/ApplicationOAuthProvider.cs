@@ -35,8 +35,8 @@ namespace crmc.web.Providers
             var userManager = context.OwinContext.GetUserManager<ApplicationUserManager>();
 
 //            Replace authentication against AD
-                        if (Membership.ValidateUser(context.UserName, context.Password))
-                        {
+                        //if (Membership.ValidateUser(context.UserName, context.Password))
+                        //{
                             ApplicationUser user = await userManager.FindByNameAsync(context.UserName);
             
                             if (user == null)
@@ -55,11 +55,11 @@ namespace crmc.web.Providers
                             AuthenticationTicket ticket = new AuthenticationTicket(oAuthIdentity, properties);
                             context.Validated(ticket);
                             context.Request.Context.Authentication.SignIn(cookiesIdentity);
-                        }
-                        else
-                        {
-                            context.SetError("invalid_grant", "The user name or password is incorrect.");
-                        }
+                        //}
+                        //else
+                        //{
+                        //    context.SetError("invalid_grant", "The user name or password is incorrect.");
+                        //}
 
 //            ApplicationUser user = await userManager.FindAsync(context.UserName, context.Password);
 //

@@ -85,6 +85,7 @@
                         person.zipcode = $scope.person.zipcode;
                         person.fuzzyMatchValue = $scope.person.fuzzyMatchValue;
                         person.isPriority = $scope.person.isPriority;
+                        person.dateCreated = moment().format('MM/DD/YYYY');
                         person.isDonor = $scope.person.isDonor;
                         
                         datacontext.save();

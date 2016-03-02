@@ -14,7 +14,7 @@ namespace crmc.domain
         public bool? IsDonor { get; set; }
         public bool? IsPriority { get; set; }
         public decimal? FuzzyMatchValue { get; set; }
-        public Guid? SortOrder { get; }
+        public Guid? SortOrder { get; set; }
 
         public string FullName
         {

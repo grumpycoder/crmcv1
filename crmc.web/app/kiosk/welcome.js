@@ -47,7 +47,7 @@
             var list = [];
             datacontext.getCensors(true).then(function (data) {
                 data.forEach(function (item) {
-                    list.push(item.word.toUpperCase());
+                    if(item.word) list.push(item.word.toUpperCase());
                 });
                 log('loading blacklist to local storage', list, false);
                 localStorage.setItem('blacklist', JSON.stringify(list));

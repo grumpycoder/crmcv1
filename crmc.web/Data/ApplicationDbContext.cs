@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Linq;
 using crmc.domain;
 using crmc.web.Models;
 
@@ -29,6 +30,22 @@ namespace crmc.web.Data
             modelBuilder.Entity<ConfigurationColor>().ToTable("ConfigurationColors");
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        public override int SaveChanges()
+        {
+            
+            var newEntityList = ChangeTracker.Entries()
+                                    .Where(x => x.Entity is Person &&
+                                    (x.State == EntityState.Added));
+
+            foreach (var entity in newEntityList)
+            {
+                ((Person)entity.Entity).SortOrder = Guid.NewGuid();
+            }
+
+
+            return base.SaveChanges();
         }
     }
 

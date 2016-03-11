@@ -37,20 +37,24 @@
 
 
         function activate() {
-            common.activateController([loadBlacklist()], controllerId).then(function() {
+            common.activateController([loadBlacklist()], controllerId).then(function () {
                 log('Activated welcome view', null, false);
             });
-            
+
         }
 
         function loadBlacklist() {
             var list = [];
             datacontext.getCensors(true).then(function (data) {
-                data.forEach(function (item) {
-                    if(item.word) list.push(item.word.toUpperCase());
-                });
-                log('loading blacklist to local storage', list, false);
-                localStorage.setItem('blacklist', JSON.stringify(list));
+                if (data.length > 0) {
+                    data.forEach(function(item) {
+                        if (item.word !== null) list.push(item.word.toUpperCase());
+                    });
+                    log('loading blacklist to local storage', null, false);
+                    localStorage.setItem('blacklist', JSON.stringify(list));
+                } else {
+                    log('remote blacklist was empty', null, false);
+                }
             });
         }
 

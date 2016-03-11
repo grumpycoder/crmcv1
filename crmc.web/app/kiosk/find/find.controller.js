@@ -4,21 +4,20 @@
 
     var controllerId = 'findCtrl';
     angular.module('app').controller(controllerId,
-        ['$rootScope', '$scope', '$state', '$timeout', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
+        ['$state', '$timeout', '$window', 'common', 'config', 'datacontext', 'usSpinnerService', findCtrl]);
 
-    function findCtrl($rootScope, $scope, $state, $timeout, $window, common, config, datacontext, usSpinnerService) {
+    function findCtrl($state, $timeout, $window, common, config, datacontext, usSpinnerService) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
         var prevSelection = null;
+        var timer;
 
         vm.cancel = cancel;
         vm.finish = finish;
         vm.goBack = goBack;
-        vm.gotoWelcome = gotoWelcome;
         vm.people = [];
         vm.person = undefined;
-        vm.title = 'Find Your Name';
         vm.peopleFilteredCount = 0;
         vm.paging = {
             pageSize: 13,
@@ -33,15 +32,16 @@
         vm.toggleName = toggleName;
 
         vm.editItem = undefined;
-        vm.setFocus = function(event) {
+        vm.setFocus = function (event) {
             vm.editItem = event;
         }
 
         vm.lastLetterIsSpace = false;
 
-        vm.keyboardInput = function(key) {
+        vm.keyboardInput = function (key) {
+            ResetTimer();
             vm.showValidationErrors = true;
-            var keyCode = key.currentTarget.outerText
+            var keyCode = key.currentTarget.outerText;
             if (keyCode === 'SPACE') {
                 vm.lastLetterIsSpace = true;
                 return;
@@ -61,46 +61,47 @@
                 vm.editItem.$setViewValue(vm.editItem.$viewValue + keyCode);
             }
             vm.editItem.$render();
-            startTimer();
         }
 
         activate();
 
         function activate() {
             common.activateController([], controllerId)
-                .then(function() {
+                .then(function () {
                     log('Activated Find Person View', null, false);
+                    ResetTimer();
                 });
         }
 
         //#region Internal Methods    
-        var findTimer; 
-        startTimer();
+
+        function ResetTimer() {
+            $timeout.cancel(timer);
+            timer = $timeout(function () {
+                $state.go('welcome');
+            }, 30000);
+        }
 
         function cancel() {
-            cancelTimer();
+            $timeout.cancel(timer);
             $state.go('welcome');
         }
 
-        function getPeople(forceRefresh) {
-            cancelTimer();
+        function getPeople() {
+            $timeout.cancel(timer);
             usSpinnerService.spin('spinner-1');
-            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function(data) {
+            datacontext.getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.peopleSearch).then(function (data) {
                 vm.people = data.results;
                 vm.peopleFilteredCount = data.inlineCount;
                 usSpinnerService.stop('spinner-1');
             });
-            startTimer();
+            ResetTimer();
         }
 
         function goBack() {
-            cancelTimer();
+            $timeout.cancel(timer);
             vm.paging.currentPage = 1;
             $window.history.back();
-        }
-
-        function gotoWelcome() {
-            log('goto welcome', null, false);
         }
 
         function finish() {
@@ -113,8 +114,8 @@
             }
 
             prevSelection.$selected = false;
-            $rootScope.person = person;
-            cancelTimer();
+            localStorage.setItem('currentPerson', JSON.stringify(person, null));
+            ResetTimer();
             $state.go('finish');
         }
 
@@ -123,7 +124,6 @@
             if (!vm.paging.currentPage) {
                 return;
             }
-            $timeout.cancel(findTimer);
             //Get next page of people
             getPeople(vm.paging.currentPage, vm.paging.pageSize, vm.searchText);
         }
@@ -137,7 +137,6 @@
             getPeople();
             $state.go('find.searchresult');
         }
-
 
         function toggleName(person) {
 
@@ -154,22 +153,9 @@
                 prevSelection = person;
             }
             log('selected', vm.person, null);
-            startTimer();
+            ResetTimer();
         }
 
-
-        function startTimer() {
-            log('starting timer', null, false);
-            cancelTimer();
-            findTimer = $timeout(function() {
-                $state.go('welcome');
-            }, 30000);
-        }
-
-        function cancelTimer() {
-            $timeout.cancel(findTimer);
-        }
-
-    //#endregion
+        //#endregion
     }
 })();

@@ -4,53 +4,54 @@
 
     var controllerId = 'finishCtrl';
     angular.module('app').controller(controllerId,
-    ['common', '$scope', '$state', '$rootScope', '$timeout', finishCtrl]);
+    ['common', '$state', '$timeout', finishCtrl]);
 
-    function finishCtrl(common, $scope, $state, $rootScope, $timeout) {
+    function finishCtrl(common, $state, $timeout) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
 
         var crmc = $.connection.crmcHub;
-        var person = $rootScope.person;
+        var person = localStorage.getItem('currentPerson'); // $rootScope.person;
         var kiosk = localStorage.getItem('kiosk');
 
         vm.gotoWelcome = gotoWelcome;
-        vm.title = 'finishCtrl';
-
+        var timer;
+        var disconnectTimer;
 
         $.connection.hub.disconnected(function () {
-            setTimeout(function () {
+            disconnectTimer = $timeout(function () {
                 log('Trying to reconnect to hub', null, false);
                 $.connection.hub.start();
             }, 5000); // Restart connection after 5 seconds.
         });
 
-
         activate();
 
         function activate() {
-            $.connection.hub.start().done(function () {
-                log('hub connection successful', null, false);
+            common.activateController([], controllerId).then(function () {
+                $.connection.hub.start().done(function () {
+                    log('hub connection successful', null, false);
+                });
+
+                timer = $timeout(function () {
+                    if (person) {
+                        log('sending to wall position' + kiosk, JSON.parse(person), false);
+                        crmc.server.addNameToWall(kiosk, JSON.parse(person));
+                    }
+                    $state.go('welcome');
+                }, 3000);
             });
         }
 
         //#region Internal Methods        
 
-        var finishTimer = $timeout(function() {
-            $state.go('welcome');
-        }, 3000);
-
-        var timer2 = $timeout(function () {
-            if (person) {
-                crmc.server.addNameToWall(kiosk, $rootScope.person);
-            }
-        }, 1000);
-
         function gotoWelcome() {
-            $timeout.cancel(finishTimer);
+            $timeout.cancel(timer);
+            $timeout.cancel(disconnectTimer);
             $state.go('welcome');
         }
+
         //#endregion
     }
 })();

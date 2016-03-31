@@ -4,9 +4,9 @@
 
     var controllerId = 'finishCtrl';
     angular.module('app').controller(controllerId,
-    ['common', '$state', '$timeout', finishCtrl]);
+    ['common', '$state', '$timeout', 'datacontext', finishCtrl]);
 
-    function finishCtrl(common, $state, $timeout) {
+    function finishCtrl(common, $state, $timeout, datacontext) {
         var vm = this;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(controllerId);
@@ -19,6 +19,16 @@
         var timer;
         var disconnectTimer;
 
+
+        vm.currentTimeCount = 0;
+        vm.progressVal = 0;
+
+        vm.countDown_tick = vm.timeRemaining = 0;
+        vm.roundProgressData = {
+            label: 0,
+            percentage: 100
+        };
+
         $.connection.hub.disconnected(function () {
             disconnectTimer = $timeout(function () {
                 log('Trying to reconnect to hub', null, false);
@@ -28,19 +38,39 @@
 
         activate();
 
+        var countDownWatch = function () {
+
+            if (vm.countDown_tick < 0) {
+                vm.countDown_tick = 0;
+                            //    $state.go('welcome');
+            } else {
+                vm.roundProgressData = {
+                    label: vm.countDown_tick,
+                    percentage: parseFloat(vm.countDown_tick / vm.config.newItemOnScreenDelay)
+                };
+                vm.progressVal = parseFloat(vm.currentTimeCount / vm.config.newItemOnScreenDelay * 100);
+
+                vm.countDown_tick = vm.timeRemaining;
+                vm.timeRemaining--;
+                vm.currentTimeCount++;
+
+                $timeout(countDownWatch, 1000);
+            }
+        };
+
         function activate() {
-            common.activateController([], controllerId).then(function () {
+            common.activateController([loadConfigurationOptions()], controllerId).then(function () {
                 $.connection.hub.start().done(function () {
                     log('hub connection successful', null, false);
-                });
-
-                timer = $timeout(function () {
                     if (person) {
                         log('sending to wall position' + kiosk, JSON.parse(person), false);
                         crmc.server.addNameToWall(kiosk, JSON.parse(person));
                     }
-                    $state.go('welcome');
-                }, 3000);
+                });
+
+                vm.timeRemaining = vm.config.newItemOnScreenDelay;
+
+                countDownWatch();
             });
         }
 
@@ -51,6 +81,16 @@
             $timeout.cancel(disconnectTimer);
             $state.go('welcome');
         }
+
+        function loadConfigurationOptions() {
+            return datacontext.getAppSettings().then(function (response) {
+                log('config', vm.config, null);
+                return vm.config = response;
+            }, function () {
+                logError('Unable to get configuration settings');
+            });
+        }
+
 
         //#endregion
     }

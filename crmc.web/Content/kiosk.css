@@ -208,7 +208,12 @@ td {
     background-color: #7a7a7a;
 }
 
-
+.kiosk-counter{
+    font-size:3em; 
+    font-weight:bold; 
+    text-align:center; 
+    color:#d12229;
+}
 
 /* ------- pagination -------- */
 .pagination-sm.custom > li > a,

@@ -4,7 +4,7 @@
 
     var controllerId = 'finishCtrl';
     angular.module('app').controller(controllerId,
-    ['common', '$state', '$timeout', 'datacontext', finishCtrl]);
+        ['common', '$state', '$timeout', 'datacontext', finishCtrl]);
 
     function finishCtrl(common, $state, $timeout, datacontext) {
         var vm = this;
@@ -19,15 +19,7 @@
         var timer;
         var disconnectTimer;
 
-
-        vm.currentTimeCount = 0;
-        vm.progressVal = 0;
-
-        vm.countDown_tick = vm.timeRemaining = 0;
-        vm.roundProgressData = {
-            label: 0,
-            percentage: 100
-        };
+        vm.countDown_tick = 1;
 
         $.connection.hub.disconnected(function () {
             disconnectTimer = $timeout(function () {
@@ -40,21 +32,11 @@
 
         var countDownWatch = function () {
 
-            if (vm.countDown_tick < 0) {
-                vm.countDown_tick = 0;
-                            //    $state.go('welcome');
+            if (vm.countDown_tick <= 0) {
+                $state.go('welcome');
             } else {
-                vm.roundProgressData = {
-                    label: vm.countDown_tick,
-                    percentage: parseFloat(vm.countDown_tick / vm.config.newItemOnScreenDelay)
-                };
-                vm.progressVal = parseFloat(vm.currentTimeCount / vm.config.newItemOnScreenDelay * 100);
-
-                vm.countDown_tick = vm.timeRemaining;
-                vm.timeRemaining--;
-                vm.currentTimeCount++;
-
-                $timeout(countDownWatch, 1000);
+                    vm.countDown_tick--;
+                    $timeout(countDownWatch, 1000);
             }
         };
 
@@ -68,7 +50,7 @@
                     }
                 });
 
-                vm.timeRemaining = vm.config.newItemOnScreenDelay;
+                vm.countDown_tick = vm.config.newItemOnScreenDelay;
 
                 countDownWatch();
             });
@@ -84,7 +66,6 @@
 
         function loadConfigurationOptions() {
             return datacontext.getAppSettings().then(function (response) {
-                log('config', vm.config, null);
                 return vm.config = response;
             }, function () {
                 logError('Unable to get configuration settings');

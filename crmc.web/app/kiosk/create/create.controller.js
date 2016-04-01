@@ -150,6 +150,7 @@
         }
 
         function save() {
+            $timeout.cancel(timer);
             vm.person.fuzzyMatchValue = getFuzzyMatchValue();
             vm.person.dateCreated = moment().format('MM/DD/YYYY HH:mm:ss');
             vm.person.isDonor = false;

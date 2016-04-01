@@ -105,6 +105,7 @@
         }
 
         function finish() {
+            $timeout.cancel(timer);
             var person = {
                 firstname: vm.person.firstname,
                 lastname: vm.person.lastname,
@@ -115,11 +116,11 @@
 
             prevSelection.$selected = false;
             localStorage.setItem('currentPerson', JSON.stringify(person, null));
-            $timeout.cancel(timer);
             $state.go('finish');
         }
 
         function pageChanged() {
+            ResetTimer();
             vm.person = undefined;
             if (!vm.paging.currentPage) {
                 return;
@@ -130,6 +131,7 @@
 
         function search() {
             //Load people and go to result view
+            ResetTimer();
             if (vm.searchForm.$invalid) {
                 vm.showValidationErrors = true;
                 return;
@@ -139,7 +141,7 @@
         }
 
         function toggleName(person) {
-
+            ResetTimer();
             if (prevSelection) {
                 prevSelection.$selected = false;
             }
@@ -153,7 +155,6 @@
                 prevSelection = person;
             }
             log('selected', vm.person, null);
-            ResetTimer();
         }
 
         //#endregion

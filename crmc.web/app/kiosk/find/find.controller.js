@@ -115,7 +115,7 @@
 
             prevSelection.$selected = false;
             localStorage.setItem('currentPerson', JSON.stringify(person, null));
-            ResetTimer();
+            $timeout.cancel(timer);
             $state.go('finish');
         }
 

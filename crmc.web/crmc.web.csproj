@@ -430,6 +430,7 @@
     <Content Include="Scripts\angular-resource.min.js">
       <DependentUpon>angular-resource.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\angular-round-progress-directive.js" />
     <Content Include="Scripts\angular-route.js" />
     <Content Include="Scripts\angular-route.min.js">
       <DependentUpon>angular-route.js</DependentUpon>
@@ -565,6 +566,8 @@
       <DependentUpon>spin.js</DependentUpon>
     </Content>
     <Content Include="Scripts\string_score.min.js" />
+    <Content Include="Scripts\tek.progress-bar.js" />
+    <Content Include="Scripts\tek.progress-bar.min.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js">
       <DependentUpon>toastr.js</DependentUpon>
@@ -592,6 +595,7 @@
       <DependentUpon>toastr.min.js</DependentUpon>
     </Content>
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Scripts\tek.progress-bar.min.js.map" />
     <None Include="Web.Prod.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -626,7 +630,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>7347</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

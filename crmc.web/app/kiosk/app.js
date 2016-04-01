@@ -16,7 +16,9 @@
         'ui.bootstrap',
         'ui.validate',
         'breeze.angular',
-        'breeze.directives'
+        'breeze.directives', 
+        'angular.directives-round-progress', 
+        'Tek.progressBar'
     ])
 
     app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

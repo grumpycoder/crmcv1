@@ -37,17 +37,17 @@
         var roles = settings.roles || [];
         var user = currentUser.profile;
 
-        if (loginRequired) {
-            if (!user.loggedIn) {
-                $location.path('/login');
-            } else {
-                if (roles.length > 0) {
-                 if (!common.checkRole(user.roles, roles)) {
-                     $location.path('/notauthorized').replace();
-                 }   
-                }
-            }
-        }
+        //if (loginRequired) {
+        //    if (!user.loggedIn) {
+        //        $location.path('/login');
+        //    } else {
+        //        if (roles.length > 0) {
+        //         if (!common.checkRole(user.roles, roles)) {
+        //             $location.path('/notauthorized').replace();
+        //         }   
+        //        }
+        //    }
+        //}
     }
 
 

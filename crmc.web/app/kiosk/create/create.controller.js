@@ -59,15 +59,29 @@
             }, 30000);
         }
 
+        vm.blackList = [];
         function activate() {
-            common.activateController([], controllerId).then(function () {
+            common.activateController([loadBlacklist()], controllerId).then(function () {
                 log('Activated Create Input View', null, false);
                 createValidationWatcher();
-                vm.blackList = JSON.parse(localStorage.getItem('blacklist')) || [];
                 vm.setFocus();
                 ResetTimer();
             });
         }
+
+        function loadBlacklist() {
+            var list = [];
+            datacontext.getCensors(true).then(function (data) {
+                var list = [];
+                if (data.length > 0) {
+                    data.forEach(function (item) {
+                        if (item.word !== null) list.push(item.word.replace(/ /g, "").toUpperCase());
+                    });
+                    vm.blackList = list;
+                }
+            });
+        }
+
 
         //#region Internal Methods      
 
@@ -78,40 +92,109 @@
 
         function createValidationWatcher() {
             log('creating watcher', vm.person, false);
-            $scope.$watchCollection('vm.person', function (newVal, oldVal) {
-                if (vm.person) {
-                    var valid = validatePerson(vm.person);
 
-                    if (valid) {
-                        if (vm.nameForm.inputFirstName) {
-                            vm.nameForm.inputFirstName.$setValidity('blacklist', true);
-                        }
-                        if (vm.nameForm.inputLastName) {
-                            vm.nameForm.inputLastName.$setValidity('blacklist', true);
-                        }
-                    } else {
-                        if (vm.nameForm.inputFirstName) {
-                            vm.nameForm.inputFirstName.$setValidity('blacklist', false);
-                        }
-                        if (vm.nameForm.inputLastName) {
-                            vm.nameForm.inputLastName.$setValidity('blacklist', false);
-                        }
+            $scope.$watch('vm.person.firstname',
+                function (newValue, oldValue) {
+                    if (newValue !== undefined) {
+                        if (newValue.length > 0) vm.nameForm.inputFirstName.$setValidity('blacklist', !checkArray(newValue.toUpperCase(), vm.blackList));
                     }
-                }
-            });
+                });
+
+            $scope.$watch('vm.person.lastname',
+                function (newValue, oldValue) {
+                    if (newValue !== undefined) {
+                        if (newValue.length > 0) vm.nameForm.inputLastName.$setValidity('blacklist', !checkArray(newValue.toUpperCase(), vm.blackList));
+                    }
+                });
+
+            $scope.$watchCollection('vm.person',
+                function (newValue, oldValue) {
+                    var name = newValue.firstname + newValue.lastname;
+                    name = name.replace(/ /g, ""); 
+                    if (name.length > 0) {
+                        var valid = !checkArray(name.toUpperCase(), vm.blackList);
+                        vm.nameForm.inputLastName.$setValidity('blacklist', valid);
+                    }
+                });
+
         }
 
         function validatePerson(person) {
-            if (person.lastname.length === 0 || person.firstname.length === 0) return true;
-            var fullName = person.firstname + ' ' + person.lastname;
-            fullName = fullName.toUpperCase();
-            var index = vm.blackList.indexOf(fullName);
-            //Left for debugging in console window
-            //            log('fullname', fullName.toUpperCase(), false);
-            //            log('indexOf', vm.blackList.indexOf(fullName), false);
-            //            log('index', index, false);
 
-            return index === -1;
+
+
+            //if (person.lastname.length === 0 && person.firstname.length === 0) return true;
+            //if (person.lastname === undefined && person.firstname === undefined) return true;
+
+            if (person.firstname !== undefined) {
+                if (person.firstname.length !== 0) {
+
+                    if (checkArray(person.firstname.toUpperCase(), vm.blackList)) {
+                        console.log('found firstname');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                    //var f = vm.blackList.indexOf(person.firstname.toUpperCase());
+                    //if (f > 0) {
+                    //    return f === -1;
+
+                    //}
+                }
+            }
+
+            if (person.lastname !== undefined) {
+                if (person.lastname.length !== 0) {
+                    console.log('checking lastname');
+                    if (checkArray(person.lastname.toUpperCase(), vm.blackList)) {
+                        console.log('found lastname');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                    //var f = vm.blackList.indexOf(person.firstname.toUpperCase());
+                    //if (f > 0) {
+                    //    return f === -1;
+
+                    //}
+                }
+            }
+
+            //if (person.lastname !== undefined) {
+            //    if (person.lastname.length !== 0) {
+            //        if (checkArray(person.lastname.toUpperCase(), vm.blackList)) {
+            //            console.log('found lastname');
+            //            return false;
+            //        } else {
+            //            return true;
+            //        }; 
+
+            //        //var l = vm.blackList.indexOf(person.lastname.toUpperCase());
+            //        //if (l > 0) {
+            //        //    return l === -1;
+            //        //}
+            //    }
+            //}
+
+            //if (person.firstname !== undefined && person.lastname !== undefined) {
+            //    var fullname = person.firstname + person.lastname; 
+            //    if (checkArray(fullname.toUpperCase(), vm.blackList)) {
+            //        console.log('found fullname');
+            //        return false;
+            //    } else {
+            //        return true;
+            //    }; 
+
+            //    //var index = vm.blackList.indexOf(fullname.toUpperCase());
+            //    //return index === -1;
+            //}
+
+            //var fullName = person.firstname + person.lastname;
+            //Left for debugging in console window
+            //log('fullname', fullName.toUpperCase(), false);
+            //log('indexOf', vm.blackList.indexOf(fullName), false);
+            //log('index', index, false);
+
         }
 
         function getFuzzyMatchValue() {
@@ -164,6 +247,16 @@
             localStorage.setItem('currentPerson', JSON.stringify(vm.person));
             vm.person = undefined;
             $state.go('finish');
+        }
+
+        function checkArray(str, arr) {
+            for (var i = 0; i < arr.length; i++) {
+                if (str.match((".*" + arr[i].trim() + ".*").replace(" ", ".*"))) {
+                    console.log('found match', arr[i]);
+                    return true;
+                }
+            }
+            return false;
         }
 
         //#endregion

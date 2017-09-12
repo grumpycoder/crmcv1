@@ -95,6 +95,9 @@
 
             $scope.$watch('vm.person.firstname',
                 function (newValue, oldValue) {
+                    if (vm.nameForm.inputFirstName === undefined) {
+                        return;
+                    }
                     if (newValue !== undefined) {
                         if (newValue.length > 0) vm.nameForm.inputFirstName.$setValidity('blacklist', !checkArray(newValue.toUpperCase(), vm.blackList));
                     }
@@ -103,16 +106,28 @@
             $scope.$watch('vm.person.lastname',
                 function (newValue, oldValue) {
                     if (newValue !== undefined) {
+                        if (vm.nameForm.inputLastName === undefined) {
+                            return; 
+                        }
                         if (newValue.length > 0) vm.nameForm.inputLastName.$setValidity('blacklist', !checkArray(newValue.toUpperCase(), vm.blackList));
                     }
                 });
 
             $scope.$watchCollection('vm.person',
                 function (newValue, oldValue) {
+
+                    if (newValue.firstname == undefined || newValue.lastname == undefined) {
+                        vm.nameForm.inputLastName.$setValidity('blacklist', false);
+                        return;
+                    }
+
                     var name = newValue.firstname + newValue.lastname;
                     name = name.replace(/ /g, ""); 
                     if (name.length > 0) {
                         var valid = !checkArray(name.toUpperCase(), vm.blackList);
+                        if (vm.nameForm.inputLastName === undefined) {
+                            return;
+                        }
                         vm.nameForm.inputLastName.$setValidity('blacklist', valid);
                     }
                 });
